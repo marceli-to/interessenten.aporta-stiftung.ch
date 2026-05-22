@@ -1,8 +1,14 @@
 <script setup>
+import { RouterView } from 'vue-router'
+import Header from '@/components/ui/layout/Header.vue'
+import Main from '@/components/ui/layout/Main.vue'
 </script>
 
 <template>
-	<div class="p-8">
-		<h1 class="text-lg font-semibold">Dashboard</h1>
+	<div class="min-h-full">
+		<Header />
+		<Main>
+			<RouterView />
+		</Main>
 	</div>
 </template>
