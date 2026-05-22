@@ -28,6 +28,18 @@ class Application extends Model
 			'extended_at' => 'datetime',
 			'archived_at' => 'datetime',
 			'last_changed_at' => 'datetime',
+
+			'wants_balcony' => 'boolean',
+			'wants_elevator' => 'boolean',
+			'max_gross_rent' => 'decimal:2',
+			'earliest_move_in' => 'date',
+
+			'total_persons' => 'integer',
+			'adults_count' => 'integer',
+			'children_count' => 'integer',
+			'all_children_live_constantly' => 'boolean',
+			'plays_music' => 'boolean',
+			'has_pets' => 'boolean',
 		];
 	}
 
@@ -44,16 +56,6 @@ class Application extends Model
 	public function coApplicants(): HasMany
 	{
 		return $this->hasMany(Applicant::class)->where('role', 'co_applicant');
-	}
-
-	public function housingWish(): HasOne
-	{
-		return $this->hasOne(HousingWish::class);
-	}
-
-	public function householdInfo(): HasOne
-	{
-		return $this->hasOne(HouseholdInfo::class);
 	}
 
 	public function children(): HasMany
@@ -79,7 +81,13 @@ class Application extends Model
 	public function getActivitylogOptions(): LogOptions
 	{
 		return LogOptions::defaults()
-			->logOnly(['status', 'flagged', 'owner_user_id', 'archived_at', 'extended_at'])
+			->logOnly([
+				'status', 'flagged', 'owner_user_id', 'archived_at', 'extended_at',
+				'wants_balcony', 'wants_elevator', 'max_gross_rent', 'earliest_move_in',
+				'property_group', 'property_class',
+				'total_persons', 'adults_count', 'children_count',
+				'plays_music', 'has_pets', 'remarks',
+			])
 			->logOnlyDirty()
 			->dontLogEmptyChanges();
 	}

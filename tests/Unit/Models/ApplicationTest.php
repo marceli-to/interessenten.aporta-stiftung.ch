@@ -14,8 +14,8 @@ it('builds a full aggregate via factory', function () {
 		->and($application->status)->toBeInstanceOf(Status::class)
 		->and($application->status)->toBe(Status::Opened)
 		->and($application->applicants)->toHaveCount(1)
-		->and($application->housingWish)->not->toBeNull()
-		->and($application->householdInfo)->not->toBeNull();
+		->and($application->max_gross_rent)->not->toBeNull()
+		->and($application->total_persons)->toBe(1);
 });
 
 it('casts nationality to enum', function () {

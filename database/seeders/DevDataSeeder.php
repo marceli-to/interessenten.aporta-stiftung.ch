@@ -6,8 +6,6 @@ use Database\Factories\ApplicantFactory;
 use Database\Factories\ApplicationFactory;
 use Database\Factories\CurrentHousingFactory;
 use Database\Factories\EmployerFactory;
-use Database\Factories\HouseholdInfoFactory;
-use Database\Factories\HousingWishFactory;
 use Illuminate\Database\Seeder;
 
 class DevDataSeeder extends Seeder
@@ -23,8 +21,6 @@ class DevDataSeeder extends Seeder
 					->has(CurrentHousingFactory::new(), 'currentHousing'),
 				'applicants',
 			)
-			->has(HousingWishFactory::new(), 'housingWish')
-			->has(HouseholdInfoFactory::new(), 'householdInfo')
 			->create();
 	}
 }

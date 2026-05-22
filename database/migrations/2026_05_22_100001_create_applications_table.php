@@ -23,6 +23,26 @@ return new class extends Migration
 			$table->string('submitted_ip', 45)->nullable();
 			$table->string('submitted_user_agent', 512)->nullable();
 			$table->string('submission_id', 36)->nullable()->unique();
+
+			// Housing wish (1:1 — inlined). Multi-selects live in application_districts/floors/rooms pivots.
+			$table->boolean('wants_balcony')->nullable();
+			$table->boolean('wants_elevator')->nullable();
+			$table->decimal('max_gross_rent', 8, 2);
+			$table->date('earliest_move_in');
+			$table->string('property_group', 50)->nullable();
+			$table->string('property_class', 50)->nullable();
+
+			// Household info (1:1 — inlined). Per-child birth years still live in `children`.
+			$table->unsignedTinyInteger('total_persons');
+			$table->unsignedTinyInteger('adults_count');
+			$table->unsignedTinyInteger('children_count')->default(0);
+			$table->boolean('all_children_live_constantly')->nullable();
+			$table->boolean('plays_music');
+			$table->string('musical_instruments', 200)->nullable();
+			$table->boolean('has_pets');
+			$table->string('pets_description', 200)->nullable();
+			$table->text('remarks')->nullable();
+
 			$table->timestamps();
 			$table->softDeletes();
 
