@@ -8,6 +8,9 @@ use App\Models\CurrentHousing;
 use App\Models\Employer;
 use App\Models\Note;
 use App\Observers\TouchesApplicationObserver;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,5 +30,9 @@ class AppServiceProvider extends ServiceProvider
 		foreach ([Employer::class, CurrentHousing::class] as $model) {
 			$model::observe(TouchesApplicationObserver::class);
 		}
+
+		RateLimiter::for('intake', function (Request $request) {
+			return Limit::perMinute(120)->by($request->ip());
+		});
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 
 return [
-	'ingest_api_key_hash' => env('APORTA_INGEST_API_KEY_HASH'),
+	'intake_api_key_hash' => env('APORTA_INTAKE_API_KEY_HASH'),
 
 	'reference_number_start' => (int) env('APORTA_REFERENCE_NUMBER_START', 1),
 

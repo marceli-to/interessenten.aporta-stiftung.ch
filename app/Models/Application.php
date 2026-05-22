@@ -28,6 +28,7 @@ class Application extends Model
 			'extended_at' => 'datetime',
 			'archived_at' => 'datetime',
 			'last_changed_at' => 'datetime',
+			'dsg_consent_accepted_at' => 'datetime',
 
 			'wants_balcony' => 'boolean',
 			'wants_elevator' => 'boolean',

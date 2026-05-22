@@ -13,7 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
 	)
 	->withMiddleware(function (Middleware $middleware): void {
 		$middleware->alias([
-			'auth.ingest' => \App\Http\Middleware\EnsureIngestApiKey::class,
+			'auth.intake' => \App\Http\Middleware\EnsureIntakeApiKey::class,
+			'max.body' => \App\Http\Middleware\EnforceMaxBodySize::class,
 		]);
 	})
 	->withExceptions(function (Exceptions $exceptions): void {
