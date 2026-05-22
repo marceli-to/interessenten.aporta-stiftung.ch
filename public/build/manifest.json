@@ -1,0 +1,17 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-CltKLubl.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app/app.js": {
+    "file": "assets/app-BNvVS4nn.js",
+    "name": "app",
+    "src": "resources/js/app/app.js",
+    "isEntry": true
+  }
+}

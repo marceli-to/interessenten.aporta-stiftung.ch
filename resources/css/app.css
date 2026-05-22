@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@import "./partials/spacing.css";
+
+@theme {
+  --font-sans: 'Google Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  --color-warm-50: #faf9f7;
+  --color-warm-100: #f5f3f0;
+  --color-warm-200: #e8e4df;
+  --color-warm-300: #d4cec6;
+  --color-warm-400: #a8a196;
+  --color-warm-500: #857d72;
+  --color-warm-600: #6b6359;
+  --color-warm-700: #514a42;
+  --color-warm-800: #3a342d;
+  --color-warm-900: #272320;
+  --color-warm-950: #1a1715;
+}
