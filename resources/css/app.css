@@ -6,6 +6,7 @@
 @theme {
   --font-sans: 'Google Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
+  --color-accent: #0a426b;
   --color-warm-50: #faf9f7;
   --color-warm-100: #f5f3f0;
   --color-warm-200: #e8e4df;
