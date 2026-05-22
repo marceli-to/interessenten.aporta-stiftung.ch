@@ -8,21 +8,21 @@ use Illuminate\Support\Facades\Hash;
 
 class SeedUser extends Command
 {
-    protected $signature = 'app:seed-user';
-    protected $description = 'Seed the admin user';
+	protected $signature = 'app:seed-user';
+	protected $description = 'Seed the admin user';
 
-    public function handle(): void
-    {
-        User::firstOrCreate(
-            ['email' => 'm@marceli.to'],
-            [
-                'firstname' => 'Marcel',
-                'name' => 'Stadelmann',
-                'password' => Hash::make('7aq31rr23'),
-                'role' => 'admin',
-            ]
-        );
+	public function handle(): void
+	{
+		User::firstOrCreate(
+			['email' => 'm@marceli.to'],
+			[
+				'firstname' => 'Marcel',
+				'name' => 'Stadelmann',
+				'password' => Hash::make('7aq31rr23'),
+				'role' => 'admin',
+			]
+		);
 
-        $this->info('Admin user seeded.');
-    }
+		$this->info('Admin user seeded.');
+	}
 }
