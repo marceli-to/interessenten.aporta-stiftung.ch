@@ -2,6 +2,10 @@
 
 namespace App\Actions\Application;
 
+use App\Actions\Applicant\Upsert as UpsertApplicant;
+use App\Actions\Children\Sync as SyncChildren;
+use App\Actions\Housing\Sync as SyncHousing;
+use App\Actions\Status\Record as RecordStatus;
 use App\Enums\Status;
 use App\Jobs\NotifyNewApplication;
 use App\Models\Application;
@@ -9,13 +13,13 @@ use App\Support\ReferenceNumberSequence;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
-class StoreAction
+class Store
 {
 	public function __construct(
-		private UpsertApplicantAction $upsertApplicant,
-		private SyncHousingPreferencesAction $syncHousing,
-		private SyncChildrenAction $syncChildren,
-		private RecordStatusEventAction $recordStatus,
+		private UpsertApplicant $upsertApplicant,
+		private SyncHousing $syncHousing,
+		private SyncChildren $syncChildren,
+		private RecordStatus $recordStatus,
 	) {}
 
 	public function execute(array $data, ?ReferenceNumberSequence $sequence = null): Application

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Actions\Application;
+namespace App\Actions\Status;
 
 use App\Enums\Status;
 use App\Models\Application;
 use App\Models\StatusEvent;
 use Carbon\CarbonInterface;
 
-class RecordStatusEventAction
+class Record
 {
 	/**
 	 * Record a status transition. If $from is not provided, it defaults to the

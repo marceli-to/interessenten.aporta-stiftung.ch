@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Actions\Application;
+namespace App\Actions\Housing;
 
 use App\Models\Application;
 use Illuminate\Support\Facades\DB;
 
-class SyncHousingPreferencesAction
+class Sync
 {
 	public function execute(Application $application, array $housing): void
 	{

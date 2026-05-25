@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Actions\Application;
+namespace App\Actions\Children;
 
 use App\Models\Application;
 use App\Models\Child;
 
-class SyncChildrenAction
+class Sync
 {
 	public function execute(Application $application, array $children): void
 	{

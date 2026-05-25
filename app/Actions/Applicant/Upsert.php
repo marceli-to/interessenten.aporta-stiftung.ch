@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Actions\Application;
+namespace App\Actions\Applicant;
 
 use App\Models\Applicant;
 use App\Models\Application;
 use App\Models\CurrentHousing;
 use App\Models\Employer;
 
-class UpsertApplicantAction
+class Upsert
 {
 	public function execute(Application $application, array $data, string $role, int $position): Applicant
 	{
