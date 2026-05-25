@@ -66,7 +66,6 @@ class Store
 			'submission_id' => $data['submission_id'],
 			'submitted_ip' => $data['submitted_meta']['ip'],
 			'submitted_user_agent' => $data['submitted_meta']['user_agent'],
-			'dsg_consent_accepted_at' => $data['dsg_consent_accepted_at'],
 
 			// Housing wish (inlined)
 			'wants_balcony' => $housing['wants_balcony'] ?? null,

@@ -23,7 +23,6 @@ return new class extends Migration
 			$table->string('submitted_ip', 45)->nullable();
 			$table->string('submitted_user_agent', 512)->nullable();
 			$table->string('submission_id', 36)->nullable()->unique();
-			$table->dateTime('dsg_consent_accepted_at')->nullable();
 
 			// Housing wish (1:1 — inlined). Multi-selects live in application_districts/floors/rooms pivots.
 			$table->boolean('wants_balcony')->nullable();

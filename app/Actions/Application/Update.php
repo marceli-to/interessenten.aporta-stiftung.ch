@@ -22,9 +22,8 @@ class Update
 	 * (housing_wish, household_info, main_applicant, co_applicant, children)
 	 * is treated as a full replacement for that section when present, and
 	 * left untouched when absent. Intake-only fields (submission_id, submitted_*,
-	 * dsg_consent_accepted_at, opened_at, reference_number) and status are
-	 * ignored — status transitions go through RecordStatusEventAction on a
-	 * dedicated endpoint.
+	 * opened_at, reference_number) and status are ignored — status transitions
+	 * go through RecordStatusEventAction on a dedicated endpoint.
 	 */
 	public function execute(Application $application, array $data): Application
 	{

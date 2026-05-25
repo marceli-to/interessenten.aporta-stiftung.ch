@@ -32,7 +32,6 @@ class StoreRequest extends FormRequest
 				'submitted_meta.ip' => ['required', 'ip'],
 				'submitted_meta.user_agent' => ['required', 'string', 'max:512'],
 				'submitted_meta.submitted_at' => ['required', 'date', 'before_or_equal:'.$nowPlus5],
-				'dsg_consent_accepted_at' => ['required', 'date'],
 
 				'shares_apartment' => ['required', 'boolean'],
 			],
