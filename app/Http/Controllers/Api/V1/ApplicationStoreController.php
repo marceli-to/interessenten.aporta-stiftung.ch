@@ -8,9 +8,9 @@ use Illuminate\Http\JsonResponse;
 
 class ApplicationStoreController
 {
-	public function store(StoreRequest $request): JsonResponse
+	public function store(StoreRequest $request, StoreAction $action): JsonResponse
 	{
-		$application = (new StoreAction)->execute($request->validated());
+		$application = $action->execute($request->validated());
 
 		$payload = [
 			'data' => [
