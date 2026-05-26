@@ -10,10 +10,12 @@ return new class extends Migration
 	{
 		Schema::create('employers', function (Blueprint $table) {
 			$table->id();
-			$table->foreignId('applicant_id')->unique()->constrained()->cascadeOnDelete();
 			$table->string('name', 200);
 			$table->unsignedTinyInteger('workload_percent');
 			$table->string('annual_income_bracket_slug', 20);
+
+			$table->foreignId('applicant_id')->unique()->constrained()->cascadeOnDelete();
+
 			$table->timestamps();
 		});
 	}

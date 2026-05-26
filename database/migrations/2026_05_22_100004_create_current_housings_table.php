@@ -10,7 +10,6 @@ return new class extends Migration
 	{
 		Schema::create('current_housings', function (Blueprint $table) {
 			$table->id();
-			$table->foreignId('applicant_id')->unique()->constrained()->cascadeOnDelete();
 			$table->string('tenant_role', 20);
 			$table->boolean('terminated_by_landlord');
 			$table->text('termination_reason')->nullable();
@@ -19,6 +18,9 @@ return new class extends Migration
 			$table->string('landlord_phone', 30)->nullable();
 			$table->string('rent_duration_slug', 30);
 			$table->string('previous_landlord', 200)->nullable();
+
+			$table->foreignId('applicant_id')->unique()->constrained()->cascadeOnDelete();
+
 			$table->timestamps();
 		});
 	}

@@ -10,9 +10,11 @@ return new class extends Migration
 	{
 		Schema::create('children', function (Blueprint $table) {
 			$table->id();
-			$table->foreignId('application_id')->constrained()->cascadeOnDelete();
 			$table->smallInteger('position');
 			$table->smallInteger('birth_year');
+
+			$table->foreignId('application_id')->constrained()->cascadeOnDelete();
+
 			$table->timestamps();
 
 			$table->unique(['application_id', 'position']);

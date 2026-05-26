@@ -179,7 +179,6 @@ it('requires co-applicant address fields when same_address_as_main is false', fu
 		->assertStatus(422)
 		->assertJsonValidationErrors([
 			'co_applicant.street',
-			'co_applicant.street_number',
 			'co_applicant.postal_code',
 			'co_applicant.city',
 		]);

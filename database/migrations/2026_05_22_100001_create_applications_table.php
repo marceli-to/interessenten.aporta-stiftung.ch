@@ -18,11 +18,7 @@ return new class extends Migration
 			$table->dateTime('extended_at')->nullable();
 			$table->dateTime('archived_at')->nullable();
 			$table->dateTime('last_changed_at');
-			$table->foreignId('owner_user_id')->nullable()->constrained('users')->nullOnDelete();
 			$table->boolean('shares_apartment')->default(false);
-			$table->string('submitted_ip', 45)->nullable();
-			$table->string('submitted_user_agent', 512)->nullable();
-			$table->string('submission_id', 36)->nullable()->unique();
 
 			// Housing wish (1:1 — inlined). Multi-selects live in application_districts/floors/rooms pivots.
 			$table->boolean('wants_balcony')->nullable();
@@ -42,6 +38,12 @@ return new class extends Migration
 			$table->boolean('has_pets');
 			$table->string('pets_description', 200)->nullable();
 			$table->text('remarks')->nullable();
+
+			$table->string('submitted_ip', 45)->nullable();
+			$table->string('submitted_user_agent', 512)->nullable();
+			$table->string('submission_id', 36)->nullable()->unique();
+
+			$table->foreignId('owner_user_id')->nullable()->constrained('users')->nullOnDelete();
 
 			$table->timestamps();
 			$table->softDeletes();

@@ -10,12 +10,13 @@ return new class extends Migration
 	{
 		Schema::create('status_events', function (Blueprint $table) {
 			$table->id();
-			$table->foreignId('application_id')->constrained()->cascadeOnDelete();
-			$table->foreignId('actor_user_id')->nullable()->constrained('users')->nullOnDelete();
 			$table->string('from_status', 20)->nullable();
 			$table->string('to_status', 20);
 			$table->dateTime('occurred_at');
 			$table->string('reason', 255)->nullable();
+
+			$table->foreignId('application_id')->constrained()->cascadeOnDelete();
+			$table->foreignId('actor_user_id')->nullable()->constrained('users')->nullOnDelete();
 
 			$table->index(['application_id', 'occurred_at']);
 		});

@@ -169,14 +169,14 @@ trait ApplicationPayloadRules
 
 		if ($isMain) {
 			$rules["$prefix.street"] = [$required, 'string', 'max:200'];
-			$rules["$prefix.street_number"] = [$required, 'string', 'max:20'];
+			$rules["$prefix.street_number"] = ['nullable', 'string', 'max:20'];
 			$rules["$prefix.postal_code"] = [$required, 'string', 'max:10'];
 			$rules["$prefix.city"] = [$required, 'string', 'max:100'];
 		} else {
 			$rules["$prefix.relationship_to_main"] = [$required, 'string', Rule::enum(RelationshipToMain::class)];
 			$rules["$prefix.same_address_as_main"] = [$required, 'boolean'];
 			$rules["$prefix.street"] = ['nullable', 'string', 'max:200', "required_if:$prefix.same_address_as_main,false"];
-			$rules["$prefix.street_number"] = ['nullable', 'string', 'max:20', "required_if:$prefix.same_address_as_main,false"];
+			$rules["$prefix.street_number"] = ['nullable', 'string', 'max:20'];
 			$rules["$prefix.postal_code"] = ['nullable', 'string', 'max:10', "required_if:$prefix.same_address_as_main,false"];
 			$rules["$prefix.city"] = ['nullable', 'string', 'max:100', "required_if:$prefix.same_address_as_main,false"];
 		}

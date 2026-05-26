@@ -10,7 +10,6 @@ return new class extends Migration
 	{
 		Schema::create('applicants', function (Blueprint $table) {
 			$table->id();
-			$table->foreignId('application_id')->constrained()->cascadeOnDelete();
 			$table->string('role', 20);
 			$table->smallInteger('position');
 			$table->string('salutation', 10);
@@ -34,6 +33,9 @@ return new class extends Migration
 			$table->string('employment_status', 30);
 			$table->boolean('debt_enforcement_last_2y');
 			$table->string('relationship_to_main', 30)->nullable();
+
+			$table->foreignId('application_id')->constrained()->cascadeOnDelete();
+
 			$table->timestamps();
 
 			$table->unique(['application_id', 'position']);
