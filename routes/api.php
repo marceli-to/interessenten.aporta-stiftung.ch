@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Dashboard\UserController;
 use App\Http\Controllers\Api\V1\ApplicationStoreController;
 use App\Http\Controllers\Api\V1\LookupController;
 use Illuminate\Support\Facades\Route;
@@ -7,7 +8,15 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('dashboard')
 	->middleware(['web', 'auth'])
 	->group(function () {
-		//
+		Route::controller(UserController::class)
+			->prefix('users')
+			->group(function () {
+				Route::get('/', 'index');
+				Route::post('/', 'store');
+				Route::get('/{user}', 'show');
+				Route::put('/{user}', 'update');
+				Route::delete('/{user}', 'destroy');
+			});
 	});
 
 Route::prefix('v1')

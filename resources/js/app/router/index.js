@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import ApplicationListView from '@/views/applications/ApplicationListView.vue'
 import ApplicationDetailView from '@/views/applications/ApplicationDetailView.vue'
-import UserListView from '@/views/users/UserListView.vue'
-import UserEditView from '@/views/users/UserEditView.vue'
+import UsersIndex from '@/views/users/Index.vue'
+import UsersForm from '@/views/users/Form.vue'
 
 const routes = [
 	{
@@ -20,13 +20,19 @@ const routes = [
 	{
 		path: '/users',
 		name: 'users.index',
-		component: UserListView,
+		component: UsersIndex,
+		meta: { requiresAdmin: true },
+	},
+	{
+		path: '/users/new',
+		name: 'users.create',
+		component: UsersForm,
 		meta: { requiresAdmin: true },
 	},
 	{
 		path: '/users/:id',
 		name: 'users.edit',
-		component: UserEditView,
+		component: UsersForm,
 		props: true,
 		meta: { requiresAdmin: true },
 	},
