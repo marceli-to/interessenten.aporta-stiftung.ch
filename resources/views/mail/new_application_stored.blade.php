@@ -1,18 +1,19 @@
 <x-mail::message>
-# Neue Wohnungsanmeldung
+# Wohnungsbewerbung
 
-Eine neue Wohnungsanmeldung mit der Nummer **{{ $application->reference_number }}** ist eingegangen.
+Eine Wohnungsbewerbung mit der Nummer **{{ $application->reference_number }}** ist eingegangen.
 
 @if($mainApplicant)
-**{{ trim($mainApplicant->first_name.' '.$mainApplicant->last_name) }}**
-{{ trim(($mainApplicant->street ?? '').' '.($mainApplicant->street_number ?? '')) }}
+{{ trim($mainApplicant->first_name.' '.$mainApplicant->last_name) }}<br>
+{{ trim(($mainApplicant->street ?? '').' '.($mainApplicant->street_number ?? '')) }}<br>
 {{ trim(($mainApplicant->postal_code ?? '').' '.($mainApplicant->city ?? '')) }}
 @endif
 
-<x-mail::button :url="$backofficeUrl">
-Im Backoffice öffnen
+<x-mail::button :url="$backofficeUrl" align="left">
+Anzeigen
 </x-mail::button>
 
-Freundliche Grüsse
-{{ config('app.name') }}
+Dr. Stephan à Porta-Stiftung<br>
+Kreuzstrasse 31<br>
+8008 Zürich
 </x-mail::message>

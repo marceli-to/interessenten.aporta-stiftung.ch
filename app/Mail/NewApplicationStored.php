@@ -13,6 +13,8 @@ class NewApplicationStored extends Mailable
 {
 	use Queueable, SerializesModels;
 
+	public $theme = 'aporta';
+
 	public function __construct(public Application $application)
 	{
 	}
@@ -20,7 +22,7 @@ class NewApplicationStored extends Mailable
 	public function envelope(): Envelope
 	{
 		return new Envelope(
-			subject: "Neue Wohnungsanmeldung Nr. {$this->application->reference_number}",
+			subject: "Wohnungsbewerbung Nr. {$this->application->reference_number}",
 		);
 	}
 
