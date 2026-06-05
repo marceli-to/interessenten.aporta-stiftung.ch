@@ -27,7 +27,7 @@ async function handleDelete(user) {
 			<h1 class="text-xl font-semibold">Benutzer</h1>
 			<RouterLink
 				:to="{ name: 'users.create' }"
-				class="px-16 py-8 bg-accent text-white rounded-md text-sm hover:opacity-90 transition-opacity"
+				class="px-16 py-8 bg-blue text-white rounded-md text-sm hover:opacity-90 transition-opacity"
 			>
 				Neuer Benutzer
 			</RouterLink>
@@ -79,7 +79,7 @@ async function handleDelete(user) {
 							<div class="flex items-center justify-end gap-12">
 								<button
 									type="button"
-									class="text-gray-400 hover:text-accent cursor-pointer transition-colors"
+									class="text-gray-400 hover:text-blue cursor-pointer transition-colors"
 									@click="router.push({ name: 'users.edit', params: { id: user.id } })"
 								>
 									<PhPencil :size="16" weight="light" />

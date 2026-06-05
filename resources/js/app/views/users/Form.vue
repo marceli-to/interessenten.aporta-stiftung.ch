@@ -96,7 +96,7 @@ async function handleSubmit() {
 <template>
 	<div class="space-y-24">
 		<div>
-			<RouterLink :to="{ name: 'users.index' }" class="text-sm text-gray-500 hover:text-accent">
+			<RouterLink :to="{ name: 'users.index' }" class="text-sm text-gray-500 hover:text-blue">
 				← Zurück zur Liste
 			</RouterLink>
 		</div>
@@ -159,7 +159,7 @@ async function handleSubmit() {
 				/>
 				<button
 					type="button"
-					class="mt-4 text-xs text-gray-400 dark:text-warm-500 hover:text-gray-900 dark:hover:text-warm-100 transition-colors cursor-pointer"
+					class="mt-4 text-xs text-gray-400 hover:text-gray-900 transition-colors cursor-pointer"
 					@click="generatePassword"
 				>
 					Passwort generieren

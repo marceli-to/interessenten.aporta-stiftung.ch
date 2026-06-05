@@ -1,0 +1,18 @@
+@theme {
+  --color-blue: #194164;
+  --color-light-blue: #e3ecf5;
+
+  --color-green: #36733a;
+  --color-light-green: #d2e4d2;
+
+  --color-yellow: #fff5c5;
+
+  --color-violet: #8e49a0;
+  --color-light-violet: #efd8f6;
+
+  --color-red: #cc2e47;
+  --color-light-red: #ffccd6;
+
+  --color-gray: #474747;
+  --color-light-gray: #cbcbcb;
+}

@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-Bb82V9RJ.css",
+    "file": "assets/app-CZ6O9iwe.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -8,8 +8,32 @@
       "app.css"
     ]
   },
+  "resources/fonts/Segment-Bold.woff": {
+    "file": "assets/Segment-Bold-Dpz9Mcw2.woff",
+    "src": "resources/fonts/Segment-Bold.woff"
+  },
+  "resources/fonts/Segment-Bold.woff2": {
+    "file": "assets/Segment-Bold-QtRf4qyt.woff2",
+    "src": "resources/fonts/Segment-Bold.woff2"
+  },
+  "resources/fonts/Segment-Medium.woff": {
+    "file": "assets/Segment-Medium-CaaW1DGY.woff",
+    "src": "resources/fonts/Segment-Medium.woff"
+  },
+  "resources/fonts/Segment-Medium.woff2": {
+    "file": "assets/Segment-Medium-DaIU9NvZ.woff2",
+    "src": "resources/fonts/Segment-Medium.woff2"
+  },
+  "resources/fonts/Segment-Regular.woff": {
+    "file": "assets/Segment-Regular-CbWOEBoH.woff",
+    "src": "resources/fonts/Segment-Regular.woff"
+  },
+  "resources/fonts/Segment-Regular.woff2": {
+    "file": "assets/Segment-Regular-BFXTnB2L.woff2",
+    "src": "resources/fonts/Segment-Regular.woff2"
+  },
   "resources/js/app/app.js": {
-    "file": "assets/app-DnFxpZrN.js",
+    "file": "assets/app-9g-H4fKu.js",
     "name": "app",
     "src": "resources/js/app/app.js",
     "isEntry": true

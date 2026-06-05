@@ -12,7 +12,7 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? 
 	<header class="bg-white border-b border-gray-200">
 		<div class="max-w-7xl mx-auto px-24 py-16 h-auto flex items-center gap-48">
 
-			<RouterLink :to="{ name: 'applications.index' }" class="text-accent">
+			<RouterLink :to="{ name: 'applications.index' }" class="text-blue">
 				<Logo class="h-36 w-auto" />
 			</RouterLink>
 
@@ -31,7 +31,7 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? 
         </span>
 				<form method="POST" action="/logout">
 					<input type="hidden" name="_token" :value="csrfToken" />
-					<button type="submit" class="text-gray-500 hover:text-accent cursor-pointer">
+					<button type="submit" class="text-gray-500 hover:text-blue cursor-pointer">
             Logout
           </button>
 				</form>

@@ -7,10 +7,10 @@
 				<x-icons.logo class="w-212 text-white" />
 			</div>
 		</div>
-		<div class="w-full lg:w-1/2 bg-white dark:bg-warm-900 flex items-center justify-center px-32 py-48">
+		<div class="w-full lg:w-1/2 bg-white flex items-center justify-center px-32 py-48">
 			<div class="w-full max-w-sm">
-				<div class="lg:hidden mb-32 text-gray-900 dark:text-warm-100">
-					<x-icons.logo class="w-120 text-accent" />
+				<div class="lg:hidden mb-32 text-gray-900">
+					<x-icons.logo class="w-120 text-blue" />
 				</div>
 				{{ $slot }}
 			</div>

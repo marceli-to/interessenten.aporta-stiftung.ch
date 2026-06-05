@@ -17,7 +17,7 @@ const tabs = [
 <template>
 	<div class="space-y-24">
 		<div>
-			<RouterLink :to="{ name: 'applications.index' }" class="text-sm text-gray-500 hover:text-accent">
+			<RouterLink :to="{ name: 'applications.index' }" class="text-sm text-gray-500 hover:text-blue">
 				← Zurück zur Liste
 			</RouterLink>
 		</div>
@@ -53,7 +53,7 @@ const tabs = [
 					:key="t.key"
 					@click="tab = t.key"
 					class="py-8"
-					:class="tab === t.key ? 'border-b-2 border-accent' : 'text-gray-500'"
+					:class="tab === t.key ? 'border-b-2 border-blue' : 'text-gray-500'"
 				>
 					{{ t.label }}
 				</button>
@@ -103,7 +103,7 @@ const tabs = [
 
 			<div class="flex justify-end gap-8">
 				<button class="px-16 py-8 border border-gray-200 rounded-md text-sm">Abbrechen</button>
-				<button class="px-16 py-8 bg-accent text-white rounded-md text-sm">Speichern</button>
+				<button class="px-16 py-8 bg-blue text-white rounded-md text-sm">Speichern</button>
 			</div>
 		</section>
 
@@ -115,7 +115,7 @@ const tabs = [
 					class="block w-full border border-gray-200 rounded-md px-12 py-8 text-sm"
 				></textarea>
 				<div class="flex justify-end">
-					<button class="px-16 py-8 bg-accent text-white rounded-md text-sm">Hinzufügen</button>
+					<button class="px-16 py-8 bg-blue text-white rounded-md text-sm">Hinzufügen</button>
 				</div>
 			</div>
 			<div class="bg-white border border-gray-200 rounded-md p-24 text-sm text-gray-500 text-center">

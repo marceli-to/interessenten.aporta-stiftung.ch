@@ -7,7 +7,7 @@ defineProps({
 </script>
 
 <template>
-	<RouterLink :to="to" active-class="border-b-2 border-accent" class="py-4">
+	<RouterLink :to="to" active-class="border-b-2 border-blue" class="py-4">
 		<slot />
 	</RouterLink>
 </template>
