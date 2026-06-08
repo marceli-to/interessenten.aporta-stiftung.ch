@@ -3,9 +3,11 @@ import { onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { PhPencil, PhTrash } from '@phosphor-icons/vue'
 import { useUsersStore } from '@/stores/users'
+import { useToast } from '@/composables/useToast'
 
 const router = useRouter()
 const store = useUsersStore()
+const toast = useToast()
 
 const roleLabels = {
 	admin: 'Administrator',
@@ -17,7 +19,12 @@ onMounted(() => store.fetch())
 
 async function handleDelete(user) {
 	if (!window.confirm(`"${user.firstname} ${user.name}" wirklich löschen?`)) return
-	await store.destroy(user.id)
+	try {
+		await store.destroy(user.id)
+		toast.success('Benutzer gelöscht.')
+	} catch {
+		// failure already surfaced as a toast by the axios interceptor
+	}
 }
 </script>
 

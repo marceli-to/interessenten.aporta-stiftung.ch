@@ -9,6 +9,7 @@ import FormInput from '@/components/ui/form/FormInput.vue'
 import FormSelect from '@/components/ui/form/FormSelect.vue'
 import FormCheckbox from '@/components/ui/form/FormCheckbox.vue'
 import FormButton from '@/components/ui/form/FormButton.vue'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps({
 	id: { type: String, default: null },
@@ -16,6 +17,7 @@ const props = defineProps({
 
 const router = useRouter()
 const store = useUsersStore()
+const toast = useToast()
 
 const isEdit = computed(() => props.id !== null)
 
@@ -80,13 +82,16 @@ async function handleSubmit() {
 		} else {
 			await api.store(payload)
 		}
+		toast.success(isEdit.value ? 'Benutzer aktualisiert.' : 'Benutzer erstellt.')
 		router.push({ name: 'users.index' })
 	} catch (e) {
 		if (e.response?.status === 422) {
+			// validation: highlight fields inline + a gentle nudge toast
 			store.setErrors(e.response.data.errors)
-		} else {
-			throw e
+			toast.error('Bitte überprüfen Sie Ihre Eingaben.')
 		}
+		// any other failure (auth/permission/server/network) was already
+		// surfaced as a toast by the axios interceptor — just stay on the form
 	} finally {
 		saving.value = false
 	}
