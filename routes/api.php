@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Dashboard\ApplicationController;
 use App\Http\Controllers\Api\Dashboard\CurrentUserController;
 use App\Http\Controllers\Api\Dashboard\UserController;
 use App\Http\Controllers\Api\V1\ApplicationStoreController;
@@ -10,6 +11,8 @@ Route::prefix('dashboard')
 	->middleware(['web', 'auth'])
 	->group(function () {
 		Route::get('me', CurrentUserController::class);
+
+		Route::get('applications', [ApplicationController::class, 'index']);
 
 		Route::controller(UserController::class)
 			->prefix('users')

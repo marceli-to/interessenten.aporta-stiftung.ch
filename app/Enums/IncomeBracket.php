@@ -35,6 +35,15 @@ enum IncomeBracket: string implements LabeledEnum
 		};
 	}
 
+	public function shortLabel(): string
+	{
+		return match ($this) {
+			self::LessThan20k => '< 20k',
+			self::MoreThan140k => '> 140k',
+			default => str_replace('_', '–', $this->value),
+		};
+	}
+
 	public function sortOrder(): int
 	{
 		return match ($this) {

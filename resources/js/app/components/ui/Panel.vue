@@ -11,6 +11,10 @@ const props = defineProps({
 		type: String,
 		default: null,
 	},
+	padding: {
+		type: String,
+		default: null,
+	},
 })
 
 const slots = useSlots()
@@ -25,8 +29,8 @@ const hasHeader = computed(() => !!props.title || !!slots.action)
 
 <template>
 	<div
-		class="rounded-[16px] shadow-[0px_6px_15px_3px_rgba(0,0,0,0.10)] p-20"
-		:class="variants[variant] ?? variants.default"
+		class="rounded-[15px] shadow-[0px_6px_15px_3px_rgba(0,0,0,0.10)]"
+		:class="[variants[variant] ?? variants.default, padding]"
 	>
 		<div v-if="hasHeader" class="flex items-center pb-15 mb-15 border-b border-black/10">
 			<h2 v-if="title" class="text-xl font-bold leading-none text-blue">

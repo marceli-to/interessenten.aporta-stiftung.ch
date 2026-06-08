@@ -6,7 +6,7 @@ import ToastContainer from '@/components/ui/toast/Container.vue'
 </script>
 
 <template>
-	<div class="max-w-[82.5rem] mx-auto">
+	<div class="max-w-[90rem] mx-auto px-25">
 		<Header />
 		<Main>
 			<RouterView />

@@ -4,3 +4,7 @@
 @import "./partials/colors.css";
 @import "./partials/font-sizes.css";
 @import "./partials/spacing.css";
+
+strong {
+  @apply font-bold
+}
