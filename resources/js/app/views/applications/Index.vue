@@ -49,7 +49,7 @@ onMounted(() => store.fetch())
       </template>
       <template v-else>
         <table class="w-full text-sm whitespace-nowrap">
-          <thead class="text-left uppercase text-black border-b border-blue/20">
+          <thead class="text-left uppercase text-blue border-b border-blue/20">
             <tr>
               <TableHeadCell variant="first">
                 Nr.
