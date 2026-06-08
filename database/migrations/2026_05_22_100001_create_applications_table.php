@@ -14,10 +14,6 @@ return new class extends Migration
 			$table->unsignedInteger('reference_number')->unique();
 			$table->string('status', 20)->index();
 			$table->boolean('flagged')->default(false);
-			$table->dateTime('opened_at');
-			$table->dateTime('extended_at')->nullable();
-			$table->dateTime('archived_at')->nullable();
-			$table->dateTime('last_changed_at');
 			$table->boolean('shares_apartment')->default(false);
 
 			// Housing wish (1:1 — inlined). Multi-selects live in application_districts/floors/rooms pivots.
@@ -44,6 +40,11 @@ return new class extends Migration
 			$table->string('submission_id', 36)->nullable()->unique();
 
 			$table->foreignId('owner_user_id')->nullable()->constrained('users')->nullOnDelete();
+
+			$table->dateTime('opened_at');
+			$table->dateTime('extended_at')->nullable();
+			$table->dateTime('archived_at')->nullable();
+			$table->dateTime('last_changed_at');
 
 			$table->timestamps();
 			$table->softDeletes();
