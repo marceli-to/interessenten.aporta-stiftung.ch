@@ -1,12 +1,17 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { PhFolderOpen, PhClockClockwise, PhStar } from '@phosphor-icons/vue'
 import { useApplicationsStore } from '@/stores/applications'
 import { fmtDate, fmtMoney, fmtList } from '@/utils/format'
 import Panel from '@/components/ui/Panel.vue'
+import Pagination from '@/components/ui/Pagination.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 import TableHeadCell from '@/components/ui/table/HeadCell.vue'
 import TableCell from '@/components/ui/table/Cell.vue'
+
+const props = defineProps({
+	perPage: { type: Number, default: 15 },
+})
 
 const router = useRouter()
 const store = useApplicationsStore()
@@ -14,10 +19,10 @@ const store = useApplicationsStore()
 // Visual treatment per row. `flagged` (Wichtig) overrides the open/extended
 // status; an archived application is terminal and overrides everything.
 const styles = {
-	opened: { text: 'text-green', badge: 'bg-light-green text-green', icon: PhFolderOpen },
-	extended: { text: 'text-violet', badge: 'bg-light-violet text-violet', icon: PhClockClockwise },
-	flagged: { text: 'text-red', badge: 'bg-light-red text-red', icon: PhStar },
-	archived: { text: 'text-light-gray', badge: 'bg-gray text-white', icon: null },
+	opened: { text: 'text-green' },
+	extended: { text: 'text-violet' },
+	flagged: { text: 'text-red' },
+	archived: { text: 'text-light-gray' },
 }
 
 function display(application) {
@@ -36,7 +41,11 @@ function open(application) {
 	router.push({ name: 'applications.show', params: { id: application.id } })
 }
 
-onMounted(() => store.fetch())
+function load(page = 1) {
+	store.fetch(page, props.perPage)
+}
+
+onMounted(() => load())
 </script>
 
 <template>
@@ -49,7 +58,7 @@ onMounted(() => store.fetch())
       </template>
       <template v-else>
         <table class="w-full text-sm whitespace-nowrap">
-          <thead class="text-left uppercase text-blue border-b border-blue/20">
+          <thead class="text-left text-black border-b border-blue/20">
             <tr>
               <TableHeadCell variant="first">
                 Nr.
@@ -90,7 +99,7 @@ onMounted(() => store.fetch())
             <tr
               v-for="application in store.applications"
               :key="application.id"
-              class="cursor-pointer hover:bg-blue/5 align-top"
+              class="cursor-pointer hover:bg-light-green/50 align-top"
               :class="display(application).key === 'archived' ? 'text-light-gray' : 'text-gray'"
               @click="open(application)"
             >
@@ -100,26 +109,22 @@ onMounted(() => store.fetch())
 
               <TableCell>
                 <div class="font-bold" :class="display(application).text">
-                  {{ application.main_applicant?.salutation }}
                   {{ application.main_applicant?.first_name }}
                   {{ application.main_applicant?.last_name }}
                 </div>
-                <div>{{ application.main_applicant?.street }}</div>
-                <div>{{ application.main_applicant?.postal_code }} {{ application.main_applicant?.city }}</div>
+                <div class="max-w-[160px] truncate">
+                  {{ application.main_applicant?.street }}
+                </div>
+                <div>
+                  {{ application.main_applicant?.postal_code }} {{ application.main_applicant?.city }}
+                </div>
               </TableCell>
 
               <TableCell>
-                <span
-                  class="inline-flex items-center gap-6 px-10 py-4 rounded-full text-xs font-medium"
-                  :class="display(application).badge">
-                  <component
-                    :is="display(application).icon"
-                    v-if="display(application).icon"
-                    :size="14"
-                    weight="bold"
-                  />
-                  {{ display(application).label }}
-                </span>
+                <StatusBadge
+                  :status-key="display(application).key"
+                  :label="display(application).label"
+                />
               </TableCell>
 
               <TableCell>
@@ -144,7 +149,7 @@ onMounted(() => store.fetch())
                 {{ fmtList(application.districts) }}
               </TableCell>
               <TableCell variant="last">
-                {{ application.main_applicant?.income_bracket ?? '—' }}
+                {{ application.main_applicant?.income_bracket ?? '–' }}
               </TableCell>
             </tr>
           </tbody>
@@ -152,4 +157,15 @@ onMounted(() => store.fetch())
       </template>
     </div>
   </Panel>
+
+  <div class="mt-25">
+    <Pagination
+      :page="store.page"
+      :last-page="store.lastPage"
+      :total="store.total"
+      :from="store.from"
+      :to="store.to"
+      @change="load"
+    />
+  </div>
 </template>

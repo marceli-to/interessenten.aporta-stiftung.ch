@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Actions\Application\Store;
+use App\Actions\Application\Store as StoreApplication;
 use App\Http\Requests\Application\StoreRequest;
 use Illuminate\Http\JsonResponse;
 
 class ApplicationStoreController
 {
-	public function store(StoreRequest $request, Store $action): JsonResponse
+	public function store(StoreRequest $request): JsonResponse
 	{
-		$application = $action->execute($request->validated());
+		$application = (new StoreApplication())->execute($request->validated());
 
 		$payload = [
 			'data' => [

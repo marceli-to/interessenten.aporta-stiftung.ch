@@ -10,13 +10,13 @@ const moneyFormat = new Intl.NumberFormat('de-CH', {
 })
 
 export function fmtDate(iso) {
-	return iso ? dateFormat.format(new Date(iso)) : '—'
+	return iso ? dateFormat.format(new Date(iso)) : '–'
 }
 
 export function fmtMoney(value) {
-	return value == null ? '—' : moneyFormat.format(Number(value))
+	return value == null ? '–' : moneyFormat.format(Number(value))
 }
 
 export function fmtList(items) {
-	return items?.length ? items.join(', ') : '—'
+	return items?.length ? items.join(', ') : '–'
 }

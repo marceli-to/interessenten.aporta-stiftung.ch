@@ -15,13 +15,6 @@ use Illuminate\Support\Facades\DB;
 
 class Store
 {
-	public function __construct(
-		private UpsertApplicant $upsertApplicant,
-		private SyncHousing $syncHousing,
-		private SyncChildren $syncChildren,
-		private RecordStatus $recordStatus,
-	) {}
-
 	public function execute(array $data, ?ReferenceNumberSequence $sequence = null): Application
 	{
 		$sequence ??= app(ReferenceNumberSequence::class);
@@ -85,16 +78,16 @@ class Store
 			'remarks' => $household['remarks'] ?? null,
 		]);
 
-		$this->upsertApplicant->execute($application, $data['main_applicant'], role: 'main_applicant', position: 1);
+		(new UpsertApplicant())->execute($application, $data['main_applicant'], role: 'main_applicant', position: 1);
 
 		if (! empty($data['co_applicant'])) {
-			$this->upsertApplicant->execute($application, $data['co_applicant'], role: 'co_applicant', position: 2);
+			(new UpsertApplicant())->execute($application, $data['co_applicant'], role: 'co_applicant', position: 2);
 		}
 
-		$this->syncHousing->execute($application, $housing);
-		$this->syncChildren->execute($application, $data['children'] ?? []);
+		(new SyncHousing())->execute($application, $housing);
+		(new SyncChildren())->execute($application, $data['children'] ?? []);
 
-		$this->recordStatus->execute(
+		(new RecordStatus())->execute(
 			application: $application,
 			to: Status::Opened,
 			from: null,

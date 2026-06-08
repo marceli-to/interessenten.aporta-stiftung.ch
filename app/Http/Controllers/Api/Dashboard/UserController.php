@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\Dashboard;
 
-use App\Actions\User\Delete;
-use App\Actions\User\Store;
-use App\Actions\User\Update;
+use App\Actions\User\Delete as DeleteUser;
+use App\Actions\User\Store as StoreUser;
+use App\Actions\User\Update as UpdateUser;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreRequest;
 use App\Http\Requests\User\UpdateRequest;
@@ -20,9 +20,9 @@ class UserController extends Controller
 		);
 	}
 
-	public function store(StoreRequest $request, Store $action)
+	public function store(StoreRequest $request)
 	{
-		$user = $action->execute($request->validated());
+		$user = (new StoreUser())->execute($request->validated());
 
 		return (new UserResource($user))->response()->setStatusCode(201);
 	}
@@ -32,16 +32,16 @@ class UserController extends Controller
 		return new UserResource($user);
 	}
 
-	public function update(UpdateRequest $request, User $user, Update $action)
+	public function update(UpdateRequest $request, User $user)
 	{
-		$user = $action->execute($user, $request->validated());
+		$user = (new UpdateUser())->execute($user, $request->validated());
 
 		return new UserResource($user);
 	}
 
-	public function destroy(User $user, Delete $action)
+	public function destroy(User $user)
 	{
-		$action->execute($user);
+		(new DeleteUser())->execute($user);
 
 		return response()->json(null, 204);
 	}
