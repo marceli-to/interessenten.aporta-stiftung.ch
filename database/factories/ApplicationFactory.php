@@ -26,7 +26,6 @@ class ApplicationFactory extends Factory
 			'extended_at' => null,
 			'archived_at' => null,
 			'last_changed_at' => $openedAt,
-			'owner_user_id' => null,
 			'shares_apartment' => false,
 			'submitted_ip' => fake()->ipv4(),
 			'submitted_user_agent' => fake()->userAgent(),

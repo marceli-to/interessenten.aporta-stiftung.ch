@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\Status;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -73,16 +72,11 @@ class Application extends Model
 		return $this->hasMany(StatusEvent::class);
 	}
 
-	public function owner(): BelongsTo
-	{
-		return $this->belongsTo(User::class, 'owner_user_id');
-	}
-
 	public function getActivitylogOptions(): LogOptions
 	{
 		return LogOptions::defaults()
 			->logOnly([
-				'status', 'flagged', 'owner_user_id', 'archived_at', 'extended_at',
+				'status', 'flagged', 'archived_at', 'extended_at',
 				'wants_balcony', 'wants_elevator', 'max_gross_rent', 'earliest_move_in',
 				'property_group', 'property_class',
 				'total_persons', 'adults_count', 'children_count',

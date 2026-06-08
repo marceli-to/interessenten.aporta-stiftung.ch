@@ -39,8 +39,6 @@ return new class extends Migration
 			$table->string('submitted_user_agent', 512)->nullable();
 			$table->string('submission_id', 36)->nullable()->unique();
 
-			$table->foreignId('owner_user_id')->nullable()->constrained('users')->nullOnDelete();
-
 			$table->dateTime('opened_at');
 			$table->dateTime('extended_at')->nullable();
 			$table->dateTime('archived_at')->nullable();
