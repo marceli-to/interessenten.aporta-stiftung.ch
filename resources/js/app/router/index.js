@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import ApplicationListView from '@/views/applications/ApplicationListView.vue'
-import ApplicationDetailView from '@/views/applications/ApplicationDetailView.vue'
+import ApplicationsIndex from '@/views/applications/Index.vue'
+import ApplicationsShow from '@/views/applications/Show.vue'
 import UsersIndex from '@/views/users/Index.vue'
 import UsersForm from '@/views/users/Form.vue'
 
@@ -9,12 +9,12 @@ const routes = [
 	{
 		path: '/',
 		name: 'applications.index',
-		component: ApplicationListView,
+		component: ApplicationsIndex,
 	},
 	{
 		path: '/applications/:id',
 		name: 'applications.show',
-		component: ApplicationDetailView,
+		component: ApplicationsShow,
 		props: true,
 	},
 	{
