@@ -14,7 +14,7 @@
 <link rel="manifest" href="/site.webmanifest" />
 @vite(['resources/css/app.css'])
 </head>
-<body class="h-full text-sm font-sans text-blue antialiased bg-gray-100">
+<body class="h-full text-sm font-sans text-blue bg-light-blue antialiased">
   {{ $slot }}
 </body>
 </html>

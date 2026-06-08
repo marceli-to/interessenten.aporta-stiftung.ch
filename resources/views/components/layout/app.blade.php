@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ config('app.name', 'CMS') }}</title>
+<title>{{ config('app.name', 'Interessenten Aporta Stiftung') }}</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
@@ -14,7 +14,7 @@
 <link rel="manifest" href="/site.webmanifest" />
 @vite(['resources/css/app.css'])
 </head>
-<body class="h-full text-sm font-sans text-blue antialiased bg-gray-100">
+<body class="min-h-screen text-sm font-sans text-blue antialiased bg-light-blue">
 	<div id="app"></div>
 	@vite('resources/js/app/app.js')
 </body>

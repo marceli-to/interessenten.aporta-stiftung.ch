@@ -3,13 +3,13 @@
 		<div class="hidden lg:block lg:w-1/2 relative">
 			<img src="{{ asset('img/aporta-splash.jpg') }}" alt="" class="absolute inset-0 w-full h-full object-cover" />
 			<div class="absolute inset-0 bg-black/20"></div>
-			<div class="relative z-10 flex items-end p-48 h-full text-white">
+			<div class="relative z-10 flex items-end p-50 h-full text-white">
 				<x-icons.logo class="w-212 text-white" />
 			</div>
 		</div>
-		<div class="w-full lg:w-1/2 bg-white flex items-center justify-center px-32 py-48">
+		<div class="w-full lg:w-1/2 flex items-center justify-center px-30 py-50">
 			<div class="w-full max-w-sm">
-				<div class="lg:hidden mb-32 text-gray-900">
+				<div class="lg:hidden mb-30 text-gray-900">
 					<x-icons.logo class="w-120 text-blue" />
 				</div>
 				{{ $slot }}
