@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-DljX6Trf.css",
+    "file": "assets/app-DEM0MQC4.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -33,7 +33,7 @@
     "src": "resources/fonts/Segment-Regular.woff2"
   },
   "resources/js/app/app.js": {
-    "file": "assets/app-VRq8Tkn4.js",
+    "file": "assets/app-B0ltcdB2.js",
     "name": "app",
     "src": "resources/js/app/app.js",
     "isEntry": true

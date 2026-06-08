@@ -1,20 +1,22 @@
 <script setup>
-import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useApplicationsStore } from '@/stores/applications'
+import { useListQuery } from '@/composables/useListQuery'
 import { fmtDate, fmtMoney, fmtList } from '@/utils/format'
 import Panel from '@/components/ui/Panel.vue'
 import Pagination from '@/components/ui/Pagination.vue'
+import SearchInput from '@/components/ui/SearchInput.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import TableHeadCell from '@/components/ui/table/HeadCell.vue'
 import TableCell from '@/components/ui/table/Cell.vue'
 
-const props = defineProps({
-	perPage: { type: Number, default: 15 },
-})
-
 const router = useRouter()
 const store = useApplicationsStore()
+
+const { sort, direction, search, goToPage, toggleSort } = useListQuery({
+	fetch: store.fetch,
+	perPage: 15,
+})
 
 // Visual treatment per row. `flagged` (Wichtig) overrides the open/extended
 // status; an archived application is terminal and overrides everything.
@@ -40,62 +42,62 @@ function display(application) {
 function open(application) {
 	router.push({ name: 'applications.show', params: { id: application.id } })
 }
-
-function load(page = 1) {
-	store.fetch(page, props.perPage)
-}
-
-onMounted(() => load())
 </script>
 
 <template>
+  <div class="mb-20">
+    <SearchInput v-model="search" placeholder="Nr., Name oder Ort suchen …" />
+  </div>
+
   <Panel>
     <div class="overflow-x-auto">
-      <template v-if="store.loading">
-        <div class="text-sm text-blue">
-          Laden …
-        </div>
-      </template>
-      <template v-else>
-        <table class="w-full text-sm whitespace-nowrap">
-          <thead class="text-left text-black border-b border-blue/20">
+      <table class="w-full text-sm whitespace-nowrap">
+        <thead class="text-left text-black border-b border-blue/20">
+          <tr>
+            <TableHeadCell variant="first" sort-key="reference_number" :sort="sort" :direction="direction" @sort="toggleSort">
+              Nr.
+            </TableHeadCell>
+            <TableHeadCell>
+              Hauptmieter
+            </TableHeadCell>
+            <TableHeadCell sort-key="status" :sort="sort" :direction="direction" @sort="toggleSort">
+              Status
+            </TableHeadCell>
+            <TableHeadCell sort-key="opened_at" :sort="sort" :direction="direction" @sort="toggleSort">
+              Angemeldet
+            </TableHeadCell>
+            <TableHeadCell sort-key="extended_at" :sort="sort" :direction="direction" @sort="toggleSort">
+              Verlängert
+            </TableHeadCell>
+            <TableHeadCell sort-key="earliest_move_in" :sort="sort" :direction="direction" @sort="toggleSort">
+              Mietbeginn
+            </TableHeadCell>
+            <TableHeadCell class="text-right" sort-key="max_gross_rent" :sort="sort" :direction="direction" @sort="toggleSort">
+              Max. Miete
+            </TableHeadCell>
+            <TableHeadCell sort-key="total_persons" :sort="sort" :direction="direction" @sort="toggleSort">
+              Pers.
+            </TableHeadCell>
+            <TableHeadCell>
+              Zimmer
+            </TableHeadCell>
+            <TableHeadCell>
+              Kreise
+            </TableHeadCell>
+            <TableHeadCell variant="last">
+              Einkommen
+            </TableHeadCell>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-blue/20">
+          <template v-if="store.loading">
             <tr>
-              <TableHeadCell variant="first">
-                Nr.
-              </TableHeadCell>
-              <TableHeadCell>
-                Hauptmieter
-              </TableHeadCell>
-              <TableHeadCell>
-                Status
-              </TableHeadCell>
-              <TableHeadCell>
-                Angemeldet
-              </TableHeadCell>
-              <TableHeadCell>
-                Verlängert
-              </TableHeadCell>
-              <TableHeadCell>
-                Mietbeginn
-              </TableHeadCell>
-              <TableHeadCell class="text-right">
-                Max. Miete
-              </TableHeadCell>
-              <TableHeadCell>
-                Pers.
-              </TableHeadCell>
-              <TableHeadCell>
-                Zimmer
-              </TableHeadCell>
-              <TableHeadCell>
-                Kreise
-              </TableHeadCell>
-              <TableHeadCell variant="last">
-                Einkommen
-              </TableHeadCell>
+              <td colspan="11">
+                Laden …
+              </td>
             </tr>
-          </thead>
-          <tbody class="divide-y divide-blue/20">
+          </template>
+          <template v-else>
             <tr
               v-for="application in store.applications"
               :key="application.id"
@@ -152,9 +154,14 @@ onMounted(() => load())
                 {{ application.main_applicant?.income_bracket ?? '–' }}
               </TableCell>
             </tr>
-          </tbody>
-        </table>
-      </template>
+            <tr v-if="!store.applications.length">
+              <td colspan="11" class="py-30 text-center text-sm text-light-gray">
+                Keine Anmeldungen gefunden.
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
     </div>
   </Panel>
 
@@ -165,7 +172,7 @@ onMounted(() => load())
       :total="store.total"
       :from="store.from"
       :to="store.to"
-      @change="load"
+      @change="goToPage"
     />
   </div>
 </template>

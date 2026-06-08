@@ -12,10 +12,12 @@ export const useApplicationsStore = defineStore('applications', {
 		to: 0,
 	}),
 	actions: {
-		async fetch(page = 1, perPage = 25) {
+		async fetch({ page = 1, perPage = 25, search = '', sort = 'opened_at', direction = 'desc' } = {}) {
 			this.loading = true
 			try {
-				const { data } = await api.index(page, perPage)
+				const params = { page, per_page: perPage, sort, direction }
+				if (search) params.search = search
+				const { data } = await api.index(params)
 				this.applications = data.data
 				this.page = data.meta.current_page
 				this.lastPage = data.meta.last_page
