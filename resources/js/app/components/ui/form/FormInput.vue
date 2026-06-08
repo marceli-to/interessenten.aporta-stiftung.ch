@@ -15,9 +15,9 @@ defineProps({
 		:type="type"
 		:placeholder="placeholder"
 		v-model="model"
-		class="block w-full px-12 py-10 border rounded-md bg-white text-sm transition-all focus:outline-none focus:ring-2"
+		class="block w-full px-10 py-10 rounded-xs text-sm transition-all focus:outline-none focus:ring-none"
 		:class="hasError
-			? 'border-red-400 focus:ring-red-200 focus:border-red-400'
-			: 'border-gray-200 focus:ring-gray-200 focus:border-gray-300'"
+			? 'bg-light-red/20'
+			: 'bg-light-blue/40'"
 	/>
 </template>

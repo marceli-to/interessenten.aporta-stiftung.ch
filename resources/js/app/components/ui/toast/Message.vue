@@ -8,10 +8,10 @@ defineEmits(['close'])
 
 // type → colour + icon, kept as lookup maps so the template stays declarative.
 const styles = {
-	success: 'bg-emerald-600 text-white',
-	error: 'bg-red-600 text-white',
-	warning: 'bg-amber-500 text-white',
-	info: 'bg-gray-800 text-white',
+	success: 'bg-green text-white',
+	error: 'bg-red text-white',
+	warning: 'bg-yellow text-white',
+	info: 'bg-blue text-white',
 }
 const icons = {
 	success: PhCheckCircle,
@@ -23,7 +23,7 @@ const icons = {
 
 <template>
 	<div
-		class="flex items-center gap-10 text-sm py-12 px-16 rounded-md shadow-md cursor-pointer"
+		class="flex items-center gap-10 text-sm py-10 px-15 rounded-xs shadow-md cursor-pointer"
 		:class="styles[toast.type]"
 		@click="$emit('close')"
 	>

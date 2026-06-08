@@ -8,8 +8,8 @@ defineProps({
 <template>
 	<label
 		:for="$props.for"
-		class="block text-xs mb-8"
-		:class="error ? 'text-red-500' : 'text-gray-500'"
+		class="block font-bold text-sm mb-10"
+		:class="error ? 'text-red' : 'text-blue'"
 	>
 		{{ error ? (Array.isArray(error) ? error[0] : error) : undefined }}<slot v-if="!error" />
 	</label>

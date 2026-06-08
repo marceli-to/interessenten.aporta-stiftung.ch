@@ -7,15 +7,14 @@ const state = reactive({ toasts: [] })
 
 let nextId = 0
 
-// success/info are transient and auto-dismiss; error/warning persist until the
-// user dismisses them or navigates away — failures should stay readable.
-const AUTO_DISMISS = { success: 3500, info: 4000 }
+// Every toast auto-dismisses after this delay; it can still be dismissed early
+// by click or navigation.
+const AUTO_DISMISS_MS = 4000
 
 function add(type, message) {
 	const id = nextId++
 	state.toasts.push({ id, type, message })
-	const ttl = AUTO_DISMISS[type]
-	if (ttl) setTimeout(() => dismiss(id), ttl)
+	setTimeout(() => dismiss(id), AUTO_DISMISS_MS)
 	return id
 }
 
