@@ -40,7 +40,7 @@ onMounted(() => store.fetch())
 </script>
 
 <template>
-  <Panel class="px-20 py-25">
+  <Panel>
     <div class="overflow-x-auto">
       <template v-if="store.loading">
         <div class="text-sm text-blue">
