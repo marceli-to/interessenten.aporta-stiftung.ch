@@ -10,7 +10,7 @@ defineProps({
 
 <template>
 	<div class="relative max-w-[320px]">
-		<PhMagnifyingGlass :size="16" weight="bold" class="absolute left-12 top-1/2 -translate-y-1/2 text-light-gray" />
+		<PhMagnifyingGlass :size="16" weight="regular" class="absolute left-12 top-1/2 -translate-y-1/2 text-light-gray" />
 		<input
 			v-model="model"
 			type="text"
@@ -23,7 +23,7 @@ defineProps({
 			class="absolute right-10 top-1/2 -translate-y-1/2 text-light-gray hover:text-blue cursor-pointer"
 			@click="model = ''"
 		>
-			<PhX :size="16" weight="bold" />
+			<PhX :size="16" weight="regular" />
 		</button>
 	</div>
 </template>

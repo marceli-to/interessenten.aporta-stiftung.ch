@@ -1,5 +1,6 @@
 <script setup>
 import { computed, useSlots } from 'vue'
+import Heading2 from '@/components/ui/headings/H2.vue'
 
 const props = defineProps({
 	variant: {
@@ -25,12 +26,12 @@ const hasHeader = computed(() => !!props.title || !!slots.action)
 
 <template>
 
-	<div class="rounded-2xl shadow-2xl px-20 py-25"	:class="variants[variant] ?? variants.default">
+	<div class="rounded-2xl shadow-xl px-20 py-25"	:class="variants[variant] ?? variants.default">
     
-		<div v-if="hasHeader" class="flex items-center pb-15 mb-15 border-b border-black/10">
-			<h2 v-if="title" class="text-xl font-bold leading-none text-blue">
+		<div v-if="hasHeader" class="flex items-center mb-15">
+			<Heading2 v-if="title">
 				{{ title }}
-			</h2>
+			</Heading2>
 			<div v-if="slots.action" class="ml-auto">
 				<slot name="action" />
 			</div>

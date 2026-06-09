@@ -3,10 +3,10 @@ import { useRouter } from 'vue-router'
 import { useApplicationsStore } from '@/stores/applications'
 import { useListQuery } from '@/composables/useListQuery'
 import { fmtDate, fmtMoney, fmtList } from '@/utils/format'
-import Panel from '@/components/ui/Panel.vue'
-import Pagination from '@/components/ui/Pagination.vue'
-import SearchInput from '@/components/ui/SearchInput.vue'
-import StatusBadge from '@/components/ui/StatusBadge.vue'
+import Panel from '@/components/ui/panels/Display.vue'
+import Pagination from '@/components/ui/pagination/Pagination.vue'
+import SearchInput from '@/components/ui/form/Search.vue'
+import StatusBadge from '@/components/ui/badges/Status.vue'
 import TableHeadCell from '@/components/ui/table/HeadCell.vue'
 import TableCell from '@/components/ui/table/Cell.vue'
 
@@ -124,7 +124,7 @@ function open(application) {
 
               <TableCell>
                 <StatusBadge
-                  :status-key="display(application).key"
+                  :statusKey="display(application).key"
                   :label="display(application).label"
                 />
               </TableCell>

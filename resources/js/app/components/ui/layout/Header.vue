@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import Logo from '@/components/ui/icons/Logo.vue'
 import User from '@/components/ui/icons/User.vue'
+import Heading1 from '@/components/ui/headings/H1.vue'
 import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()
@@ -19,9 +20,9 @@ onMounted(() => userStore.fetchUser())
     <div class="grid grid-cols-12 items-center">
 
       <div class="col-span-4">
-        <h1 class="text-2xl font-bold leading-none">
+        <Heading1>
           Interessenten-Verwaltung
-        </h1>
+        </Heading1>
       </div>
 
       <div class="col-span-4 flex justify-center">

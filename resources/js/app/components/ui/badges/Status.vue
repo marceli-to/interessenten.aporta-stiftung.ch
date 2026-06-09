@@ -13,7 +13,7 @@ const styles = {
 	opened: { badge: 'bg-light-green text-green', icon: PhFolderOpen },
 	extended: { badge: 'bg-light-violet text-violet', icon: PhClockClockwise },
 	flagged: { badge: 'bg-light-red text-red', icon: PhStar },
-	archived: { badge: 'bg-gray text-white', icon: null },
+	archived: { badge: 'bg-light-gray text-gray', icon: null },
 }
 
 const style = computed(() => styles[props.statusKey] ?? styles.opened)

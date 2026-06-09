@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Dashboard\ApplicationController;
+use App\Http\Controllers\Api\Dashboard\ApplicationStatusController;
 use App\Http\Controllers\Api\Dashboard\CurrentUserController;
 use App\Http\Controllers\Api\Dashboard\UserController;
 use App\Http\Controllers\Api\V1\ApplicationStoreController;
@@ -12,7 +13,15 @@ Route::prefix('dashboard')
 	->group(function () {
 		Route::get('me', CurrentUserController::class);
 
-		Route::get('applications', [ApplicationController::class, 'index']);
+		Route::controller(ApplicationController::class)
+			->prefix('applications')
+			->group(function () {
+				Route::get('/', 'index');
+				Route::get('/{application}', 'show');
+				Route::put('/{application}', 'update');
+			});
+
+		Route::put('applications/{application}/status', [ApplicationStatusController::class, 'update']);
 
 		Route::controller(UserController::class)
 			->prefix('users')

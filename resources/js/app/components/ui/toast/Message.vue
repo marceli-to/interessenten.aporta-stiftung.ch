@@ -29,6 +29,6 @@ const icons = {
 	>
 		<component :is="icons[toast.type]" :size="18" weight="regular" class="shrink-0" />
 		<span class="flex-1">{{ toast.message }}</span>
-		<PhX :size="14" weight="bold" class="shrink-0 opacity-60 hover:opacity-100" />
+		<PhX :size="14" weight="regular" class="shrink-0 opacity-60 hover:opacity-100" />
 	</div>
 </template>

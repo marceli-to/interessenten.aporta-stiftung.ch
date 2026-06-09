@@ -3,12 +3,12 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import api from '@/api/users'
 import { useUsersStore } from '@/stores/users'
-import FormGroup from '@/components/ui/form/FormGroup.vue'
-import FormLabel from '@/components/ui/form/FormLabel.vue'
-import FormInput from '@/components/ui/form/FormInput.vue'
-import FormSelect from '@/components/ui/form/FormSelect.vue'
-import FormCheckbox from '@/components/ui/form/FormCheckbox.vue'
-import FormButton from '@/components/ui/form/FormButton.vue'
+import Group from '@/components/ui/form/Group.vue'
+import Label from '@/components/ui/form/Label.vue'
+import Input from '@/components/ui/form/Input.vue'
+import Select from '@/components/ui/form/Select.vue'
+import Checkbox from '@/components/ui/form/Checkbox.vue'
+import Button from '@/components/ui/form/Button.vue'
 import { useToast } from '@/composables/useToast'
 
 const props = defineProps({
@@ -118,43 +118,43 @@ async function handleSubmit() {
 			@submit.prevent="handleSubmit"
 		>
 			<div class="grid grid-cols-2 gap-16">
-				<FormGroup>
-					<FormLabel for="firstname" :error="store.errors.firstname">Vorname *</FormLabel>
-					<FormInput
+				<Group>
+					<Label for="firstname" :error="store.errors.firstname">Vorname *</Label>
+					<Input
 						id="firstname"
 						v-model="form.firstname"
 						:hasError="!!store.errors.firstname"
 						@focus="delete store.errors.firstname"
 					/>
-				</FormGroup>
+				</Group>
 
-				<FormGroup>
-					<FormLabel for="name" :error="store.errors.name">Name *</FormLabel>
-					<FormInput
+				<Group>
+					<Label for="name" :error="store.errors.name">Name *</Label>
+					<Input
 						id="name"
 						v-model="form.name"
 						:hasError="!!store.errors.name"
 						@focus="delete store.errors.name"
 					/>
-				</FormGroup>
+				</Group>
 			</div>
 
-			<FormGroup>
-				<FormLabel for="email" :error="store.errors.email">E-Mail *</FormLabel>
-				<FormInput
+			<Group>
+				<Label for="email" :error="store.errors.email">E-Mail *</Label>
+				<Input
 					id="email"
 					v-model="form.email"
 					type="email"
 					:hasError="!!store.errors.email"
 					@focus="delete store.errors.email"
 				/>
-			</FormGroup>
+			</Group>
 
-			<FormGroup>
-				<FormLabel for="password" :error="store.errors.password">
+			<Group>
+				<Label for="password" :error="store.errors.password">
 					{{ isEdit ? 'Passwort (leer lassen um beizubehalten)' : 'Passwort *' }}
-				</FormLabel>
-				<FormInput
+				</Label>
+				<Input
 					id="password"
 					v-model="form.password"
 					:type="passwordVisible ? 'text' : 'password'"
@@ -169,29 +169,29 @@ async function handleSubmit() {
 				>
 					Passwort generieren
 				</button>
-			</FormGroup>
+			</Group>
 
-			<FormGroup>
-				<FormLabel for="role">Rolle</FormLabel>
-				<FormSelect
+			<Group>
+				<Label for="role">Rolle</Label>
+				<Select
 					id="role"
 					v-model="form.role"
 					:options="roleOptions"
 					:placeholder="null"
 				/>
-			</FormGroup>
+			</Group>
 
-			<FormGroup>
-				<FormCheckbox v-model="form.active">Aktiv</FormCheckbox>
-			</FormGroup>
+			<Group>
+				<Checkbox v-model="form.active">Aktiv</Checkbox>
+			</Group>
 
 			<div class="flex items-center justify-end gap-8 pt-8">
 				<RouterLink :to="{ name: 'users.index' }">
-					<FormButton variant="secondary" type="button">Abbrechen</FormButton>
+					<Button variant="outline" type="button">Abbrechen</Button>
 				</RouterLink>
-				<FormButton type="submit" :disabled="saving">
+				<Button type="submit" icon="floppy-disk" :disabled="saving">
 					{{ saving ? 'Speichern …' : 'Speichern' }}
-				</FormButton>
+				</Button>
 			</div>
 		</form>
 	</div>

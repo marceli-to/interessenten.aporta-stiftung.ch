@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { PhCaretLeft, PhCaretRight } from '@phosphor-icons/vue'
+import Summary from '@/components/ui/pagination/Summary.vue'
+import Button from '@/components/ui/pagination/Button.vue'
 
 const props = defineProps({
 	page: { type: Number, required: true },
@@ -43,42 +45,25 @@ function go(page) {
 
 <template>
 	<div class="flex items-center justify-between text-sm text-blue px-20">
-		<div>
-			{{ from }} – {{ to }} von {{ total }}
-		</div>
+		<Summary :from="from" :to="to" :total="total" />
 
 		<div v-if="lastPage > 1" class="flex items-center gap-5">
-			<button
-				type="button"
-				class="flex items-center justify-center w-35 h-35 rounded-full transition-colors cursor-pointer"
-				:class="page <= 1	? 'text-light-gray cursor-not-allowed' : 'text-blue hover:bg-blue hover:text-white'" 
-        :disabled="page <= 1"
-        @click="go(page - 1)">
-				<PhCaretLeft :size="16" weight="bold" />
-			</button>
+			<Button :disabled="page <= 1" @click="go(page - 1)">
+				<PhCaretLeft :size="16" weight="regular" />
+			</Button>
 
 			<template v-for="(item, i) in items" :key="i">
-				<span v-if="item === '…'"	class="flex items-center justify-center w-35 h-35 text-light-gray">
+				<span v-if="item === '…'" class="flex items-center justify-center w-35 h-35 text-blue">
 					…
 				</span>
-				<button
-					v-else
-					type="button"
-					class="flex items-center justify-center w-35 h-35 rounded-full font-medium transition-colors cursor-pointer"
-					:class="item === page ? 'bg-blue text-white': 'text-blue hover:bg-blue hover:text-white'"
-					@click="go(item)">
+				<Button v-else :active="item === page" @click="go(item)">
 					{{ item }}
-				</button>
+				</Button>
 			</template>
 
-			<button
-				type="button"
-				class="flex items-center justify-center w-35 h-35 rounded-full transition-colors cursor-pointer"
-				:class="page >= lastPage? 'text-light-gray cursor-not-allowed' : 'text-blue hover:bg-blue hover:text-white'"
-				:disabled="page >= lastPage"
-				@click="go(page + 1)">
-				<PhCaretRight :size="16" weight="bold" />
-			</button>
+			<Button :disabled="page >= lastPage" @click="go(page + 1)">
+				<PhCaretRight :size="16" weight="regular" />
+			</Button>
 		</div>
 	</div>
 </template>

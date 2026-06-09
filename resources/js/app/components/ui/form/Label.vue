@@ -6,11 +6,7 @@ defineProps({
 </script>
 
 <template>
-	<label
-		:for="$props.for"
-		class="block font-bold text-sm mb-10"
-		:class="error ? 'text-red' : 'text-blue'"
-	>
+	<label :for="$props.for">
 		{{ error ? (Array.isArray(error) ? error[0] : error) : undefined }}<slot v-if="!error" />
 	</label>
 </template>

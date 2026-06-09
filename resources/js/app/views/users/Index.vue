@@ -89,14 +89,14 @@ async function handleDelete(user) {
 									class="text-gray-400 hover:text-blue cursor-pointer transition-colors"
 									@click="router.push({ name: 'users.edit', params: { id: user.id } })"
 								>
-									<PhPencil :size="16" weight="light" />
+									<PhPencil :size="16" weight="regular" />
 								</button>
 								<button
 									type="button"
 									class="text-gray-400 hover:text-red-600 cursor-pointer transition-colors"
 									@click="handleDelete(user)"
 								>
-									<PhTrash :size="16" weight="light" />
+									<PhTrash :size="16" weight="regular" />
 								</button>
 							</div>
 						</td>
