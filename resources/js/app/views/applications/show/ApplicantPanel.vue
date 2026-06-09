@@ -4,8 +4,7 @@ import { fmtDate } from '@/utils/format'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
-import Group from '@/components/ui/form/Group.vue'
-import Label from '@/components/ui/form/Label.vue'
+import EditRow from '@/components/ui/info/EditRow.vue'
 import Input from '@/components/ui/form/Input.vue'
 import Select from '@/components/ui/form/Select.vue'
 import Checkbox from '@/components/ui/form/Checkbox.vue'
@@ -92,116 +91,80 @@ function nationality(a) {
 		</template>
 
 		<template #edit="{ draft, errors }">
-			<div class="space-y-15">
-				<Group>
-					<Label :error="errors.salutation">Anrede</Label>
+			<InfoList>
+				<EditRow label="Anrede" :error="errors.salutation">
 					<Select v-model="draft.salutation" :options="lookups.options('salutations')" :hasError="!!errors.salutation" />
-				</Group>
+				</EditRow>
+				<EditRow label="Vorname" :error="errors.first_name">
+					<Input v-model="draft.first_name" :hasError="!!errors.first_name" />
+				</EditRow>
+				<EditRow label="Name" :error="errors.last_name">
+					<Input v-model="draft.last_name" :hasError="!!errors.last_name" />
+				</EditRow>
 
-				<div class="grid grid-cols-2 gap-15">
-					<Group>
-						<Label :error="errors.first_name">Vorname</Label>
-						<Input v-model="draft.first_name" :hasError="!!errors.first_name" />
-					</Group>
-					<Group>
-						<Label :error="errors.last_name">Name</Label>
-						<Input v-model="draft.last_name" :hasError="!!errors.last_name" />
-					</Group>
-				</div>
-
-				<Group v-if="!isMain">
-					<Label :error="errors.relationship_to_main">Beziehung zum Hauptmieter</Label>
+				<EditRow v-if="!isMain" label="Beziehung zum Hauptmieter" :error="errors.relationship_to_main">
 					<Select v-model="draft.relationship_to_main" :options="lookups.options('relationships')" :hasError="!!errors.relationship_to_main" />
-				</Group>
-
-				<Group v-if="!isMain">
-					<Checkbox v-model="draft.same_address_as_main">Gleiche Adresse wie Hauptmieter</Checkbox>
-				</Group>
+				</EditRow>
+				<EditRow v-if="!isMain" label="Gleiche Adresse wie Hauptmieter">
+					<Checkbox v-model="draft.same_address_as_main" />
+				</EditRow>
 
 				<template v-if="isMain || !draft.same_address_as_main">
-					<div class="grid grid-cols-[1fr_auto] gap-15">
-						<Group>
-							<Label :error="errors.street">Strasse</Label>
-							<Input v-model="draft.street" :hasError="!!errors.street" />
-						</Group>
-						<Group>
-							<Label :error="errors.street_number">Nr.</Label>
-							<Input v-model="draft.street_number" :hasError="!!errors.street_number" />
-						</Group>
-					</div>
-					<div class="grid grid-cols-[auto_1fr] gap-15">
-						<Group>
-							<Label :error="errors.postal_code">PLZ</Label>
-							<Input v-model="draft.postal_code" :hasError="!!errors.postal_code" />
-						</Group>
-						<Group>
-							<Label :error="errors.city">Ort</Label>
-							<Input v-model="draft.city" :hasError="!!errors.city" />
-						</Group>
-					</div>
+					<EditRow label="Strasse" :error="errors.street">
+						<Input v-model="draft.street" :hasError="!!errors.street" />
+					</EditRow>
+					<EditRow label="Nr." :error="errors.street_number">
+						<Input v-model="draft.street_number" :hasError="!!errors.street_number" />
+					</EditRow>
+					<EditRow label="PLZ" :error="errors.postal_code">
+						<Input v-model="draft.postal_code" :hasError="!!errors.postal_code" />
+					</EditRow>
+					<EditRow label="Ort" :error="errors.city">
+						<Input v-model="draft.city" :hasError="!!errors.city" />
+					</EditRow>
 				</template>
 
-				<Group>
-					<Label :error="errors.birth_date">Geburtsdatum</Label>
+				<EditRow label="Geburtsdatum" :error="errors.birth_date">
 					<Input v-model="draft.birth_date" type="date" :hasError="!!errors.birth_date" />
-				</Group>
-
-				<Group>
-					<Label :error="errors.marital_status">Zivilstand</Label>
+				</EditRow>
+				<EditRow label="Zivilstand" :error="errors.marital_status">
 					<Select v-model="draft.marital_status" :options="lookups.options('marital_statuses')" :hasError="!!errors.marital_status" />
-				</Group>
-
-				<Group>
-					<Label :error="errors.nationality">Nationalität</Label>
+				</EditRow>
+				<EditRow label="Nationalität" :error="errors.nationality">
 					<Select v-model="draft.nationality" :options="lookups.options('nationalities')" :hasError="!!errors.nationality" />
-				</Group>
+				</EditRow>
 
-				<Group v-if="draft.nationality === 'CH'">
-					<Label :error="errors.place_of_origin">Heimatort</Label>
+				<EditRow v-if="draft.nationality === 'CH'" label="Heimatort" :error="errors.place_of_origin">
 					<Input v-model="draft.place_of_origin" :hasError="!!errors.place_of_origin" />
-				</Group>
-
+				</EditRow>
 				<template v-else-if="draft.nationality">
-					<Group>
-						<Label :error="errors.residence_permit">Aufenthaltsbewilligung</Label>
+					<EditRow label="Aufenthaltsbewilligung" :error="errors.residence_permit">
 						<Select v-model="draft.residence_permit" :options="lookups.options('residence_permits')" :hasError="!!errors.residence_permit" />
-					</Group>
-					<Group>
-						<Label :error="errors.swiss_residence_since">In der Schweiz seit</Label>
+					</EditRow>
+					<EditRow label="In der Schweiz seit" :error="errors.swiss_residence_since">
 						<Input v-model="draft.swiss_residence_since" type="date" :hasError="!!errors.swiss_residence_since" />
-					</Group>
+					</EditRow>
 				</template>
 
-				<div class="grid grid-cols-2 gap-15">
-					<Group>
-						<Label :error="errors.mobile_phone">Telefon (mobil)</Label>
-						<Input v-model="draft.mobile_phone" :hasError="!!errors.mobile_phone" />
-					</Group>
-					<Group>
-						<Label :error="errors.landline_phone">Telefon (Festnetz)</Label>
-						<Input v-model="draft.landline_phone" :hasError="!!errors.landline_phone" />
-					</Group>
-				</div>
-
-				<Group>
-					<Label :error="errors.email">E-Mail</Label>
+				<EditRow label="Telefon (mobil)" :error="errors.mobile_phone">
+					<Input v-model="draft.mobile_phone" :hasError="!!errors.mobile_phone" />
+				</EditRow>
+				<EditRow label="Telefon (Festnetz)" :error="errors.landline_phone">
+					<Input v-model="draft.landline_phone" :hasError="!!errors.landline_phone" />
+				</EditRow>
+				<EditRow label="E-Mail" :error="errors.email">
 					<Input v-model="draft.email" type="email" :hasError="!!errors.email" />
-				</Group>
-
-				<Group>
-					<Label :error="errors.occupation">Beruf</Label>
+				</EditRow>
+				<EditRow label="Beruf" :error="errors.occupation">
 					<Input v-model="draft.occupation" :hasError="!!errors.occupation" />
-				</Group>
-
-				<Group>
-					<Label :error="errors.employment_status">Erwerbssituation</Label>
+				</EditRow>
+				<EditRow label="Erwerbssituation" :error="errors.employment_status">
 					<Select v-model="draft.employment_status" :options="lookups.options('employment_statuses')" :hasError="!!errors.employment_status" />
-				</Group>
-
-				<Group>
-					<Checkbox v-model="draft.debt_enforcement_last_2y">Betreibungen in den letzten 2 Jahren</Checkbox>
-				</Group>
-			</div>
+				</EditRow>
+				<EditRow label="Betreibungen">
+					<Checkbox v-model="draft.debt_enforcement_last_2y" />
+				</EditRow>
+			</InfoList>
 		</template>
 	</EditablePanel>
 </template>

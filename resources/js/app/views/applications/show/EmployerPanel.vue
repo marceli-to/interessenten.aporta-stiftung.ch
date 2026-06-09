@@ -3,8 +3,7 @@ import { useLookupsStore } from '@/stores/lookups'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
-import Group from '@/components/ui/form/Group.vue'
-import Label from '@/components/ui/form/Label.vue'
+import EditRow from '@/components/ui/info/EditRow.vue'
 import Input from '@/components/ui/form/Input.vue'
 import Select from '@/components/ui/form/Select.vue'
 
@@ -43,20 +42,17 @@ const lookups = useLookupsStore()
 		</template>
 
 		<template #edit="{ draft, errors }">
-			<div v-if="draft.employer" class="space-y-15">
-				<Group>
-					<Label :error="errors.name">Arbeitgeber</Label>
+			<InfoList v-if="draft.employer">
+				<EditRow label="Arbeitgeber" :error="errors.name">
 					<Input v-model="draft.employer.name" :hasError="!!errors.name" />
-				</Group>
-				<Group>
-					<Label :error="errors.workload_percent">Pensum (%)</Label>
+				</EditRow>
+				<EditRow label="Pensum (%)" :error="errors.workload_percent">
 					<Input v-model.number="draft.employer.workload_percent" type="number" :hasError="!!errors.workload_percent" />
-				</Group>
-				<Group>
-					<Label :error="errors.annual_income_bracket">Jahreseinkommen</Label>
+				</EditRow>
+				<EditRow label="Jahreseinkommen" :error="errors.annual_income_bracket">
 					<Select v-model="draft.employer.annual_income_bracket" :options="lookups.options('income_brackets')" :hasError="!!errors.annual_income_bracket" />
-				</Group>
-			</div>
+				</EditRow>
+			</InfoList>
 		</template>
 	</EditablePanel>
 </template>

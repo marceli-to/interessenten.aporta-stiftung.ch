@@ -3,8 +3,7 @@ import { useLookupsStore } from '@/stores/lookups'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
-import Group from '@/components/ui/form/Group.vue'
-import Label from '@/components/ui/form/Label.vue'
+import EditRow from '@/components/ui/info/EditRow.vue'
 import Input from '@/components/ui/form/Input.vue'
 import Select from '@/components/ui/form/Select.vue'
 import Textarea from '@/components/ui/form/Textarea.vue'
@@ -62,41 +61,32 @@ function landlord(ch) {
 		</template>
 
 		<template #edit="{ draft, errors }">
-			<div v-if="draft.current_housing" class="space-y-15">
-				<Group>
-					<Label :error="errors.tenant_role">Rolle</Label>
+			<InfoList v-if="draft.current_housing">
+				<EditRow label="Rolle" :error="errors.tenant_role">
 					<Select v-model="draft.current_housing.tenant_role" :options="lookups.options('tenant_roles')" :hasError="!!errors.tenant_role" />
-				</Group>
-				<Group>
-					<Checkbox v-model="draft.current_housing.terminated_by_landlord">Gekündigt durch Vermieter</Checkbox>
-				</Group>
-				<Group v-if="draft.current_housing.terminated_by_landlord">
-					<Label :error="errors.termination_reason">Kündigungsgrund</Label>
+				</EditRow>
+				<EditRow label="Gekündigt durch Vermieter">
+					<Checkbox v-model="draft.current_housing.terminated_by_landlord" />
+				</EditRow>
+				<EditRow v-if="draft.current_housing.terminated_by_landlord" label="Kündigungsgrund" :error="errors.termination_reason">
 					<Textarea v-model="draft.current_housing.termination_reason" :hasError="!!errors.termination_reason" />
-				</Group>
-				<Group>
-					<Label :error="errors.landlord_name">Vermieter</Label>
+				</EditRow>
+				<EditRow label="Vermieter" :error="errors.landlord_name">
 					<Input v-model="draft.current_housing.landlord_name" :hasError="!!errors.landlord_name" />
-				</Group>
-				<div class="grid grid-cols-2 gap-15">
-					<Group>
-						<Label :error="errors.landlord_contact_person">Kontaktperson</Label>
-						<Input v-model="draft.current_housing.landlord_contact_person" :hasError="!!errors.landlord_contact_person" />
-					</Group>
-					<Group>
-						<Label :error="errors.landlord_phone">Telefon Vermieter</Label>
-						<Input v-model="draft.current_housing.landlord_phone" :hasError="!!errors.landlord_phone" />
-					</Group>
-				</div>
-				<Group>
-					<Label :error="errors.rent_duration">Wohnhaft seit</Label>
+				</EditRow>
+				<EditRow label="Kontaktperson" :error="errors.landlord_contact_person">
+					<Input v-model="draft.current_housing.landlord_contact_person" :hasError="!!errors.landlord_contact_person" />
+				</EditRow>
+				<EditRow label="Telefon Vermieter" :error="errors.landlord_phone">
+					<Input v-model="draft.current_housing.landlord_phone" :hasError="!!errors.landlord_phone" />
+				</EditRow>
+				<EditRow label="Wohnhaft seit" :error="errors.rent_duration">
 					<Select v-model="draft.current_housing.rent_duration" :options="lookups.options('rent_durations')" :hasError="!!errors.rent_duration" />
-				</Group>
-				<Group>
-					<Label :error="errors.previous_landlord">Frühere*r Vermieter*in</Label>
+				</EditRow>
+				<EditRow label="Frühere*r Vermieter*in" :error="errors.previous_landlord">
 					<Input v-model="draft.current_housing.previous_landlord" :hasError="!!errors.previous_landlord" />
-				</Group>
-			</div>
+				</EditRow>
+			</InfoList>
 		</template>
 	</EditablePanel>
 </template>

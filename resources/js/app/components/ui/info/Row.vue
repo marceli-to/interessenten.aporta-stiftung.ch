@@ -12,7 +12,7 @@ defineProps({
       </label>
 		</div>
 		<div class="col-span-9 text-md">
-			<slot />
+      <slot />
 		</div>
 	</div>
 </template>

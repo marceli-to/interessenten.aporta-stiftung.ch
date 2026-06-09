@@ -2,8 +2,7 @@
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
-import Group from '@/components/ui/form/Group.vue'
-import Label from '@/components/ui/form/Label.vue'
+import EditRow from '@/components/ui/info/EditRow.vue'
 import Input from '@/components/ui/form/Input.vue'
 import Textarea from '@/components/ui/form/Textarea.vue'
 import Checkbox from '@/components/ui/form/Checkbox.vue'
@@ -62,26 +61,21 @@ function years(children) {
 		</template>
 
 		<template #edit="{ draft, errors }">
-			<div class="space-y-15">
-				<div class="grid grid-cols-2 gap-15">
-					<Group>
-						<Label :error="errors['household_info.adults_count']">Erwachsene</Label>
-						<Input v-model.number="draft.info.adults_count" type="number" min="1" :hasError="!!errors['household_info.adults_count']" />
-					</Group>
-					<Group>
-						<Label :error="errors['household_info.children_count']">Kinder</Label>
-						<Input
-							v-model.number="draft.info.children_count"
-							type="number"
-							min="0"
-							:hasError="!!errors['household_info.children_count']"
-							@input="syncChildren(draft)"
-						/>
-					</Group>
-				</div>
+			<InfoList>
+				<EditRow label="Erwachsene" :error="errors['household_info.adults_count']">
+					<Input v-model.number="draft.info.adults_count" type="number" min="1" :hasError="!!errors['household_info.adults_count']" />
+				</EditRow>
+				<EditRow label="Kinder" :error="errors['household_info.children_count']">
+					<Input
+						v-model.number="draft.info.children_count"
+						type="number"
+						min="0"
+						:hasError="!!errors['household_info.children_count']"
+						@input="syncChildren(draft)"
+					/>
+				</EditRow>
 
-				<Group v-if="draft.children.length">
-					<Label :error="errors.children">Jahrgänge der Kinder</Label>
+				<EditRow v-if="draft.children.length" label="Jahrgänge der Kinder" :error="errors.children">
 					<div class="grid grid-cols-3 gap-15">
 						<Input
 							v-for="(child, i) in draft.children"
@@ -91,33 +85,30 @@ function years(children) {
 							placeholder="Jahrgang"
 						/>
 					</div>
-				</Group>
+				</EditRow>
 
-				<Group v-if="draft.children.length">
-					<Checkbox v-model="draft.info.all_children_live_constantly">Alle Kinder leben dauerhaft im Haushalt</Checkbox>
-				</Group>
+				<EditRow v-if="draft.children.length" label="Kinder dauerhaft im Haushalt">
+					<Checkbox v-model="draft.info.all_children_live_constantly" />
+				</EditRow>
 
-				<Group>
-					<Checkbox v-model="draft.info.plays_music">Musiziert</Checkbox>
-				</Group>
-				<Group v-if="draft.info.plays_music">
-					<Label :error="errors['household_info.musical_instruments']">Musikinstrumente</Label>
+				<EditRow label="Musiziert">
+					<Checkbox v-model="draft.info.plays_music" />
+				</EditRow>
+				<EditRow v-if="draft.info.plays_music" label="Musikinstrumente" :error="errors['household_info.musical_instruments']">
 					<Input v-model="draft.info.musical_instruments" :hasError="!!errors['household_info.musical_instruments']" />
-				</Group>
+				</EditRow>
 
-				<Group>
-					<Checkbox v-model="draft.info.has_pets">Haustiere</Checkbox>
-				</Group>
-				<Group v-if="draft.info.has_pets">
-					<Label :error="errors['household_info.pets_description']">Beschreibung Haustiere</Label>
+				<EditRow label="Haustiere">
+					<Checkbox v-model="draft.info.has_pets" />
+				</EditRow>
+				<EditRow v-if="draft.info.has_pets" label="Beschreibung Haustiere" :error="errors['household_info.pets_description']">
 					<Input v-model="draft.info.pets_description" :hasError="!!errors['household_info.pets_description']" />
-				</Group>
+				</EditRow>
 
-				<Group>
-					<Label :error="errors['household_info.remarks']">Bemerkungen</Label>
+				<EditRow label="Bemerkungen" :error="errors['household_info.remarks']">
 					<Textarea v-model="draft.info.remarks" :rows="4" :hasError="!!errors['household_info.remarks']" />
-				</Group>
-			</div>
+				</EditRow>
+			</InfoList>
 		</template>
 	</EditablePanel>
 </template>
