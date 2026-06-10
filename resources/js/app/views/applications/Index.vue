@@ -25,7 +25,7 @@ const styles = {
 	opened: { text: 'text-green' },
 	extended: { text: 'text-violet' },
 	flagged: { text: 'text-red' },
-	archived: { text: 'text-light-gray' },
+	archived: { text: 'text-gray' },
 	knif: { text: 'text-red' },
 }
 
@@ -109,7 +109,7 @@ function open(application) {
               v-for="application in store.applications"
               :key="application.id"
               class="cursor-pointer hover:bg-light-gray/10 align-top"
-              :class="display(application).key === 'archived' ? 'text-light-gray' : 'text-gray'"
+              :class="display(application).key === 'archived' ? 'text-gray' : 'text-gray'"
               @click="open(application)"
             >
               <TableCell variant="first" class="font-bold" :class="display(application).text">
