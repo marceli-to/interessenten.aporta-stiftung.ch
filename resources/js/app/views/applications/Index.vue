@@ -109,9 +109,7 @@ function open(application) {
               v-for="application in store.applications"
               :key="application.id"
               class="cursor-pointer hover:bg-light-gray/10 align-top"
-              :class="display(application).key === 'archived' ? 'text-gray' : 'text-gray'"
-              @click="open(application)"
-            >
+              @click="open(application)">
               <TableCell variant="first" class="font-bold" :class="display(application).text">
                 {{ application.reference_number }}
               </TableCell>
