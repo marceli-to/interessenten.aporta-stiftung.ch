@@ -158,55 +158,59 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
 
 		<!-- Each note carries the divider above it; the first one's doubles as the header rule (or the rule under the new-note field). -->
     <div class="divide-y divide-black/20 border-y border-black/20">
-      <div v-for="note in items" :key="note.id" class="py-10">
-        <div class="flex items-baseline justify-between gap-10">
-          <span class="font-bold text-blue">
-            {{ note.author }}
-          </span>
-          <span class="shrink-0 text-sm text-black/50">
-            {{ fmtDate(note.created_at) }}
-          </span>
+      <template v-if="items.length === 0 && !adding">
+        <div class="py-10">
+         Noch keine Notizen...
         </div>
-
-        <div v-if="editingId === note.id" class="mt-10">
-          <Textarea v-model="editBody" variant="white" :rows="4" :hasError="!!editError" />
-          <p v-if="editError" class="mt-5 text-sm text-red">
-            {{ editError }}
-          </p>
-          <div class="mt-10 flex items-center justify-end gap-10">
-            <Button variant="ghost" size="sm" @click="cancelEdit">
-              Abbrechen
-            </Button>
-            <Button variant="ghost" size="sm" icon="floppy-disk" :disabled="!editBody.trim() || saving" @click="saveEdit(note)">
-              Speichern
-            </Button>
+      </template>
+      <template v-else>
+        <div v-for="note in items" :key="note.id" class="py-10">
+          <div class="flex items-baseline justify-between gap-10">
+            <span class="font-bold text-blue">
+              {{ note.author }}
+            </span>
+            <span class="shrink-0 text-sm text-black/50">
+              {{ fmtDate(note.created_at) }}
+            </span>
           </div>
-        </div>
 
-        <template v-else>
-          <p class="mt-5 whitespace-pre-line text-blue">{{ note.body }}</p>
-          <div class="relative mt-5 flex justify-end">
-            <button type="button" class="text-gray transition-colors hover:text-blue" @click.stop="toggleMenu(note.id)">
-              <PhDotsThree :size="24" weight="bold" />
-            </button>
-            <div
-              v-if="openMenuId === note.id"
-              class="absolute right-0 top-full z-10 mt-2 min-w-[140px] rounded-lg bg-white py-5 shadow-lg"
-              @click.stop
-            >
-              <button type="button" class="block w-full px-15 py-8 text-left text-sm text-blue hover:bg-light-blue" @click="startEdit(note)">
-                Bearbeiten
-              </button>
-              <button type="button" class="block w-full px-15 py-8 text-left text-sm text-red hover:bg-light-red/50" @click="remove(note)">
-                Löschen
-              </button>
+          <div v-if="editingId === note.id" class="mt-10">
+            <Textarea v-model="editBody" variant="white" :rows="4" :hasError="!!editError" />
+            <p v-if="editError" class="mt-5 text-sm text-red">
+              {{ editError }}
+            </p>
+            <div class="mt-10 flex items-center justify-end gap-10">
+              <Button variant="ghost" size="sm" @click="cancelEdit">
+                Abbrechen
+              </Button>
+              <Button variant="ghost" size="sm" icon="floppy-disk" :disabled="!editBody.trim() || saving" @click="saveEdit(note)">
+                Speichern
+              </Button>
             </div>
           </div>
-        </template>
-      </div>
+
+          <template v-else>
+            <p class="mt-5 whitespace-pre-line text-blue">{{ note.body }}</p>
+            <div class="relative mt-5 flex justify-end">
+              <button type="button" class="text-gray transition-colors hover:text-blue" @click.stop="toggleMenu(note.id)">
+                <PhDotsThree :size="24" weight="bold" />
+              </button>
+              <div
+                v-if="openMenuId === note.id"
+                class="absolute right-0 top-full z-10 mt-2 min-w-[140px] rounded-lg bg-white py-5 shadow-lg"
+                @click.stop
+              >
+                <button type="button" class="block w-full px-15 py-8 text-left text-sm text-blue hover:bg-light-blue" @click="startEdit(note)">
+                  Bearbeiten
+                </button>
+                <button type="button" class="block w-full px-15 py-8 text-left text-sm text-red hover:bg-light-red/50" @click="remove(note)">
+                  Löschen
+                </button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </template>
     </div>
-		<p v-if="!items.length && !adding" class="border-t border-blue/20 pt-15 text-sm text-gray">
-			Noch keine Notizen.
-		</p>
 	</Panel>
 </template>
