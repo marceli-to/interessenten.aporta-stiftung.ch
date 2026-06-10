@@ -1,6 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useLookupsStore } from '@/stores/lookups'
+import { useApplicationsStore } from '@/stores/applications'
 import { PhFolderOpen, PhClockClockwise, PhArchive, PhProhibit } from '@phosphor-icons/vue'
 import Button from '@/components/ui/form/Button.vue'
 import SearchInput from '@/components/ui/form/Search.vue'
@@ -9,27 +11,55 @@ import ChipGroup from '@/components/ui/form/ChipGroup.vue'
 import Selectable from '@/components/ui/form/Selectable.vue'
 import Label from '@/components/ui/form/Label.vue'
 
-// The list's free-text search lives on the parent's list query; everything else
-// here is local filter state, not yet wired to the query.
+// Search is owned by the parent's list query; the rest of the filters are mirrored
+// straight into the URL so they survive navigation / the detail back-link and are
+// picked up by useListQuery, which forwards them to the fetch.
 const search = defineModel('search')
 
+const route = useRoute()
+const router = useRouter()
 const lookups = useLookupsStore()
+const store = useApplicationsStore()
 
 const showFilter = ref(true)
-const statusFilter = ref('opened')
-const moveInFrom = ref(null)
-const moveInTo = ref(null)
-const rentMin = ref(null)
-const rentMax = ref(null)
-const districts = ref([])
-const rooms = ref([])
 
-// Status toggles. Counts are placeholders until the API supplies them.
+const FILTER_KEYS = ['status', 'move_in_from', 'move_in_to', 'rent_min', 'rent_max', 'districts', 'rooms']
+
+// A writable computed over one URL query param. Arrays are stored comma-joined;
+// scalars are dropped from the URL when cleared. Every write resets to page 1.
+function filterRef(key, { array = false, number = false } = {}) {
+	return computed({
+		get() {
+			const raw = route.query[key]
+			if (array) return raw ? String(raw).split(',') : []
+			if (raw == null || raw === '') return null
+			return number ? Number(raw) : raw
+		},
+		set(value) {
+			const encoded = array
+				? (value?.length ? value.join(',') : undefined)
+				: (value === '' || value == null ? undefined : String(value))
+			const query = { ...route.query, page: 1 }
+			if (encoded === undefined) delete query[key]
+			else query[key] = encoded
+			router.push({ query })
+		},
+	})
+}
+
+const statusFilter = filterRef('status')
+const moveInFrom = filterRef('move_in_from')
+const moveInTo = filterRef('move_in_to')
+const rentMin = filterRef('rent_min', { number: true })
+const rentMax = filterRef('rent_max', { number: true })
+const districts = filterRef('districts', { array: true })
+const rooms = filterRef('rooms', { array: true })
+
 const statusOptions = [
-	{ value: 'opened', label: 'Eröffnet', count: 124, icon: PhFolderOpen },
-	{ value: 'extended', label: 'Verlängert', count: 87, icon: PhClockClockwise },
-	{ value: 'archived', label: 'Archiviert', count: 412, icon: PhArchive },
-	{ value: 'knif', label: 'KNIF', count: 25, icon: PhProhibit },
+	{ value: 'opened', label: 'Eröffnet', icon: PhFolderOpen },
+	{ value: 'extended', label: 'Verlängert', icon: PhClockClockwise },
+	{ value: 'archived', label: 'Archiviert', icon: PhArchive },
+	{ value: 'knif', label: 'KNIF', icon: PhProhibit },
 ]
 
 function toggleStatus(value) {
@@ -37,15 +67,22 @@ function toggleStatus(value) {
 }
 
 function resetFilter() {
-	statusFilter.value = null
-	moveInFrom.value = moveInTo.value = null
-	rentMin.value = rentMax.value = null
-	districts.value = []
-	rooms.value = []
+	const query = { ...route.query, page: 1 }
+	FILTER_KEYS.forEach((key) => delete query[key])
+	router.push({ query })
 }
 
-// Reference sets for the Stadtkreis / Zimmer chips (no-op if already loaded).
-onMounted(() => lookups.fetch())
+onMounted(() => {
+	// Reference sets for the Stadtkreis / Zimmer chips (no-op if already loaded).
+	lookups.fetch()
+
+	// On a fresh landing (no query at all) default to open applications — the
+	// common working view. A `replace` keeps it out of history, and because this
+	// only runs on mount it doesn't fight an explicit "Zurücksetzen".
+	if (Object.keys(route.query).length === 0) {
+		router.replace({ query: { status: 'opened' } })
+	}
+})
 </script>
 
 <template>
@@ -74,7 +111,7 @@ onMounted(() => lookups.fetch())
 						:key="option.value"
 						:icon="option.icon"
 						:label="option.label"
-						:count="option.count"
+						:count="store.statusCounts[option.value] ?? null"
 						:active="statusFilter === option.value"
 						@click="toggleStatus(option.value)"
 					/>
@@ -124,7 +161,7 @@ onMounted(() => lookups.fetch())
 
 		</div>
 
-		<div class="flex justify-end mt-10">
+		<div class="flex justify-end">
 			<Button variant="ghost" size="sm" class="underline" @click="resetFilter">
 				Zurücksetzen
 			</Button>

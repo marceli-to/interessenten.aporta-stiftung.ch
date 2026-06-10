@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-CC5YIcBT.css",
+    "file": "assets/app-B_Suf1hn.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -32,8 +32,12 @@
     "file": "assets/Segment-Regular-BFXTnB2L.woff2",
     "src": "resources/fonts/Segment-Regular.woff2"
   },
+  "resources/images/aporta-pattern.svg": {
+    "file": "assets/aporta-pattern-BESWHNcf.svg",
+    "src": "resources/images/aporta-pattern.svg"
+  },
   "resources/js/app/app.js": {
-    "file": "assets/app-CaSf-Dm-.js",
+    "file": "assets/app-Ky-hEe1D.js",
     "name": "app",
     "src": "resources/js/app/app.js",
     "isEntry": true

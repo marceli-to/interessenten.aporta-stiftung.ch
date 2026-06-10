@@ -1,19 +1,13 @@
 <x-layout.guest>
-	<div class="min-h-dvh flex">
-		<div class="hidden lg:block lg:w-1/2 relative">
-			<img src="{{ asset('img/aporta-splash.jpg') }}" alt="" class="absolute inset-0 w-full h-full object-cover" />
-			<div class="absolute inset-0 bg-black/20"></div>
-			<div class="relative z-10 flex items-end p-50 h-full text-white">
-				<x-icons.logo class="w-212 text-white" />
+	<div class="min-h-dvh flex items-center justify-center px-20 py-50 bg-light-blue bg-no-repeat bg-cover bg-center bg-pattern">
+		<div class="w-full max-w-md bg-white rounded-2xl shadow-xl px-20 py-25">
+			<div class="flex justify-center text-blue">
+				<x-icons.logo class="w-125" />
 			</div>
-		</div>
-		<div class="w-full lg:w-1/2 flex items-center justify-center px-30 py-50">
-			<div class="w-full max-w-sm">
-				<div class="lg:hidden mb-30 text-gray-900">
-					<x-icons.logo class="w-120 text-blue" />
-				</div>
-				{{ $slot }}
-			</div>
+			<div class="border-b border-blue/30 my-20"></div>
+      <div class="px-30">
+			  {{ $slot }}
+      </div>
 		</div>
 	</div>
 </x-layout.guest>

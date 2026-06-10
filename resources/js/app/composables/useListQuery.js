@@ -20,12 +20,22 @@ export function useListQuery({ fetch, perPage = 25, defaultSort = 'opened_at', d
 	const search = ref(route.query.search ?? '')
 
 	function load() {
+		// Everything in the URL that isn't pagination / sort / search is treated as
+		// a filter and forwarded to the store verbatim, so adding a new filter is a
+		// matter of writing its param to the query — no change needed here.
+		const filters = { ...route.query }
+		delete filters.page
+		delete filters.sort
+		delete filters.direction
+		delete filters.search
+
 		fetch({
 			page: Number(route.query.page) || 1,
 			perPage,
 			search: route.query.search ?? '',
 			sort: sort.value,
 			direction: direction.value,
+			filters,
 		})
 	}
 

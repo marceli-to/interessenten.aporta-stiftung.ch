@@ -5,6 +5,10 @@
 @import "./partials/font-sizes.css";
 @import "./partials/spacing.css";
 
+@utility bg-pattern {
+  background-image: url("../images/aporta-pattern.svg");
+}
+
 strong {
   @apply font-bold
 }
