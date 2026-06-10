@@ -3,13 +3,15 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import api from '@/api/users'
 import { useUsersStore } from '@/stores/users'
+import { useToast } from '@/composables/useToast'
+import Heading1 from '@/components/ui/headings/H1.vue'
+import Panel from '@/components/ui/panels/Display.vue'
 import Group from '@/components/ui/form/Group.vue'
 import Label from '@/components/ui/form/Label.vue'
 import Input from '@/components/ui/form/Input.vue'
 import Select from '@/components/ui/form/Select.vue'
-import Checkbox from '@/components/ui/form/Checkbox.vue'
 import Button from '@/components/ui/form/Button.vue'
-import { useToast } from '@/composables/useToast'
+import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue'
 
 const props = defineProps({
 	id: { type: String, default: null },
@@ -38,6 +40,11 @@ const roleOptions = [
 	{ value: 'admin', label: 'Administrator' },
 	{ value: 'editor', label: 'Bearbeiter' },
 	{ value: 'viewer', label: 'Betrachter' },
+]
+
+const activeOptions = [
+	{ value: true, label: 'Aktiv' },
+	{ value: false, label: 'Inaktiv' },
 ]
 
 store.clearErrors()
@@ -96,103 +103,139 @@ async function handleSubmit() {
 		saving.value = false
 	}
 }
+
+// Deletion is confirmed through a ConfirmDialog, mirroring the application detail.
+const confirmingDelete = ref(false)
+
+const askDelete = () => { confirmingDelete.value = true }
+
+async function handleDelete() {
+	try {
+		await api.destroy(props.id)
+		toast.success('Benutzer gelöscht.')
+		router.push({ name: 'users.index' })
+	} catch {
+		// failure already surfaced as a toast by the axios interceptor
+		confirmingDelete.value = false
+	}
+}
 </script>
 
 <template>
-	<div class="space-y-24">
-		<div>
-			<RouterLink :to="{ name: 'users.index' }" class="text-sm text-gray-500 hover:text-blue">
-				← Zurück zur Liste
+	<div>
+		<header class="flex items-center justify-between mb-30">
+			<Heading1>{{ isEdit ? 'Benutzer bearbeiten' : 'Neuer Benutzer' }}</Heading1>
+			<RouterLink :to="{ name: 'users.index' }">
+				<Button variant="ghost" size="sm">← Zurück zur Liste</Button>
 			</RouterLink>
+		</header>
+
+		<div v-if="loading" class="text-sm text-light-gray">Laden …</div>
+
+		<div v-else class="grid grid-cols-12 gap-30">
+			<div class="col-span-8 flex flex-col gap-30">
+				<Panel>
+					<form class="space-y-16" @submit.prevent="handleSubmit">
+						<div class="grid grid-cols-2 gap-16">
+							<Group>
+								<Label for="firstname" :error="store.errors.firstname">Vorname *</Label>
+								<Input
+									id="firstname"
+									v-model="form.firstname"
+									:hasError="!!store.errors.firstname"
+									@focus="delete store.errors.firstname"
+								/>
+							</Group>
+
+							<Group>
+								<Label for="name" :error="store.errors.name">Name *</Label>
+								<Input
+									id="name"
+									v-model="form.name"
+									:hasError="!!store.errors.name"
+									@focus="delete store.errors.name"
+								/>
+							</Group>
+						</div>
+
+						<Group>
+							<Label for="email" :error="store.errors.email">E-Mail *</Label>
+							<Input
+								id="email"
+								v-model="form.email"
+								type="email"
+								:hasError="!!store.errors.email"
+								@focus="delete store.errors.email"
+							/>
+						</Group>
+
+						<Group>
+							<Label for="password" :error="store.errors.password">
+								{{ isEdit ? 'Passwort (leer lassen um beizubehalten)' : 'Passwort *' }}
+							</Label>
+							<Input
+								id="password"
+								v-model="form.password"
+								:type="passwordVisible ? 'text' : 'password'"
+								:hasError="!!store.errors.password"
+								@focus="passwordVisible = true; delete store.errors.password"
+								@blur="passwordVisible = false"
+							/>
+							<div class="mt-5">
+								<Button variant="ghost" size="sm" type="button" icon="arrows-clockwise" @click="generatePassword">
+									Passwort generieren
+								</Button>
+							</div>
+						</Group>
+
+						<div class="grid grid-cols-2 gap-16">
+							<Group>
+								<Label for="role">Rolle</Label>
+								<Select id="role" v-model="form.role" :options="roleOptions" :placeholder="null" />
+							</Group>
+
+							<Group>
+								<Label for="active">Status</Label>
+								<Select id="active" v-model="form.active" :options="activeOptions" :placeholder="null" />
+							</Group>
+						</div>
+
+						<div class="flex items-center justify-end gap-10 pt-8">
+							<RouterLink :to="{ name: 'users.index' }">
+								<Button variant="outline" size="sm" type="button">Abbrechen</Button>
+							</RouterLink>
+							<Button type="submit" size="sm" icon="floppy-disk" :disabled="saving">
+								{{ saving ? 'Speichern …' : 'Speichern' }}
+							</Button>
+						</div>
+					</form>
+				</Panel>
+			</div>
+
+			<div v-if="isEdit" class="col-span-4 flex flex-col gap-30">
+				<Panel variant="danger" title="Benutzer löschen">
+					<p class="text-sm text-black">
+						Der Benutzer wird dauerhaft gelöscht. Dieser Vorgang kann nicht
+						rückgängig gemacht werden.
+					</p>
+					<div class="mt-15">
+						<Button variant="danger-solid" size="sm" icon="trash" @click="askDelete">
+							Löschen
+						</Button>
+					</div>
+				</Panel>
+			</div>
 		</div>
 
-		<h1 class="text-xl font-semibold">
-			{{ isEdit ? 'Benutzer bearbeiten' : 'Neuer Benutzer' }}
-		</h1>
-
-		<div v-if="loading" class="text-sm text-gray-500">Laden …</div>
-
-		<form
-			v-else
-			class="bg-white border border-gray-200 rounded-md p-24 space-y-16 max-w-xl"
-			@submit.prevent="handleSubmit"
-		>
-			<div class="grid grid-cols-2 gap-16">
-				<Group>
-					<Label for="firstname" :error="store.errors.firstname">Vorname *</Label>
-					<Input
-						id="firstname"
-						v-model="form.firstname"
-						:hasError="!!store.errors.firstname"
-						@focus="delete store.errors.firstname"
-					/>
-				</Group>
-
-				<Group>
-					<Label for="name" :error="store.errors.name">Name *</Label>
-					<Input
-						id="name"
-						v-model="form.name"
-						:hasError="!!store.errors.name"
-						@focus="delete store.errors.name"
-					/>
-				</Group>
-			</div>
-
-			<Group>
-				<Label for="email" :error="store.errors.email">E-Mail *</Label>
-				<Input
-					id="email"
-					v-model="form.email"
-					type="email"
-					:hasError="!!store.errors.email"
-					@focus="delete store.errors.email"
-				/>
-			</Group>
-
-			<Group>
-				<Label for="password" :error="store.errors.password">
-					{{ isEdit ? 'Passwort (leer lassen um beizubehalten)' : 'Passwort *' }}
-				</Label>
-				<Input
-					id="password"
-					v-model="form.password"
-					:type="passwordVisible ? 'text' : 'password'"
-					:hasError="!!store.errors.password"
-					@focus="passwordVisible = true; delete store.errors.password"
-					@blur="passwordVisible = false"
-				/>
-				<button
-					type="button"
-					class="mt-4 text-xs text-gray-400 hover:text-gray-900 transition-colors cursor-pointer"
-					@click="generatePassword"
-				>
-					Passwort generieren
-				</button>
-			</Group>
-
-			<Group>
-				<Label for="role">Rolle</Label>
-				<Select
-					id="role"
-					v-model="form.role"
-					:options="roleOptions"
-					:placeholder="null"
-				/>
-			</Group>
-
-			<Group>
-				<Checkbox v-model="form.active">Aktiv</Checkbox>
-			</Group>
-
-			<div class="flex items-center justify-end gap-8 pt-8">
-				<RouterLink :to="{ name: 'users.index' }">
-					<Button variant="outline" type="button">Abbrechen</Button>
-				</RouterLink>
-				<Button type="submit" icon="floppy-disk" :disabled="saving">
-					{{ saving ? 'Speichern …' : 'Speichern' }}
-				</Button>
-			</div>
-		</form>
+		<ConfirmDialog
+			:open="confirmingDelete"
+			title="Benutzer löschen"
+			:message="`«${form.firstname} ${form.name}» wird dauerhaft gelöscht.`"
+			confirmLabel="Löschen bestätigen"
+			cancelLabel="Abbrechen"
+			:destructive="true"
+			@confirm="handleDelete"
+			@cancel="confirmingDelete = false"
+		/>
 	</div>
 </template>

@@ -1,13 +1,15 @@
 <script setup>
 import { onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { PhPencil, PhTrash } from '@phosphor-icons/vue'
 import { useUsersStore } from '@/stores/users'
-import { useToast } from '@/composables/useToast'
+import Heading1 from '@/components/ui/headings/H1.vue'
+import Button from '@/components/ui/form/Button.vue'
+import Panel from '@/components/ui/panels/Display.vue'
+import TableHeadCell from '@/components/ui/table/HeadCell.vue'
+import TableCell from '@/components/ui/table/Cell.vue'
 
 const router = useRouter()
 const store = useUsersStore()
-const toast = useToast()
 
 const roleLabels = {
 	admin: 'Administrator',
@@ -17,92 +19,74 @@ const roleLabels = {
 
 onMounted(() => store.fetch())
 
-async function handleDelete(user) {
-	if (!window.confirm(`"${user.firstname} ${user.name}" wirklich löschen?`)) return
-	try {
-		await store.destroy(user.id)
-		toast.success('Benutzer gelöscht.')
-	} catch {
-		// failure already surfaced as a toast by the axios interceptor
-	}
+// A row click opens the edit form — same interaction as the applications list.
+function open(user) {
+	router.push({ name: 'users.edit', params: { id: user.id } })
 }
 </script>
 
 <template>
-	<div class="space-y-24">
-		<div class="flex items-center justify-between">
-			<h1 class="text-xl font-semibold">Benutzer</h1>
-			<RouterLink
-				:to="{ name: 'users.create' }"
-				class="px-16 py-8 bg-blue text-white rounded-md text-sm hover:opacity-90 transition-opacity"
-			>
+	<div class="flex items-center justify-between mb-30">
+		<Heading1>Benutzer</Heading1>
+		<RouterLink :to="{ name: 'users.create' }">
+			<Button variant="primary" icon="plus" size="md">
 				Neuer Benutzer
-			</RouterLink>
-		</div>
+			</Button>
+		</RouterLink>
+	</div>
 
-		<div v-if="store.loading" class="text-sm text-gray-500">
-			Laden …
-		</div>
-
-		<div v-else-if="store.users.length === 0" class="text-sm text-gray-500">
-			Keine Benutzer vorhanden.
-		</div>
-
-		<div v-else class="bg-white border border-gray-200 rounded-md overflow-hidden">
-			<table class="w-full text-sm">
-				<thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+	<Panel>
+		<div class="overflow-x-auto">
+			<table class="w-full text-sm whitespace-nowrap">
+				<thead class="text-left text-black border-b border-blue/20">
 					<tr>
-						<th class="px-16 py-12">Name</th>
-						<th class="px-16 py-12">E-Mail</th>
-						<th class="px-16 py-12">Rolle</th>
-						<th class="px-16 py-12">Status</th>
-						<th class="px-16 py-12 w-1"></th>
+						<TableHeadCell variant="first">Name</TableHeadCell>
+						<TableHeadCell>E-Mail</TableHeadCell>
+						<TableHeadCell>Rolle</TableHeadCell>
+						<TableHeadCell variant="last">Status</TableHeadCell>
 					</tr>
 				</thead>
-				<tbody class="divide-y divide-gray-100">
-					<tr
-						v-for="user in store.users"
-						:key="user.id"
-						class="hover:bg-gray-50"
-					>
-						<td class="px-16 py-12">
-							{{ user.firstname }} {{ user.name }}
-						</td>
-						<td class="px-16 py-12 text-gray-600">{{ user.email }}</td>
-						<td class="px-16 py-12 text-gray-600">{{ roleLabels[user.role] ?? user.role }}</td>
-						<td class="px-16 py-12">
-							<span
-								class="inline-flex items-center gap-6 text-xs"
-								:class="user.active ? 'text-emerald-700' : 'text-gray-400'"
-							>
+				<tbody class="divide-y divide-blue/20">
+					<template v-if="store.loading">
+						<tr>
+							<td colspan="4" class="py-30 text-sm text-light-gray">
+								Laden …
+							</td>
+						</tr>
+					</template>
+					<template v-else>
+						<tr
+							v-for="user in store.users"
+							:key="user.id"
+							class="cursor-pointer hover:bg-light-gray/10 text-gray"
+							@click="open(user)"
+						>
+							<TableCell variant="first" class="font-bold text-blue">
+								{{ user.firstname }} {{ user.name }}
+							</TableCell>
+							<TableCell>
+								{{ user.email }}
+							</TableCell>
+							<TableCell>
+								{{ roleLabels[user.role] ?? user.role }}
+							</TableCell>
+							<TableCell variant="last">
 								<span
-									class="size-6 rounded-full"
-									:class="user.active ? 'bg-emerald-500' : 'bg-gray-300'"
-								/>
-								{{ user.active ? 'Aktiv' : 'Inaktiv' }}
-							</span>
-						</td>
-						<td class="px-16 py-12">
-							<div class="flex items-center justify-end gap-12">
-								<button
-									type="button"
-									class="text-gray-400 hover:text-blue cursor-pointer transition-colors"
-									@click="router.push({ name: 'users.edit', params: { id: user.id } })"
+									class="inline-flex items-center px-10 py-5 rounded-full text-xs font-medium"
+									:class="user.active ? 'bg-light-green text-green' : 'bg-light-gray text-gray'"
 								>
-									<PhPencil :size="16" weight="regular" />
-								</button>
-								<button
-									type="button"
-									class="text-gray-400 hover:text-red-600 cursor-pointer transition-colors"
-									@click="handleDelete(user)"
-								>
-									<PhTrash :size="16" weight="regular" />
-								</button>
-							</div>
-						</td>
-					</tr>
+									{{ user.active ? 'Aktiv' : 'Inaktiv' }}
+								</span>
+							</TableCell>
+						</tr>
+						<tr v-if="!store.users.length">
+							<td colspan="4" class="py-30 text-center text-sm text-light-gray">
+								Keine Benutzer vorhanden.
+							</td>
+						</tr>
+					</template>
 				</tbody>
 			</table>
 		</div>
-	</div>
+	</Panel>
 </template>

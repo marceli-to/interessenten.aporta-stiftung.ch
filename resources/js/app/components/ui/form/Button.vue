@@ -9,6 +9,7 @@ import {
 	PhPlus,
 	PhTrash,
 	PhDotsThree,
+	PhArrowsClockwise,
 } from '@phosphor-icons/vue'
 
 const icons = {
@@ -20,6 +21,7 @@ const icons = {
 	plus: PhPlus,
 	trash: PhTrash,
 	'dots-three': PhDotsThree,
+	'arrows-clockwise': PhArrowsClockwise,
 }
 
 const props = defineProps({
