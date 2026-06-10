@@ -21,7 +21,7 @@ onMounted(() => userStore.fetchUser())
 
       <div class="col-span-4">
         <Heading1>
-          Interessenten-Verwaltung
+          Interessenten
         </Heading1>
       </div>
 
