@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { PhDotsThree } from '@phosphor-icons/vue'
 import api from '@/api/applications'
 import { useToast } from '@/composables/useToast'
 import { fmtDate } from '@/utils/format'
@@ -14,9 +15,10 @@ import Textarea from '@/components/ui/form/Textarea.vue'
 // list (delivered with the application detail); from there `items` is the source
 // of truth. Each endpoint returns just the affected note (or 204 on delete).
 //   - add:    header toggles to a white textarea + Speichern → unshift (newest first)
-//   - edit:   the pencil button swaps the body for an inline textarea → in-place swap
-//   - delete: the trash button removes the note → filter out
+//   - edit:   the "…" reveals Bearbeiten, which swaps the body for a textarea
+//   - delete: the "…" reveals Löschen, which removes the note → filter out
 // Only one of {adding, editing} is ever active; starting one cancels the other.
+// Each note's "…" reveals its action buttons; only one note's actions open at a time.
 const props = defineProps({
 	applicationId: { type: [Number, String], required: true },
 	notes: { type: Array, default: () => [] },
@@ -36,10 +38,13 @@ const editingId = ref(null)
 const editBody = ref('')
 const editError = ref(null)
 
+// Id of the note whose action buttons (Bearbeiten/Löschen) are revealed.
+const openActionsId = ref(null)
 const saving = ref(false)
 
 function startAdd() {
 	cancelEdit()
+	openActionsId.value = null
 	adding.value = true
 	newBody.value = ''
 	addError.value = null
@@ -69,6 +74,7 @@ async function saveNew() {
 
 function startEdit(note) {
 	cancelAdd()
+	openActionsId.value = null
 	editingId.value = note.id
 	editBody.value = note.body
 	editError.value = null
@@ -116,6 +122,17 @@ function bodyError(e) {
 	if (e?.response?.status !== 422) return 'Speichern fehlgeschlagen.'
 	return e.response.data?.errors?.body?.[0] ?? 'Bitte Text eingeben.'
 }
+
+function toggleActions(id) {
+	openActionsId.value = openActionsId.value === id ? null : id
+}
+
+// Click anywhere else collapses the revealed actions back to the "…". The "…"
+// trigger and the action row stop propagation so a click on them doesn't
+// immediately re-close.
+const closeActions = () => (openActionsId.value = null)
+onMounted(() => document.addEventListener('click', closeActions))
+onUnmounted(() => document.removeEventListener('click', closeActions))
 </script>
 
 <template>
@@ -177,13 +194,24 @@ function bodyError(e) {
 
           <template v-else>
             <p class="mt-5 whitespace-pre-line text-blue">{{ note.body }}</p>
-            <div class="mt-5 flex items-center justify-end gap-15">
-              <Button variant="ghost" size="sm" icon="pencil-simple" @click="startEdit(note)">
-                Bearbeiten
-              </Button>
-              <Button variant="ghost" size="sm" icon="trash" @click="remove(note)">
-                Löschen
-              </Button>
+            <div class="mt-5 flex items-center justify-end" @click.stop>
+              <button
+                v-if="openActionsId !== note.id"
+                type="button"
+                class="text-gray transition-colors hover:text-blue"
+                title="Aktionen"
+                @click="toggleActions(note.id)"
+              >
+                <PhDotsThree :size="24" weight="bold" />
+              </button>
+              <div v-else class="flex items-center gap-15">
+                <Button variant="ghost" size="sm" icon="pencil-simple" @click="startEdit(note)">
+                  Bearbeiten
+                </Button>
+                <Button variant="ghost" size="sm" icon="trash" @click="remove(note)">
+                  Löschen
+                </Button>
+              </div>
             </div>
           </template>
         </div>
