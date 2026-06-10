@@ -21,7 +21,7 @@ const router = useRouter()
 const lookups = useLookupsStore()
 const store = useApplicationsStore()
 
-const showFilter = ref(true)
+const showFilter = ref(false)
 
 const FILTER_KEYS = ['status', 'move_in_from', 'move_in_to', 'rent_min', 'rent_max', 'districts', 'rooms']
 
