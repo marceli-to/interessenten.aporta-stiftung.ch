@@ -1,6 +1,7 @@
 <script setup>
 import { useLookupsStore } from '@/stores/lookups'
-import { fmtDate } from '@/utils/format'
+import { fmtDate, fmtYesNo } from '@/utils/format'
+import { yesNoOptions } from '@/utils/options'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
@@ -21,13 +22,6 @@ const props = defineProps({
 })
 
 const lookups = useLookupsStore()
-
-const yesNo = (v) => (v == null ? '–' : v ? 'Ja' : 'Nein')
-
-const yesNoOptions = [
-	{ value: true, label: 'Ja' },
-	{ value: false, label: 'Nein' },
-]
 
 function fullName(a) {
 	return [a.first_name, a.last_name].filter(Boolean).join(' ') || '–'
@@ -89,7 +83,7 @@ function nationality(a) {
 					{{ lookups.label('employment_statuses', data.employment_status) }}
 				</InfoRow>
 				<InfoRow label="Betreibungen">
-					{{ yesNo(data.debt_enforcement_last_2y) }}
+					{{ fmtYesNo(data.debt_enforcement_last_2y) }}
 				</InfoRow>
 			</InfoList>
 		</template>

@@ -1,6 +1,7 @@
 <script setup>
 import { useLookupsStore } from '@/stores/lookups'
-import { fmtDate, fmtMoney } from '@/utils/format'
+import { fmtDate, fmtMoney, fmtYesNo } from '@/utils/format'
+import { yesNoOptions } from '@/utils/options'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
@@ -16,13 +17,6 @@ const props = defineProps({
 })
 
 const lookups = useLookupsStore()
-
-const yesNo = (v) => (v == null ? '–' : v ? 'Ja' : 'Nein')
-
-const yesNoOptions = [
-	{ value: true, label: 'Ja' },
-	{ value: false, label: 'Nein' },
-]
 </script>
 
 <template>
@@ -45,10 +39,10 @@ const yesNoOptions = [
 					<ChipGroup :modelValue="data.rooms" :options="lookups.options('rooms')" readonly />
 				</InfoRow>
 				<InfoRow label="Balkon">
-					{{ yesNo(data.wants_balcony) }}
+					{{ fmtYesNo(data.wants_balcony) }}
 				</InfoRow>
 				<InfoRow label="Lift">
-					{{ yesNo(data.wants_elevator) }}
+					{{ fmtYesNo(data.wants_elevator) }}
 				</InfoRow>
 			</InfoList>
 		</template>

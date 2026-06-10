@@ -1,5 +1,7 @@
 <script setup>
 import { useLookupsStore } from '@/stores/lookups'
+import { fmtYesNo } from '@/utils/format'
+import { yesNoOptions } from '@/utils/options'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
@@ -19,13 +21,6 @@ const props = defineProps({
 })
 
 const lookups = useLookupsStore()
-
-const yesNo = (v) => (v == null ? '–' : v ? 'Ja' : 'Nein')
-
-const yesNoOptions = [
-	{ value: true, label: 'Ja' },
-	{ value: false, label: 'Nein' },
-]
 
 function landlord(ch) {
 	return [ch?.landlord_name, ch?.landlord_contact_person, ch?.landlord_phone]
@@ -47,7 +42,7 @@ function landlord(ch) {
 					{{ lookups.label('tenant_roles', data.current_housing?.tenant_role) }}
 				</InfoRow>
 				<InfoRow label="Gekündigt durch Vermieter">
-					{{ yesNo(data.current_housing?.terminated_by_landlord) }}
+					{{ fmtYesNo(data.current_housing?.terminated_by_landlord) }}
 				</InfoRow>
 				<InfoRow v-if="data.current_housing?.terminated_by_landlord" label="Kündigungsgrund">
 					{{ data.current_housing?.termination_reason || '–' }}

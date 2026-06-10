@@ -1,4 +1,5 @@
 <script setup>
+import { yesNoOptions } from '@/utils/options'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
@@ -37,10 +38,13 @@ function years(children) {
 	return children?.length ? children.map((c) => c.birth_year).filter(Boolean).join(', ') : '–'
 }
 
-const yesNoOptions = [
-	{ value: true, label: 'Ja' },
-	{ value: false, label: 'Nein' },
-]
+// The children row holds one input per child, so its errors come back keyed
+// per index (children.0.birth_year, …) plus the list-level `children` (count
+// mismatch). Surface the first of any so the row label turns red.
+function childrenError(errors) {
+	const key = Object.keys(errors).find((k) => k === 'children' || /^children\.\d+\./.test(k))
+	return key ? errors[key] : null
+}
 </script>
 
 <template>
@@ -80,7 +84,7 @@ const yesNoOptions = [
 					/>
 				</EditRow>
 
-				<EditRow v-if="draft.children.length" label="Jahrgänge der Kinder" :error="errors.children">
+				<EditRow v-if="draft.children.length" label="Jahrgänge der Kinder" :error="childrenError(errors)">
 					<div class="grid grid-cols-3 gap-15">
 						<Input
 							v-for="(child, i) in draft.children"
@@ -88,6 +92,7 @@ const yesNoOptions = [
 							v-model.number="child.birth_year"
 							type="number"
 							placeholder="Jahrgang"
+							:hasError="!!errors[`children.${i}.birth_year`]"
 						/>
 					</div>
 				</EditRow>

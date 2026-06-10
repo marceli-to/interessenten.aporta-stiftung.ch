@@ -20,3 +20,7 @@ export function fmtMoney(value) {
 export function fmtList(items) {
 	return items?.length ? items.join(', ') : '–'
 }
+
+export function fmtYesNo(value) {
+	return value == null ? '–' : value ? 'Ja' : 'Nein'
+}
