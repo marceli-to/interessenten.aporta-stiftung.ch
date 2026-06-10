@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Dashboard\ApplicationController;
 use App\Http\Controllers\Api\Dashboard\ApplicationStatusController;
 use App\Http\Controllers\Api\Dashboard\CurrentUserController;
+use App\Http\Controllers\Api\Dashboard\NoteController;
 use App\Http\Controllers\Api\Dashboard\UserController;
 use App\Http\Controllers\Api\V1\ApplicationStoreController;
 use App\Http\Controllers\Api\V1\LookupController;
@@ -22,6 +23,17 @@ Route::prefix('dashboard')
 			});
 
 		Route::put('applications/{application}/status', [ApplicationStatusController::class, 'update']);
+
+		// {note} is scope-bound to {application} so a note from another
+		// application resolves to 404 rather than being editable here.
+		Route::controller(NoteController::class)
+			->prefix('applications/{application}/notes')
+			->scopeBindings()
+			->group(function () {
+				Route::post('/', 'store');
+				Route::put('/{note}', 'update');
+				Route::delete('/{note}', 'destroy');
+			});
 
 		Route::controller(UserController::class)
 			->prefix('users')

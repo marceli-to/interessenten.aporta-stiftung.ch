@@ -5,4 +5,8 @@ export default {
 	show: (id) => api.get(`/applications/${id}`),
 	update: (id, data) => api.put(`/applications/${id}`, data),
 	updateStatus: (id, data) => api.put(`/applications/${id}/status`, data),
+
+	storeNote: (id, data) => api.post(`/applications/${id}/notes`, data),
+	updateNote: (id, noteId, data) => api.put(`/applications/${id}/notes/${noteId}`, data),
+	destroyNote: (id, noteId) => api.delete(`/applications/${id}/notes/${noteId}`),
 }

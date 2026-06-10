@@ -20,6 +20,7 @@ class Show
 			'coApplicants.employer',
 			'coApplicants.currentHousing',
 			'children' => fn ($query) => $query->orderBy('position'),
+			'notes' => fn ($query) => $query->with('user')->latest(),
 		]);
 
 		$application->room_slugs = $this->slugs('application_rooms', 'room_slug', $application->id);

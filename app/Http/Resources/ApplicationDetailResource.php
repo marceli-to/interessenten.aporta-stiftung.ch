@@ -65,6 +65,10 @@ class ApplicationDetailResource extends JsonResource
 					'birth_year' => $child->birth_year,
 				])
 				->values(),
+
+			// Initial list for the Notizen panel, newest first (ordered in
+			// Application\Show). The panel owns its list from here on.
+			'notes' => NoteResource::collection($this->notes),
 		];
 	}
 

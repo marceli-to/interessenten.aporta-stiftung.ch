@@ -28,7 +28,7 @@ const hasHeader = computed(() => !!props.title || !!slots.action)
 
 	<div class="rounded-2xl shadow-xl px-20 py-25"	:class="variants[variant] ?? variants.default">
     
-		<div v-if="hasHeader" class="flex items-center mb-15">
+		<div v-if="hasHeader" class="flex items-start mb-15">
 			<Heading2 v-if="title">
 				{{ title }}
 			</Heading2>

@@ -5,13 +5,13 @@ import api from '@/api/applications'
 import { useLookupsStore } from '@/stores/lookups'
 import { useToast } from '@/composables/useToast'
 import Heading1 from '@/components/ui/headings/H1.vue'
-import Panel from '@/components/ui/panels/Display.vue'
 import StatusPanel from '@/views/applications/panels/StatusPanel.vue'
 import ApplicantPanel from '@/views/applications/panels/ApplicantPanel.vue'
 import EmployerPanel from '@/views/applications/panels/EmployerPanel.vue'
 import HousingPanel from '@/views/applications/panels/HousingPanel.vue'
 import HousingWishPanel from '@/views/applications/panels/HousingWishPanel.vue'
 import HouseholdPanel from '@/views/applications/panels/HouseholdPanel.vue'
+import NotesPanel from '@/views/applications/panels/NotesPanel.vue'
 
 const props = defineProps({
 	id: { type: String, required: true },
@@ -59,6 +59,9 @@ const saveStatus = (draft) => {
 const saveMainApplicant = (draft) => update({ main_applicant: draft })
 const saveCoApplicant = (draft) => update({ co_applicant: draft })
 const saveHousingWish = (draft) => update({ housing_wish: draft })
+
+// Notes are self-contained: the NotesPanel owns its list and talks to the notes
+// endpoints itself (see NotesPanel.vue). Show.vue only hands it the initial list.
 
 const saveHousehold = (draft) => {
 	const adults = Number(draft.info.adults_count) || 0
@@ -156,7 +159,9 @@ const title = computed(() => {
 			</div>
 
 			<div class="col-span-4">
-				<Panel variant="highlight" />
+				<NotesPanel
+					:application-id="app.id"
+					:notes="app.notes" />
 			</div>
 		</div>
 	</div>
