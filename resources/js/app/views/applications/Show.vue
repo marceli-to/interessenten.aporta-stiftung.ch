@@ -4,15 +4,9 @@ import { RouterLink } from 'vue-router'
 import api from '@/api/applications'
 import { useLookupsStore } from '@/stores/lookups'
 import { useToast } from '@/composables/useToast'
-import { fmtDate } from '@/utils/format'
 import Heading1 from '@/components/ui/headings/H1.vue'
 import Panel from '@/components/ui/panels/Display.vue'
-import StatusBadge from '@/components/ui/badges/Status.vue'
-import InfoList from '@/components/ui/info/List.vue'
-import InfoRow from '@/components/ui/info/Row.vue'
-import EditablePanel from '@/components/ui/panels/Editable.vue'
-import Select from '@/components/ui/form/Select.vue'
-import Input from '@/components/ui/form/Input.vue'
+import StatusPanel from '@/views/applications/panels/StatusPanel.vue'
 import ApplicantPanel from '@/views/applications/panels/ApplicantPanel.vue'
 import EmployerPanel from '@/views/applications/panels/EmployerPanel.vue'
 import HousingPanel from '@/views/applications/panels/HousingPanel.vue'
@@ -80,43 +74,11 @@ const householdSource = computed(() =>
 	app.value ? { info: app.value.household_info, children: app.value.children } : null
 )
 
-// Info panel edits the status; switching to Verlängert / Archiviert reveals a
-// date field, pre-filled with the existing date or today.
-const today = () => new Date().toISOString().slice(0, 10)
-const infoSource = computed(() =>
-	app.value
-		? {
-			status: app.value.status.value,
-			extended_at: app.value.extended_at?.slice(0, 10) ?? today(),
-			archived_at: app.value.archived_at?.slice(0, 10) ?? today(),
-		}
-		: null
-)
-
 const title = computed(() => {
 	if (!app.value) return ''
 	const a = app.value.main_applicant
 	const name = a ? `${lookups.label('salutations', a.salutation)} ${a.first_name} ${a.last_name}` : ''
 	return `Nr. ${app.value.reference_number} – ${name}`.trim()
-})
-
-// Show only the timestamp belonging to the current state, never all of them.
-const statusTimestamp = computed(() => {
-	if (!app.value) return null
-	const byStatus = {
-		opened: { label: 'Angemeldet', value: app.value.opened_at },
-		extended: { label: 'Verlängert am', value: app.value.extended_at },
-		archived: { label: 'Archiviert am', value: app.value.archived_at },
-	}
-	return byStatus[app.value.status.value] ?? null
-})
-
-// flagged ("Wichtig") overrides open/extended; archived is terminal — mirrors the list view.
-const statusDisplay = computed(() => {
-	if (!app.value) return { key: 'opened', label: '' }
-	const { status, flagged } = app.value
-	if (status.value !== 'archived' && flagged) return { key: 'flagged', label: 'Wichtig' }
-	return { key: status.value, label: status.label }
 })
 </script>
 
@@ -135,84 +97,62 @@ const statusDisplay = computed(() => {
 
 		<div class="grid grid-cols-12 gap-30">
 			<div class="col-span-8 flex flex-col gap-30">
-				<EditablePanel title="Info" :source="infoSource" :onSave="saveStatus">
-					<template #view>
-						<InfoList>
-							<InfoRow label="Status">
-								<StatusBadge :statusKey="statusDisplay.key" :label="statusDisplay.label" />
-							</InfoRow>
-							<InfoRow v-if="statusTimestamp" :label="statusTimestamp.label">
-								{{ fmtDate(statusTimestamp.value) }}
-							</InfoRow>
-						</InfoList>
-					</template>
 
-					<template #edit="{ draft }">
-						<InfoList>
-							<InfoRow label="Status">
-								<Select v-model="draft.status" :options="lookups.options('statuses')" :placeholder="null" />
-							</InfoRow>
-							<InfoRow v-if="draft.status === 'opened'" label="Angemeldet">
-								{{ fmtDate(app.opened_at) }}
-							</InfoRow>
-							<InfoRow v-if="draft.status === 'extended'" label="Verlängert am">
-								<Input v-model="draft.extended_at" type="date" />
-							</InfoRow>
-							<InfoRow v-if="draft.status === 'archived'" label="Archiviert am">
-								<Input v-model="draft.archived_at" type="date" />
-							</InfoRow>
-						</InfoList>
-					</template>
-				</EditablePanel>
+				<StatusPanel 
+          :application="app" 
+          :onSave="saveStatus" />
 
 				<ApplicantPanel
 					title="Hauptmieter"
 					:applicant="app.main_applicant"
 					section="main_applicant"
 					:isMain="true"
-					:onSave="saveMainApplicant"
-				/>
+					:onSave="saveMainApplicant"	/>
 
 				<EmployerPanel
 					v-if="app.main_applicant?.employer"
 					:applicant="app.main_applicant"
 					section="main_applicant"
-					:onSave="saveMainApplicant"
-				/>
+					:onSave="saveMainApplicant" />
 
 				<HousingPanel
 					:applicant="app.main_applicant"
 					section="main_applicant"
-					:onSave="saveMainApplicant"
-				/>
+					:onSave="saveMainApplicant"	/>
 
 				<!-- Partner: rendered only when a co-applicant exists. -->
 				<template v-if="app.co_applicant">
+
 					<ApplicantPanel
 						title="Partner*in"
 						:applicant="app.co_applicant"
 						section="co_applicant"
 						:isMain="false"
-						:onSave="saveCoApplicant"
-					/>
+						:onSave="saveCoApplicant"	/>
+
 					<EmployerPanel
 						v-if="app.co_applicant.employer"
 						title="Arbeitgeber Partner*in"
 						:applicant="app.co_applicant"
 						section="co_applicant"
-						:onSave="saveCoApplicant"
-					/>
+						:onSave="saveCoApplicant" />
+
 					<HousingPanel
 						title="Wohnsituation Partner*in"
 						:applicant="app.co_applicant"
 						section="co_applicant"
-						:onSave="saveCoApplicant"
-					/>
+						:onSave="saveCoApplicant"	/>
+
 				</template>
 
-				<HousingWishPanel :source="app.housing_wish" :onSave="saveHousingWish" />
+				<HousingWishPanel 
+          :source="app.housing_wish" 
+          :onSave="saveHousingWish" />
 
-				<HouseholdPanel :source="householdSource" :onSave="saveHousehold" />
+				<HouseholdPanel 
+          :source="householdSource" 
+          :onSave="saveHousehold" />
+          
 			</div>
 
 			<div class="col-span-4">
