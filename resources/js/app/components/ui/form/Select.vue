@@ -1,6 +1,10 @@
 <script setup>
 import { PhCaretDown } from '@phosphor-icons/vue'
 
+// Fallthrough attrs (e.g. a passed `class`) target the <select>, not the
+// positioning wrapper, so width / height overrides actually hit the control.
+defineOptions({ inheritAttrs: false })
+
 const model = defineModel()
 
 defineProps({
@@ -30,6 +34,7 @@ const variants = {
 			:id="id"
 			v-model="model"
 			:disabled="disabled"
+			v-bind="$attrs"
 			class="appearance-none w-full pl-5 pr-30 min-h-32 ring-0! focus:ring-0! outline-none!"
 			:class="hasError ? 'bg-light-red/30' : (variants[variant] ?? variants.filled)"
 		>

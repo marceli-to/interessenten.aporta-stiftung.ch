@@ -68,12 +68,24 @@ onMounted(async () => {
 })
 
 function generatePassword() {
-	const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%&*'
-	const bytes = new Uint32Array(16)
+	// XXXX-XXXX-XXXX from an unambiguous uppercase set: no I/O (letters) or 0/1
+	// (digits), so the password is safe to read aloud or copy from a note.
+	const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+	const groups = 3
+	const groupLength = 4
+	const bytes = new Uint32Array(groups * groupLength)
 	crypto.getRandomValues(bytes)
-	let pw = ''
-	for (let i = 0; i < bytes.length; i++) pw += chars[bytes[i] % chars.length]
-	form.password = pw
+
+	const parts = []
+	for (let g = 0; g < groups; g++) {
+		let part = ''
+		for (let i = 0; i < groupLength; i++) {
+			part += chars[bytes[g * groupLength + i] % chars.length]
+		}
+		parts.push(part)
+	}
+
+	form.password = parts.join('-')
 	passwordVisible.value = true
 	delete store.errors.password
 }
@@ -144,6 +156,7 @@ async function handleDelete() {
 									v-model="form.firstname"
 									:hasError="!!store.errors.firstname"
 									@focus="delete store.errors.firstname"
+									class="min-h-36!"
 								/>
 							</Group>
 
@@ -154,6 +167,7 @@ async function handleDelete() {
 									v-model="form.name"
 									:hasError="!!store.errors.name"
 									@focus="delete store.errors.name"
+									class="min-h-36!"
 								/>
 							</Group>
 						</div>
@@ -166,6 +180,7 @@ async function handleDelete() {
 								type="email"
 								:hasError="!!store.errors.email"
 								@focus="delete store.errors.email"
+								class="min-h-36!"
 							/>
 						</Group>
 
@@ -180,8 +195,9 @@ async function handleDelete() {
 								:hasError="!!store.errors.password"
 								@focus="passwordVisible = true; delete store.errors.password"
 								@blur="passwordVisible = false"
+								class="min-h-36!"
 							/>
-							<div class="mt-5">
+							<div class="mt-10">
 								<Button variant="ghost" size="sm" type="button" icon="arrows-clockwise" @click="generatePassword">
 									Passwort generieren
 								</Button>
@@ -191,12 +207,12 @@ async function handleDelete() {
 						<div class="grid grid-cols-2 gap-16">
 							<Group>
 								<Label for="role">Rolle</Label>
-								<Select id="role" v-model="form.role" :options="roleOptions" :placeholder="null" />
+								<Select id="role" v-model="form.role" :options="roleOptions" :placeholder="null" class="min-h-36!" />
 							</Group>
 
 							<Group>
 								<Label for="active">Status</Label>
-								<Select id="active" v-model="form.active" :options="activeOptions" :placeholder="null" />
+								<Select id="active" v-model="form.active" :options="activeOptions" :placeholder="null" class="min-h-36!" />
 							</Group>
 						</div>
 
