@@ -8,6 +8,7 @@ import {
 	PhFaders,
 	PhPlus,
 	PhTrash,
+	PhDotsThree,
 } from '@phosphor-icons/vue'
 
 const icons = {
@@ -18,6 +19,7 @@ const icons = {
 	faders: PhFaders,
 	plus: PhPlus,
 	trash: PhTrash,
+	'dots-three': PhDotsThree,
 }
 
 const props = defineProps({

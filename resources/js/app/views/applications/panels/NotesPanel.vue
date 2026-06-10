@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
-import { PhDotsThree } from '@phosphor-icons/vue'
 import api from '@/api/applications'
 import { useToast } from '@/composables/useToast'
 import { fmtDate } from '@/utils/format'
@@ -194,16 +193,15 @@ onUnmounted(() => document.removeEventListener('click', closeActions))
 
           <template v-else>
             <p class="mt-5 whitespace-pre-line text-blue">{{ note.body }}</p>
-            <div class="mt-5 flex h-30 items-center justify-end" @click.stop>
-              <button
+            <div class="flex h-30 items-center justify-end" @click.stop>
+              <Button
                 v-if="openActionsId !== note.id"
-                type="button"
-                class="text-gray transition-colors hover:text-blue"
+                variant="ghost"
+                size="sm"
+                icon="dots-three"
                 title="Aktionen"
                 @click="toggleActions(note.id)"
-              >
-                <PhDotsThree :size="24" weight="bold" />
-              </button>
+              />
               <div v-else class="flex items-center gap-15">
                 <Button variant="ghost" size="sm" icon="pencil-simple" @click="startEdit(note)">
                   Bearbeiten
