@@ -7,6 +7,7 @@ enum Status: string implements LabeledEnum
 	case Opened = 'opened';
 	case Extended = 'extended';
 	case Archived = 'archived';
+	case Knif = 'knif';
 
 	public function label(): string
 	{
@@ -14,6 +15,7 @@ enum Status: string implements LabeledEnum
 			self::Opened => 'Eröffnet',
 			self::Extended => 'Verlängert',
 			self::Archived => 'Archiviert',
+			self::Knif => 'KNIF',
 		};
 	}
 
@@ -23,6 +25,7 @@ enum Status: string implements LabeledEnum
 			self::Opened => 1,
 			self::Extended => 2,
 			self::Archived => 3,
+			self::Knif => 4,
 		};
 	}
 

@@ -40,10 +40,10 @@ const statusTimestamp = computed(() => {
 	return byStatus[a.status.value] ?? null
 })
 
-// flagged ("Wichtig") overrides open/extended; archived is terminal — mirrors the list view.
+// flagged ("Wichtig") overrides open/extended; archived and knif are terminal — mirrors the list view.
 const statusDisplay = computed(() => {
 	const { status, flagged } = props.application
-	if (status.value !== 'archived' && flagged) return { key: 'flagged', label: 'Wichtig' }
+	if (status.value !== 'archived' && status.value !== 'knif' && flagged) return { key: 'flagged', label: 'Wichtig' }
 	return { key: status.value, label: status.label }
 })
 </script>

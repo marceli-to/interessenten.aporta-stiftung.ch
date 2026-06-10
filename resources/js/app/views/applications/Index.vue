@@ -1,5 +1,5 @@
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useApplicationsStore } from '@/stores/applications'
 import { useListQuery } from '@/composables/useListQuery'
 import { fmtDate, fmtMoney, fmtList } from '@/utils/format'
@@ -9,7 +9,9 @@ import SearchInput from '@/components/ui/form/Search.vue'
 import StatusBadge from '@/components/ui/badges/Status.vue'
 import TableHeadCell from '@/components/ui/table/HeadCell.vue'
 import TableCell from '@/components/ui/table/Cell.vue'
+import Button from '@/components/ui/form/Button.vue'
 
+const route = useRoute()
 const router = useRouter()
 const store = useApplicationsStore()
 
@@ -25,13 +27,14 @@ const styles = {
 	extended: { text: 'text-violet' },
 	flagged: { text: 'text-red' },
 	archived: { text: 'text-light-gray' },
+	knif: { text: 'text-red' },
 }
 
 function display(application) {
 	let key = application.status.value
 	let label = application.status.label
 
-	if (key !== 'archived' && application.flagged) {
+	if (key !== 'archived' && key !== 'knif' && application.flagged) {
 		key = 'flagged'
 		label = 'Wichtig'
 	}
@@ -39,14 +42,23 @@ function display(application) {
 	return { key, label, ...styles[key] }
 }
 
+// Carry the current list URL (search / page / sort) into history state so the
+// detail view's back link can return to the exact same filtered list.
 function open(application) {
-	router.push({ name: 'applications.show', params: { id: application.id } })
+	router.push({
+		name: 'applications.show',
+		params: { id: application.id },
+		state: { from: route.fullPath },
+	})
 }
 </script>
 
 <template>
-  <div class="mb-20">
-    <SearchInput v-model="search" placeholder="Nr., Name oder Ort suchen …" />
+  <div class="flex justify-between items-center mb-30">
+    <Button variant="primary" icon="faders" size="md">
+      Filter
+    </Button>
+    <SearchInput v-model="search" placeholder="Suche nach Name, Nummer, Ort" />
   </div>
 
   <Panel>

@@ -50,12 +50,12 @@ class LookupController
 		if ($request->headers->get('If-None-Match') === $etag) {
 			return response()->json(null, 304)
 				->header('ETag', $etag)
-				->header('Cache-Control', 'public, max-age=86400, stale-while-revalidate=86400');
+				->header('Cache-Control', 'public, no-cache');
 		}
 
 		return response()->json($payload)
 			->header('ETag', $etag)
-			->header('Cache-Control', 'public, max-age=86400, stale-while-revalidate=86400')
+			->header('Cache-Control', 'public, no-cache')
 			->header('Vary', 'Accept-Language');
 	}
 

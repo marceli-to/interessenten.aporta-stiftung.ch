@@ -99,6 +99,10 @@ async function handleDelete() {
 	}
 }
 
+// Return to the originating filtered list (search / page / sort) when we have it
+// in history state; fall back to the bare list for deep links / refreshes.
+const backTo = window.history.state?.from || { name: 'applications.index' }
+
 const title = computed(() => {
 	if (!app.value) return ''
 	const a = app.value.main_applicant
@@ -115,7 +119,7 @@ const title = computed(() => {
 	<div v-else-if="app">
 		<header class="flex items-center justify-between mb-30">
 			<Heading1>{{ title }}</Heading1>
-			<RouterLink :to="{ name: 'applications.index' }">
+			<RouterLink :to="backTo">
 				<Button variant="ghost" size="sm">← Zurück zur Liste</Button>
 			</RouterLink>
 		</header>

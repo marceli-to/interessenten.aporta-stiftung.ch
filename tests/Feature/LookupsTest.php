@@ -38,7 +38,7 @@ it('emits status, district and room slugs', function () {
 	$response = $this->getJson('/api/v1/lookups');
 
 	expect(collect($response->json('statuses'))->pluck('slug')->all())
-		->toContain(Status::Opened->value, Status::Extended->value, Status::Archived->value)
+		->toContain(Status::Opened->value, Status::Extended->value, Status::Archived->value, Status::Knif->value)
 		->and(collect($response->json('districts'))->pluck('slug')->all())
 		->toContain(District::Kreis4->value);
 });
@@ -62,7 +62,7 @@ it('sets ETag and cache headers', function () {
 	$response = $this->getJson('/api/v1/lookups');
 
 	expect($response->headers->get('ETag'))->not->toBeEmpty()
-		->and($response->headers->get('Cache-Control'))->toContain('max-age=86400');
+		->and($response->headers->get('Cache-Control'))->toContain('no-cache');
 });
 
 it('returns 304 when If-None-Match matches', function () {

@@ -42,7 +42,7 @@ const textOnly = ['ghost', 'danger']
 
 const containedSizes = {
 	sm: 'h-30 px-12 text-sm font-normal gap-5',
-	md: 'h-40 px-20 text-sm font-medium gap-10',
+	md: 'h-40 px-20 text-md font-medium gap-10',
 	lg: 'h-50 pl-20 pr-16 text-2xl font-medium gap-10',
 }
 
@@ -60,7 +60,7 @@ const iconComponent = computed(() => (props.icon ? icons[props.icon] : null))
 
 const iconSize = computed(() => {
 	if (props.size === 'lg') return 24
-	if (textOnly.includes(props.variant) && props.size === 'md') return 18
+	if (props.size === 'md') return 18
 	return 16
 })
 </script>
