@@ -125,6 +125,27 @@ it('changes the status and records an audit event', function () {
 	]);
 });
 
+it('does not record an audit event when the status is unchanged', function () {
+	expect($this->application->status->value)->toBe('opened');
+
+	$response = $this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}/status", [
+			'status' => 'opened',
+		]);
+
+	// Only the intake event survives — re-saving the same status is a no-op
+	// for the audit trail, not an "opened → opened" row.
+	$response->assertOk()
+		->assertJsonCount(1, 'data.status_events')
+		->assertJsonPath('data.status_events.0.status.value', 'opened');
+
+	$this->assertDatabaseMissing('status_events', [
+		'application_id' => $this->application->id,
+		'from_status' => 'opened',
+		'to_status' => 'opened',
+	]);
+});
+
 it('stamps the transition date for the target state', function () {
 	$response = $this->actingAs($this->user)
 		->putJson("/api/dashboard/applications/{$this->application->id}/status", [

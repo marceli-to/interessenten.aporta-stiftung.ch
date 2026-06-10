@@ -23,7 +23,7 @@ const icons = {
 
 <template>
 	<div
-		class="flex items-center gap-10 text-sm py-10 px-15 rounded-xs shadow-md cursor-pointer"
+		class="flex items-center gap-10 text-sm p-15 rounded-2xl shadow-md cursor-pointer"
 		:class="styles[toast.type]"
 		@click="$emit('close')"
 	>

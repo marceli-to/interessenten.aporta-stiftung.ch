@@ -158,62 +158,62 @@ onUnmounted(() => document.removeEventListener('click', closeActions))
 			</div>
 		</div>
 
-		<!-- Each note carries the divider above it; the first one's doubles as the header rule (or the rule under the new-note field). -->
-    <div class="divide-y divide-black/20 border-y border-black/20">
+    
       <template v-if="items.length === 0 && !adding">
-        <div class="py-10">
+        <div class="py-10 border-y border-black/20">
          Noch keine Notizen...
         </div>
       </template>
       <template v-else>
-        <div v-for="note in items" :key="note.id" class="py-10">
-          <div class="flex items-baseline justify-between gap-10">
-            <span class="font-bold text-blue">
-              {{ note.author }}
-            </span>
-            <span class="shrink-0 text-sm text-black/50">
-              {{ fmtDate(note.created_at) }}
-            </span>
-          </div>
-
-          <div v-if="editingId === note.id" class="mt-10">
-            <Textarea v-model="editBody" variant="white" :rows="4" :hasError="!!editError" />
-            <p v-if="editError" class="mt-5 text-sm text-red">
-              {{ editError }}
-            </p>
-            <div class="mt-10 flex items-center justify-end gap-10">
-              <Button variant="ghost" size="sm" @click="cancelEdit">
-                Abbrechen
-              </Button>
-              <Button variant="ghost" size="sm" icon="floppy-disk" :disabled="!editBody.trim() || saving" @click="saveEdit(note)">
-                Speichern
-              </Button>
+        <div class="divide-y divide-black/20 border-y border-black/20" v-if="items.length > 0">
+          <div v-for="note in items" :key="note.id" class="py-10">
+            <div class="flex items-baseline justify-between gap-10">
+              <span class="font-bold text-blue">
+                {{ note.author }}
+              </span>
+              <span class="shrink-0 text-sm text-black/50">
+                {{ fmtDate(note.created_at) }}
+              </span>
             </div>
-          </div>
 
-          <template v-else>
-            <p class="mt-5 whitespace-pre-line text-blue">{{ note.body }}</p>
-            <div class="flex h-30 items-center justify-end" @click.stop>
-              <Button
-                v-if="openActionsId !== note.id"
-                variant="ghost"
-                size="sm"
-                icon="dots-three"
-                title="Aktionen"
-                @click="toggleActions(note.id)"
-              />
-              <div v-else class="flex items-center gap-15">
-                <Button variant="ghost" size="sm" icon="pencil-simple" @click="startEdit(note)">
-                  Bearbeiten
+            <div v-if="editingId === note.id" class="mt-10">
+              <Textarea v-model="editBody" variant="white" :rows="4" :hasError="!!editError" />
+              <p v-if="editError" class="mt-5 text-sm text-red">
+                {{ editError }}
+              </p>
+              <div class="mt-10 flex items-center justify-end gap-10">
+                <Button variant="ghost" size="sm" @click="cancelEdit">
+                  Abbrechen
                 </Button>
-                <Button variant="danger" size="sm" icon="trash" @click="remove(note)">
-                  Löschen
+                <Button variant="ghost" size="sm" icon="floppy-disk" :disabled="!editBody.trim() || saving" @click="saveEdit(note)">
+                  Speichern
                 </Button>
               </div>
             </div>
-          </template>
+
+            <template v-else>
+              <p class="mt-5 whitespace-pre-line text-blue">{{ note.body }}</p>
+              <div class="flex h-30 items-center justify-end" @click.stop>
+                <Button
+                  v-if="openActionsId !== note.id"
+                  variant="ghost"
+                  size="sm"
+                  icon="dots-three"
+                  title="Aktionen"
+                  @click="toggleActions(note.id)"
+                />
+                <div v-else class="flex items-center gap-15">
+                  <Button variant="ghost" size="sm" icon="pencil-simple" @click="startEdit(note)">
+                    Bearbeiten
+                  </Button>
+                  <Button variant="danger" size="sm" icon="trash" @click="remove(note)">
+                    Löschen
+                  </Button>
+                </div>
+              </div>
+            </template>
+          </div>
         </div>
       </template>
-    </div>
 	</Panel>
 </template>

@@ -13,6 +13,10 @@ class Record
 	 * Record a status transition. If $from is not provided, it defaults to the
 	 * application's current status (back-office flow). Pass $from = null explicitly
 	 * for the initial event recorded at intake (from null → Opened).
+	 *
+	 * A no-op save (status unchanged) records nothing and returns null: the audit
+	 * log is a trail of real transitions, not of every "Speichern" click. The
+	 * initial intake event is exempt — it is the genesis entry (null → Opened).
 	 */
 	public function execute(
 		Application $application,
@@ -22,9 +26,13 @@ class Record
 		?string $reason = null,
 		?CarbonInterface $occurredAt = null,
 		bool $isInitial = false,
-	): StatusEvent {
+	): ?StatusEvent {
 		if (! $isInitial && $from === null) {
 			$from = $application->status;
+		}
+
+		if (! $isInitial && $from === $to) {
+			return null;
 		}
 
 		if ($application->status !== $to) {
