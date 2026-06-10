@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Dashboard;
 
+use App\Actions\Application\Delete as DeleteApplication;
 use App\Actions\Application\Get as GetApplications;
 use App\Actions\Application\Show as ShowApplication;
 use App\Actions\Application\Update as UpdateApplication;
@@ -40,5 +41,12 @@ class ApplicationController extends Controller
 		return new ApplicationDetailResource(
 			(new ShowApplication())->execute($application)
 		);
+	}
+
+	public function destroy(Application $application)
+	{
+		(new DeleteApplication())->execute($application);
+
+		return response()->json(null, 204);
 	}
 }

@@ -24,7 +24,7 @@ const icons = {
 
 const props = defineProps({
 	type: { type: String, default: 'button' },
-	variant: { type: String, default: 'primary' }, // primary | outline | ghost | danger
+	variant: { type: String, default: 'primary' }, // primary | outline | ghost | danger | danger-solid
 	size: { type: String, default: 'md' }, // sm | md | lg
 	icon: { type: String, default: null },
 })
@@ -34,6 +34,7 @@ const variants = {
 	outline: 'border border-blue text-blue rounded-full hover:bg-light-blue',
 	ghost: 'text-blue hover:opacity-70',
 	danger: 'text-red hover:opacity-70',
+	'danger-solid': 'border border-red bg-red text-white rounded-full hover:bg-red/90',
 }
 
 // Borderless, text-only variants share the no-chrome sizing and icon scale.

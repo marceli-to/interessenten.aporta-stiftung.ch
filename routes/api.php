@@ -20,6 +20,7 @@ Route::prefix('dashboard')
 				Route::get('/', 'index');
 				Route::get('/{application}', 'show');
 				Route::put('/{application}', 'update');
+				Route::delete('/{application}', 'destroy');
 			});
 
 		Route::put('applications/{application}/status', [ApplicationStatusController::class, 'update']);

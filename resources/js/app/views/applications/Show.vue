@@ -1,10 +1,11 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import api from '@/api/applications'
 import { useLookupsStore } from '@/stores/lookups'
 import { useToast } from '@/composables/useToast'
 import Heading1 from '@/components/ui/headings/H1.vue'
+import Button from '@/components/ui/form/Button.vue'
 import StatusPanel from '@/views/applications/panels/StatusPanel.vue'
 import ApplicantPanel from '@/views/applications/panels/ApplicantPanel.vue'
 import EmployerPanel from '@/views/applications/panels/EmployerPanel.vue'
@@ -13,11 +14,14 @@ import HousingWishPanel from '@/views/applications/panels/HousingWishPanel.vue'
 import HouseholdPanel from '@/views/applications/panels/HouseholdPanel.vue'
 import NotesPanel from '@/views/applications/panels/NotesPanel.vue'
 import HistoryPanel from '@/views/applications/panels/HistoryPanel.vue'
+import DeletePanel from '@/views/applications/panels/DeletePanel.vue'
+import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue'
 
 const props = defineProps({
 	id: { type: String, required: true },
 })
 
+const router = useRouter()
 const lookups = useLookupsStore()
 const toast = useToast()
 
@@ -78,11 +82,28 @@ const householdSource = computed(() =>
 	app.value ? { info: app.value.household_info, children: app.value.children } : null
 )
 
+// Deletion is confirmed through a ConfirmDialog: the DeletePanel button opens it,
+// confirming runs the destroy and (on success) redirects to the list.
+const confirmingDelete = ref(false)
+
+const askDelete = () => { confirmingDelete.value = true }
+
+async function handleDelete() {
+	try {
+		await api.destroy(props.id)
+		toast.success('Bewerbung gelöscht.')
+		router.push({ name: 'applications.index' })
+	} catch {
+		// failure already surfaced as a toast by the axios interceptor
+		confirmingDelete.value = false
+	}
+}
+
 const title = computed(() => {
 	if (!app.value) return ''
 	const a = app.value.main_applicant
 	const name = a ? `${lookups.label('salutations', a.salutation)} ${a.first_name} ${a.last_name}` : ''
-	return `Nr. ${app.value.reference_number} – ${name}`.trim()
+	return `${app.value.reference_number} – ${name}`.trim()
 })
 </script>
 
@@ -92,10 +113,10 @@ const title = computed(() => {
 	</div>
 
 	<div v-else-if="app">
-		<header class="flex items-center justify-between mb-40">
+		<header class="flex items-center justify-between mb-30">
 			<Heading1>{{ title }}</Heading1>
-			<RouterLink :to="{ name: 'applications.index' }" class="text-sm text-gray hover:text-blue">
-				← Zurück zur Liste
+			<RouterLink :to="{ name: 'applications.index' }">
+				<Button variant="ghost" size="sm">← Zurück zur Liste</Button>
 			</RouterLink>
 		</header>
 
@@ -165,7 +186,20 @@ const title = computed(() => {
 					:notes="app.notes" />
 
 				<HistoryPanel :events="app.status_events" />
+
+				<DeletePanel :onDelete="askDelete" />
 			</div>
 		</div>
+
+		<ConfirmDialog
+			:open="confirmingDelete"
+			title="Bewerbung löschen"
+			:message="`Die Bewerbung «${title}» wird aus der Liste entfernt. Sie bleibt gespeichert und kann später wiederhergestellt werden.`"
+			confirmLabel="Löschen bestätigen"
+			cancelLabel="Abbrechen"
+			:destructive="true"
+			@confirm="handleDelete"
+			@cancel="confirmingDelete = false"
+		/>
 	</div>
 </template>

@@ -15,7 +15,7 @@ onMounted(() => userStore.fetchUser())
 
 <template>
 
-	<header class="bg-light-blue border-b border-b-blue/30 py-30 mb-25 w-full">
+	<header class="bg-light-blue border-b border-b-blue/30 py-30 mb-30 w-full">
 
     <div class="grid grid-cols-12 items-center">
 
