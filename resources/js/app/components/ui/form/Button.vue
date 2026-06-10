@@ -7,6 +7,7 @@ import {
 	PhNotePencil,
 	PhFaders,
 	PhPlus,
+	PhTrash,
 } from '@phosphor-icons/vue'
 
 const icons = {
@@ -16,6 +17,7 @@ const icons = {
 	'note-pencil': PhNotePencil,
 	faders: PhFaders,
 	plus: PhPlus,
+	trash: PhTrash,
 }
 
 const props = defineProps({

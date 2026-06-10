@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue'
-import { PhPencilSimple, PhTrash } from '@phosphor-icons/vue'
 import api from '@/api/applications'
 import { useToast } from '@/composables/useToast'
 import { fmtDate } from '@/utils/format'
@@ -178,13 +177,13 @@ function bodyError(e) {
 
           <template v-else>
             <p class="mt-5 whitespace-pre-line text-blue">{{ note.body }}</p>
-            <div class="mt-5 flex justify-end gap-15">
-              <button type="button" class="text-gray transition-colors hover:text-blue" title="Bearbeiten" @click="startEdit(note)">
-                <PhPencilSimple :size="20" />
-              </button>
-              <button type="button" class="text-gray transition-colors hover:text-red" title="Löschen" @click="remove(note)">
-                <PhTrash :size="20" />
-              </button>
+            <div class="mt-5 flex items-center justify-end gap-15">
+              <Button variant="ghost" size="sm" icon="pencil-simple" @click="startEdit(note)">
+                Bearbeiten
+              </Button>
+              <Button variant="ghost" size="sm" icon="trash" @click="remove(note)">
+                Löschen
+              </Button>
             </div>
           </template>
         </div>
