@@ -27,7 +27,7 @@ function toggle(value) {
 </script>
 
 <template>
-	<div class="flex flex-wrap gap-5">
+	<div class="flex flex-wrap gap-5 py-3">
 		<component
 			:is="readonly ? 'span' : 'button'"
 			v-for="option in visible"

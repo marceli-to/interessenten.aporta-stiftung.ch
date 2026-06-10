@@ -7,7 +7,6 @@ import InfoRow from '@/components/ui/info/Row.vue'
 import EditRow from '@/components/ui/info/EditRow.vue'
 import Input from '@/components/ui/form/Input.vue'
 import Select from '@/components/ui/form/Select.vue'
-import Checkbox from '@/components/ui/form/Checkbox.vue'
 
 // Personal data for one applicant. `source` is the WHOLE applicant object
 // (incl. employer + current_housing) because the backend replaces the applicant
@@ -24,6 +23,11 @@ const props = defineProps({
 const lookups = useLookupsStore()
 
 const yesNo = (v) => (v == null ? '–' : v ? 'Ja' : 'Nein')
+
+const yesNoOptions = [
+	{ value: true, label: 'Ja' },
+	{ value: false, label: 'Nein' },
+]
 
 function fullName(a) {
 	return [a.first_name, a.last_name].filter(Boolean).join(' ') || '–'
@@ -106,7 +110,7 @@ function nationality(a) {
 					<Select v-model="draft.relationship_to_main" :options="lookups.options('relationships')" :hasError="!!errors.relationship_to_main" />
 				</EditRow>
 				<EditRow v-if="!isMain" label="Gleiche Adresse wie Hauptmieter">
-					<Checkbox v-model="draft.same_address_as_main" />
+					<Select v-model="draft.same_address_as_main" :options="yesNoOptions" />
 				</EditRow>
 
 				<template v-if="isMain || !draft.same_address_as_main">
@@ -162,7 +166,7 @@ function nationality(a) {
 					<Select v-model="draft.employment_status" :options="lookups.options('employment_statuses')" :hasError="!!errors.employment_status" />
 				</EditRow>
 				<EditRow label="Betreibungen">
-					<Checkbox v-model="draft.debt_enforcement_last_2y" />
+					<Select v-model="draft.debt_enforcement_last_2y" :options="yesNoOptions" />
 				</EditRow>
 			</InfoList>
 		</template>

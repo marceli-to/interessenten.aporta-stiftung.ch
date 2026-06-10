@@ -7,7 +7,6 @@ import EditRow from '@/components/ui/info/EditRow.vue'
 import Input from '@/components/ui/form/Input.vue'
 import Select from '@/components/ui/form/Select.vue'
 import Textarea from '@/components/ui/form/Textarea.vue'
-import Checkbox from '@/components/ui/form/Checkbox.vue'
 
 // Current-housing slice of an applicant. Same `source` (whole applicant) and
 // onSave as ApplicantPanel; edits draft.current_housing. current_housing is a
@@ -22,6 +21,11 @@ const props = defineProps({
 const lookups = useLookupsStore()
 
 const yesNo = (v) => (v == null ? '–' : v ? 'Ja' : 'Nein')
+
+const yesNoOptions = [
+	{ value: true, label: 'Ja' },
+	{ value: false, label: 'Nein' },
+]
 
 function landlord(ch) {
 	return [ch?.landlord_name, ch?.landlord_contact_person, ch?.landlord_phone]
@@ -66,7 +70,7 @@ function landlord(ch) {
 					<Select v-model="draft.current_housing.tenant_role" :options="lookups.options('tenant_roles')" :hasError="!!errors.tenant_role" />
 				</EditRow>
 				<EditRow label="Gekündigt durch Vermieter">
-					<Checkbox v-model="draft.current_housing.terminated_by_landlord" />
+					<Select v-model="draft.current_housing.terminated_by_landlord" :options="yesNoOptions" />
 				</EditRow>
 				<EditRow v-if="draft.current_housing.terminated_by_landlord" label="Kündigungsgrund" :error="errors.termination_reason">
 					<Textarea v-model="draft.current_housing.termination_reason" :hasError="!!errors.termination_reason" />

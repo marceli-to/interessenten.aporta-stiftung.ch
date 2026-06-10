@@ -41,6 +41,16 @@ function cancel() {
 	errors.value = {}
 }
 
+// The moment the user focuses a field to correct it, drop the stale validation
+// errors — label colour, control tint and info icon all derive from this object,
+// so clearing it makes every error vanish at once. The next Save re-validates and
+// repopulates from the server, so nothing is lost. Only real form controls count:
+// focusing the error's info button must NOT wipe the message it's about to show.
+function clearErrors(e) {
+	if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target?.tagName)) return
+	if (Object.keys(errors.value).length) errors.value = {}
+}
+
 async function save() {
 	saving.value = true
 	try {
@@ -84,7 +94,9 @@ function mapErrors(raw) {
 			</Button>
 		</template>
 
-		<slot v-if="isEditing" name="edit" :draft="draft" :errors="errors" />
+		<div v-if="isEditing" @focusin="clearErrors">
+			<slot name="edit" :draft="draft" :errors="errors" />
+		</div>
 		<slot v-else name="view" :data="source" />
 	</Panel>
 </template>

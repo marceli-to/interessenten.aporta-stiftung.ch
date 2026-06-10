@@ -13,11 +13,11 @@ import InfoRow from '@/components/ui/info/Row.vue'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import Select from '@/components/ui/form/Select.vue'
 import Input from '@/components/ui/form/Input.vue'
-import ApplicantPanel from '@/views/applications/show/ApplicantPanel.vue'
-import EmployerPanel from '@/views/applications/show/EmployerPanel.vue'
-import HousingPanel from '@/views/applications/show/HousingPanel.vue'
-import HousingWishPanel from '@/views/applications/show/HousingWishPanel.vue'
-import HouseholdPanel from '@/views/applications/show/HouseholdPanel.vue'
+import ApplicantPanel from '@/views/applications/panels/ApplicantPanel.vue'
+import EmployerPanel from '@/views/applications/panels/EmployerPanel.vue'
+import HousingPanel from '@/views/applications/panels/HousingPanel.vue'
+import HousingWishPanel from '@/views/applications/panels/HousingWishPanel.vue'
+import HouseholdPanel from '@/views/applications/panels/HouseholdPanel.vue'
 
 const props = defineProps({
 	id: { type: String, required: true },

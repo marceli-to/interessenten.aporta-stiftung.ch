@@ -28,6 +28,6 @@ const variants = {
 		:placeholder="placeholder"
 		v-model="model"
 		class="w-full px-5 min-h-32 ring-0! focus:ring-0! outline-none!"
-		:class="variants[variant] ?? variants.default"
+		:class="hasError ? 'bg-light-red/30' : (variants[variant] ?? variants.default)"
 	/>
 </template>

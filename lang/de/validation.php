@@ -1,5 +1,86 @@
 <?php
 
+// Human-readable German labels for every payload field, so validation messages
+// read "Das Feld Vorname ist erforderlich, wenn Hauptmieter vorhanden ist."
+// instead of spelling out the raw dotted path. Mirrors the form labels in the
+// dashboard detail view (resources/js/app/views/applications/show).
+$applicantAttributes = static fn (string $prefix): array => [
+	$prefix => $prefix === 'main_applicant' ? 'Hauptmieter' : 'Partner*in',
+
+	"$prefix.salutation"               => 'Anrede',
+	"$prefix.first_name"               => 'Vorname',
+	"$prefix.last_name"                => 'Name',
+	"$prefix.birth_date"               => 'Geburtsdatum',
+	"$prefix.marital_status"           => 'Zivilstand',
+	"$prefix.nationality"              => 'Nationalität',
+	"$prefix.place_of_origin"          => 'Heimatort',
+	"$prefix.residence_permit"         => 'Aufenthaltsbewilligung',
+	"$prefix.swiss_residence_since"    => 'In der Schweiz seit',
+	"$prefix.mobile_phone"             => 'Telefon (mobil)',
+	"$prefix.landline_phone"           => 'Telefon (Festnetz)',
+	"$prefix.email"                    => 'E-Mail',
+	"$prefix.occupation"               => 'Beruf',
+	"$prefix.employment_status"        => 'Erwerbssituation',
+	"$prefix.debt_enforcement_last_2y" => 'Betreibungen',
+	"$prefix.street"                   => 'Strasse',
+	"$prefix.street_number"            => 'Nr.',
+	"$prefix.postal_code"              => 'PLZ',
+	"$prefix.city"                     => 'Ort',
+	"$prefix.relationship_to_main"     => 'Beziehung zum Hauptmieter',
+	"$prefix.same_address_as_main"     => 'Gleiche Adresse wie Hauptmieter',
+
+	"$prefix.employer"                       => 'Arbeitgeber',
+	"$prefix.employer.name"                  => 'Arbeitgeber',
+	"$prefix.employer.workload_percent"      => 'Pensum',
+	"$prefix.employer.annual_income_bracket" => 'Jahreseinkommen',
+
+	"$prefix.current_housing"                       => 'Wohnsituation',
+	"$prefix.current_housing.tenant_role"           => 'Rolle',
+	"$prefix.current_housing.terminated_by_landlord" => 'Gekündigt durch Vermieter',
+	"$prefix.current_housing.termination_reason"    => 'Kündigungsgrund',
+	"$prefix.current_housing.landlord_name"         => 'Vermieter',
+	"$prefix.current_housing.landlord_contact_person" => 'Kontaktperson',
+	"$prefix.current_housing.landlord_phone"        => 'Telefon Vermieter',
+	"$prefix.current_housing.rent_duration"         => 'Wohnhaft seit',
+	"$prefix.current_housing.previous_landlord"     => 'Frühere*r Vermieter*in',
+];
+
+$applicationAttributes = array_merge(
+	[
+		'shares_apartment' => 'Wohnungsteilung',
+		'flagged'          => 'Wichtig',
+
+		'housing_wish'                 => 'Wohnwunsch',
+		'housing_wish.earliest_move_in' => 'Frühester Mietbeginn',
+		'housing_wish.max_gross_rent'  => 'Max. Bruttomiete',
+		'housing_wish.wants_balcony'   => 'Balkon',
+		'housing_wish.wants_elevator'  => 'Lift',
+		'housing_wish.districts'       => 'Stadtkreise',
+		'housing_wish.districts.*'     => 'Stadtkreis',
+		'housing_wish.floors'          => 'Stockwerke',
+		'housing_wish.floors.*'        => 'Stockwerk',
+		'housing_wish.rooms'           => 'Zimmer',
+		'housing_wish.rooms.*'         => 'Zimmer',
+
+		'household_info'                            => 'Haushalt',
+		'household_info.total_persons'             => 'Personen im Haushalt',
+		'household_info.adults_count'              => 'Erwachsene',
+		'household_info.children_count'            => 'Kinder',
+		'household_info.all_children_live_constantly' => 'Kinder dauerhaft im Haushalt',
+		'household_info.plays_music'               => 'Musiziert',
+		'household_info.musical_instruments'       => 'Musikinstrumente',
+		'household_info.has_pets'                  => 'Haustiere',
+		'household_info.pets_description'          => 'Beschreibung Haustiere',
+		'household_info.remarks'                   => 'Bemerkungen',
+
+		'children'                 => 'Kinder',
+		'children.*.position'      => 'Position',
+		'children.*.birth_year'    => 'Jahrgang',
+	],
+	$applicantAttributes('main_applicant'),
+	$applicantAttributes('co_applicant'),
+);
+
 return [
 
 	'accepted'             => 'Das Feld :attribute muss akzeptiert werden.',
@@ -162,6 +243,6 @@ return [
 		],
 	],
 
-	'attributes' => [],
+	'attributes' => $applicationAttributes,
 
 ];

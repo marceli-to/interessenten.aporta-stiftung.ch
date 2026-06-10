@@ -4,8 +4,8 @@ import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
 import EditRow from '@/components/ui/info/EditRow.vue'
 import Input from '@/components/ui/form/Input.vue'
+import Select from '@/components/ui/form/Select.vue'
 import Textarea from '@/components/ui/form/Textarea.vue'
-import Checkbox from '@/components/ui/form/Checkbox.vue'
 
 // Household + children. These are two separate backend sections (household_info,
 // children) whose validation cross-checks each other, so they're saved together.
@@ -36,6 +36,11 @@ function personsLine(info) {
 function years(children) {
 	return children?.length ? children.map((c) => c.birth_year).filter(Boolean).join(', ') : '–'
 }
+
+const yesNoOptions = [
+	{ value: true, label: 'Ja' },
+	{ value: false, label: 'Nein' },
+]
 </script>
 
 <template>
@@ -54,7 +59,7 @@ function years(children) {
 				<InfoRow label="Haustiere">
 					{{ data.info.has_pets ? (data.info.pets_description || 'Ja') : 'Keine' }}
 				</InfoRow>
-				<InfoRow label="Bemerkungen">
+				<InfoRow label="Bemerkungen" class="items-start!">
 					{{ data.info.remarks || '–' }}
 				</InfoRow>
 			</InfoList>
@@ -88,25 +93,25 @@ function years(children) {
 				</EditRow>
 
 				<EditRow v-if="draft.children.length" label="Kinder dauerhaft im Haushalt">
-					<Checkbox v-model="draft.info.all_children_live_constantly" />
+					<Select v-model="draft.info.all_children_live_constantly" :options="yesNoOptions" />
 				</EditRow>
 
 				<EditRow label="Musiziert">
-					<Checkbox v-model="draft.info.plays_music" />
+					<Select v-model="draft.info.plays_music" :options="yesNoOptions" />
 				</EditRow>
 				<EditRow v-if="draft.info.plays_music" label="Musikinstrumente" :error="errors['household_info.musical_instruments']">
 					<Input v-model="draft.info.musical_instruments" :hasError="!!errors['household_info.musical_instruments']" />
 				</EditRow>
 
 				<EditRow label="Haustiere">
-					<Checkbox v-model="draft.info.has_pets" />
+					<Select v-model="draft.info.has_pets" :options="yesNoOptions" />
 				</EditRow>
 				<EditRow v-if="draft.info.has_pets" label="Beschreibung Haustiere" :error="errors['household_info.pets_description']">
 					<Input v-model="draft.info.pets_description" :hasError="!!errors['household_info.pets_description']" />
 				</EditRow>
 
-				<EditRow label="Bemerkungen" :error="errors['household_info.remarks']">
-					<Textarea v-model="draft.info.remarks" :rows="4" :hasError="!!errors['household_info.remarks']" />
+				<EditRow label="Bemerkungen" :error="errors['household_info.remarks']" class="items-start!">
+					<Textarea v-model="draft.info.remarks" :rows="4" :hasError="!!errors['household_info.remarks']" class="py-5!" />
 				</EditRow>
 			</InfoList>
 		</template>

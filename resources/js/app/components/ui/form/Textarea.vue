@@ -27,7 +27,7 @@ const variants = {
 		:rows="rows"
 		:placeholder="placeholder"
 		v-model="model"
-		class="w-full px-5 py-5 ring-0! focus:ring-0! outline-none!"
+		class="w-full px-5 py-5 ring-0! focus:ring-0! outline-none! field-sizing-content"
 		:class="variants[variant] ?? variants.default"
 	/>
 </template>

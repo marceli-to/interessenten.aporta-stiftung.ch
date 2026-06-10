@@ -2,8 +2,9 @@
 import InfoRow from '@/components/ui/info/Row.vue'
 
 // The editable counterpart of info/Row: same "label | value" grid, but the value
-// column holds a form control (default slot) plus an inline validation message.
-// Lets a panel's edit mode mirror its read mode row-for-row.
+// column holds a form control (default slot). On validation error the label turns
+// red (and the control is tinted red via its own `hasError` prop). How the message
+// itself is surfaced is still TBD — handled elsewhere for now.
 defineProps({
 	label: { type: String, default: null },
 	error: { type: [String, Array], default: null },
@@ -12,9 +13,12 @@ defineProps({
 
 <template>
 	<InfoRow :label="label">
+		<template #label>
+			<label class="font-bold text-sm" :class="{ 'text-red': error }">
+				{{ label }}
+			</label>
+		</template>
+
 		<slot />
-		<p v-if="error" class="mt-5 text-sm text-red">
-			{{ Array.isArray(error) ? error[0] : error }}
-		</p>
 	</InfoRow>
 </template>

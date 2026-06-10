@@ -31,7 +31,7 @@ const variants = {
 			v-model="model"
 			:disabled="disabled"
 			class="appearance-none w-full pl-5 pr-30 min-h-32 ring-0! focus:ring-0! outline-none!"
-			:class="variants[variant] ?? variants.default"
+			:class="hasError ? 'bg-light-red/30' : (variants[variant] ?? variants.default)"
 		>
 			<option v-if="placeholder" :value="null">{{ placeholder }}</option>
 			<option
