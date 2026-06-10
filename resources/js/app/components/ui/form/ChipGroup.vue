@@ -10,16 +10,16 @@ const props = defineProps({
 	// `{ value, label }[]`
 	options: { type: Array, default: () => [] },
 	readonly: { type: Boolean, default: false },
-	// `md` matches the filter Input height (h-32); `default` is the compact chip.
+	// `sm` is the compact chip; `md` matches the filter Input height (h-32).
 	size: {
 		type: String,
-		default: 'default',
-		validator: (v) => ['default', 'md'].includes(v),
+		default: 'sm',
+		validator: (v) => ['sm', 'md'].includes(v),
 	},
 })
 
 const sizes = {
-	default: 'h-24 px-10',
+	sm: 'h-24 px-10',
 	md: 'h-32 px-12',
 }
 

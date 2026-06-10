@@ -11,16 +11,16 @@ defineProps({
 	hasError: { type: Boolean, default: false },
 	variant: {
 		type: String,
-		default: 'default',
-		validator: (v) => ['default', 'filter'].includes(v),
+		default: 'filled',
+		validator: (v) => ['filled', 'outline'].includes(v),
 	},
 })
 
-// `default` sits inside an editable panel; `filter` is the outlined treatment
-// for the (not yet built) list filter bar.
+// `filled` is the soft fill used inside editable panels; `outline` is the
+// bordered treatment used in the list filter bar.
 const variants = {
-	default: 'bg-light-blue/40',
-	filter: 'border border-blue bg-light-blue',
+	filled: 'bg-light-blue/40',
+	outline: 'border border-blue bg-light-blue rounded-xs',
 }
 </script>
 
@@ -31,7 +31,7 @@ const variants = {
 			v-model="model"
 			:disabled="disabled"
 			class="appearance-none w-full pl-5 pr-30 min-h-32 ring-0! focus:ring-0! outline-none!"
-			:class="hasError ? 'bg-light-red/30' : (variants[variant] ?? variants.default)"
+			:class="hasError ? 'bg-light-red/30' : (variants[variant] ?? variants.filled)"
 		>
 			<option v-if="placeholder" :value="null">{{ placeholder }}</option>
 			<option
