@@ -4,7 +4,7 @@
 			<div class="flex justify-center text-blue">
 				<x-icons.logo class="w-125" />
 			</div>
-			<div class="border-b border-blue/30 my-20"></div>
+			<hr class="border-blue/30 my-20">
       <div class="px-30">
 			  {{ $slot }}
       </div>
