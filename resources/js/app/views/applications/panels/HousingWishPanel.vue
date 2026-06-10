@@ -30,13 +30,13 @@ const lookups = useLookupsStore()
 					{{ fmtMoney(data.max_gross_rent) }}
 				</InfoRow>
 				<InfoRow label="Stadtkreise">
-					<ChipGroup :modelValue="data.districts" :options="lookups.options('districts')" readonly />
+					<ChipGroup class="py-3" :modelValue="data.districts" :options="lookups.options('districts')" readonly />
 				</InfoRow>
 				<InfoRow label="Stockwerke">
-					<ChipGroup :modelValue="data.floors" :options="lookups.options('floors')" readonly />
+					<ChipGroup class="py-3" :modelValue="data.floors" :options="lookups.options('floors')" readonly />
 				</InfoRow>
 				<InfoRow label="Zimmer">
-					<ChipGroup :modelValue="data.rooms" :options="lookups.options('rooms')" readonly />
+					<ChipGroup class="py-3" :modelValue="data.rooms" :options="lookups.options('rooms')" readonly />
 				</InfoRow>
 				<InfoRow label="Balkon">
 					{{ fmtYesNo(data.wants_balcony) }}
@@ -56,13 +56,13 @@ const lookups = useLookupsStore()
 					<Input v-model.number="draft.max_gross_rent" type="number" :hasError="!!errors.max_gross_rent" />
 				</EditRow>
 				<EditRow label="Stadtkreise" :error="errors.districts">
-					<ChipGroup v-model="draft.districts" :options="lookups.options('districts')" />
+					<ChipGroup class="py-3" v-model="draft.districts" :options="lookups.options('districts')" />
 				</EditRow>
 				<EditRow label="Stockwerke" :error="errors.floors">
-					<ChipGroup v-model="draft.floors" :options="lookups.options('floors')" />
+					<ChipGroup class="py-3" v-model="draft.floors" :options="lookups.options('floors')" />
 				</EditRow>
 				<EditRow label="Zimmer" :error="errors.rooms">
-					<ChipGroup v-model="draft.rooms" :options="lookups.options('rooms')" />
+					<ChipGroup class="py-3" v-model="draft.rooms" :options="lookups.options('rooms')" />
 				</EditRow>
 				<EditRow label="Balkon">
 					<Select v-model="draft.wants_balcony" :options="yesNoOptions" />

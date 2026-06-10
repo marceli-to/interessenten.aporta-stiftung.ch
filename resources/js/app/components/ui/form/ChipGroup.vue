@@ -10,7 +10,18 @@ const props = defineProps({
 	// `{ value, label }[]`
 	options: { type: Array, default: () => [] },
 	readonly: { type: Boolean, default: false },
+	// `md` matches the filter Input height (h-32); `default` is the compact chip.
+	size: {
+		type: String,
+		default: 'default',
+		validator: (v) => ['default', 'md'].includes(v),
+	},
 })
+
+const sizes = {
+	default: 'h-24 px-10',
+	md: 'h-32 px-12',
+}
 
 const visible = computed(() =>
 	props.readonly
@@ -27,19 +38,22 @@ function toggle(value) {
 </script>
 
 <template>
-	<div class="flex flex-wrap gap-5 py-3">
+	<div class="flex flex-wrap gap-5">
 		<component
 			:is="readonly ? 'span' : 'button'"
 			v-for="option in visible"
 			:key="option.value"
 			:type="readonly ? undefined : 'button'"
-			class="h-24 px-10 rounded-xs border border-blue text-sm inline-flex items-center leading-none"
-			:class="readonly
-				? 'text-blue'
-				: [
-					'transition-colors cursor-pointer',
-					model.includes(option.value) ? 'bg-blue text-white' : 'text-blue hover:bg-light-blue',
-				]"
+			class="rounded-xs border border-blue text-sm inline-flex items-center leading-none"
+			:class="[
+				sizes[size],
+				readonly
+					? 'text-blue'
+					: [
+						'transition-colors cursor-pointer',
+						model.includes(option.value) ? 'bg-blue text-white' : 'text-blue hover:bg-light-blue',
+					],
+			]"
 			@click="toggle(option.value)"
 		>
 			{{ option.label }}

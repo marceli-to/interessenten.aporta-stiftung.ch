@@ -5,11 +5,10 @@ import { useListQuery } from '@/composables/useListQuery'
 import { fmtDate, fmtMoney, fmtList } from '@/utils/format'
 import Panel from '@/components/ui/panels/Display.vue'
 import Pagination from '@/components/ui/pagination/Pagination.vue'
-import SearchInput from '@/components/ui/form/Search.vue'
 import StatusBadge from '@/components/ui/badges/Status.vue'
 import TableHeadCell from '@/components/ui/table/HeadCell.vue'
 import TableCell from '@/components/ui/table/Cell.vue'
-import Button from '@/components/ui/form/Button.vue'
+import Filter from './Filter.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -54,12 +53,8 @@ function open(application) {
 </script>
 
 <template>
-  <div class="flex justify-between items-center mb-30">
-    <Button variant="primary" icon="faders" size="md">
-      Filter
-    </Button>
-    <SearchInput v-model="search" placeholder="Suche nach Name, Nummer, Ort" />
-  </div>
+  <Filter v-model:search="search" />
+
 
   <Panel>
     <div class="overflow-x-auto">
