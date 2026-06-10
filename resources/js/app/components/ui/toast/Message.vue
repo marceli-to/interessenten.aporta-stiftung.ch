@@ -10,7 +10,7 @@ defineEmits(['close'])
 const styles = {
 	success: 'bg-green text-white',
 	error: 'bg-red text-white',
-	warning: 'bg-yellow text-white',
+	warning: 'bg-yellow text-black',
 	info: 'bg-blue text-white',
 }
 const icons = {

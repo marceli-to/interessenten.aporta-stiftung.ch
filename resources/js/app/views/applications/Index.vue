@@ -101,7 +101,7 @@ function open(application) {
             <tr
               v-for="application in store.applications"
               :key="application.id"
-              class="cursor-pointer hover:bg-light-green/50 align-top"
+              class="cursor-pointer hover:bg-light-gray/10 align-top"
               :class="display(application).key === 'archived' ? 'text-light-gray' : 'text-gray'"
               @click="open(application)"
             >

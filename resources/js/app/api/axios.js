@@ -22,8 +22,9 @@ http.interceptors.request.use((config) => {
 // (auth, permission, server, network) via toast and ALWAYS re-rejects so the
 // store/view catch block still runs — global and local handling compose.
 //
-// 422 is the one exception: validation errors are field-specific, so they pass
-// through untouched for useUsersStore/the view to render inline.
+// 422 also re-rejects so the store/view still renders field-specific messages
+// inline; we additionally toast so the failure is noticed even if the offending
+// field is scrolled out of view.
 http.interceptors.response.use(
 	(response) => response,
 	(error) => {
@@ -41,7 +42,8 @@ http.interceptors.response.use(
 		} else if (status === 408) {
 			toast.error('Zeitüberschreitung der Anfrage. Bitte versuchen Sie es erneut.')
 		} else if (status === 422) {
-			// pass through — handled inline by the store/view at the call site
+			// also passes through — field messages are rendered inline at the call site
+			toast.error('Bitte überprüfen Sie die markierten Felder.')
 		} else if (status === 429) {
 			toast.warning('Zu viele Anfragen. Bitte warten Sie einen Moment.')
 		} else if (status >= 500) {
