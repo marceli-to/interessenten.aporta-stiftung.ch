@@ -22,7 +22,7 @@ const icons = {
 
 const props = defineProps({
 	type: { type: String, default: 'button' },
-	variant: { type: String, default: 'primary' }, // primary | outline | ghost
+	variant: { type: String, default: 'primary' }, // primary | outline | ghost | danger
 	size: { type: String, default: 'md' }, // sm | md | lg
 	icon: { type: String, default: null },
 })
@@ -31,7 +31,11 @@ const variants = {
 	primary: 'border border-blue bg-blue text-white rounded-full hover:bg-blue/90',
 	outline: 'border border-blue text-blue rounded-full hover:bg-light-blue',
 	ghost: 'text-blue hover:opacity-70',
+	danger: 'text-red hover:opacity-70',
 }
+
+// Borderless, text-only variants share the no-chrome sizing and icon scale.
+const textOnly = ['ghost', 'danger']
 
 const containedSizes = {
 	sm: 'h-30 px-12 text-sm font-normal gap-5',
@@ -46,14 +50,14 @@ const ghostSizes = {
 }
 
 const sizeClasses = computed(() =>
-	props.variant === 'ghost' ? ghostSizes[props.size] : containedSizes[props.size]
+	textOnly.includes(props.variant) ? ghostSizes[props.size] : containedSizes[props.size]
 )
 
 const iconComponent = computed(() => (props.icon ? icons[props.icon] : null))
 
 const iconSize = computed(() => {
 	if (props.size === 'lg') return 24
-	if (props.variant === 'ghost' && props.size === 'md') return 18
+	if (textOnly.includes(props.variant) && props.size === 'md') return 18
 	return 16
 })
 </script>

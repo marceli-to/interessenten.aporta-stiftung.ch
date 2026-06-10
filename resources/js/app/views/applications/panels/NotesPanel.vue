@@ -208,7 +208,7 @@ onUnmounted(() => document.removeEventListener('click', closeActions))
                 <Button variant="ghost" size="sm" icon="pencil-simple" @click="startEdit(note)">
                   Bearbeiten
                 </Button>
-                <Button variant="ghost" size="sm" icon="trash" @click="remove(note)">
+                <Button variant="danger" size="sm" icon="trash" @click="remove(note)">
                   Löschen
                 </Button>
               </div>
