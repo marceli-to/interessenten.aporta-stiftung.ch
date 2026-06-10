@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
-import { PhDotsThree } from '@phosphor-icons/vue'
+import { ref } from 'vue'
+import { PhPencilSimple, PhTrash } from '@phosphor-icons/vue'
 import api from '@/api/applications'
 import { useToast } from '@/composables/useToast'
 import { fmtDate } from '@/utils/format'
@@ -15,8 +15,8 @@ import Textarea from '@/components/ui/form/Textarea.vue'
 // list (delivered with the application detail); from there `items` is the source
 // of truth. Each endpoint returns just the affected note (or 204 on delete).
 //   - add:    header toggles to a white textarea + Speichern → unshift (newest first)
-//   - edit:   a note's "…" menu swaps its body for an inline textarea → in-place swap
-//   - delete: a note's "…" menu removes it → filter out
+//   - edit:   the pencil button swaps the body for an inline textarea → in-place swap
+//   - delete: the trash button removes the note → filter out
 // Only one of {adding, editing} is ever active; starting one cancels the other.
 const props = defineProps({
 	applicationId: { type: [Number, String], required: true },
@@ -37,7 +37,6 @@ const editingId = ref(null)
 const editBody = ref('')
 const editError = ref(null)
 
-const openMenuId = ref(null)
 const saving = ref(false)
 
 function startAdd() {
@@ -70,7 +69,6 @@ async function saveNew() {
 }
 
 function startEdit(note) {
-	openMenuId.value = null
 	cancelAdd()
 	editingId.value = note.id
 	editBody.value = note.body
@@ -101,7 +99,6 @@ async function saveEdit(note) {
 }
 
 async function remove(note) {
-	openMenuId.value = null
 	if (saving.value) return
 	saving.value = true
 	try {
@@ -114,22 +111,12 @@ async function remove(note) {
 	}
 }
 
-function toggleMenu(id) {
-	openMenuId.value = openMenuId.value === id ? null : id
-}
-
 // 422 from the single `body` field; any other failure is already toasted by the
 // axios interceptor, so fall back to a generic inline hint.
 function bodyError(e) {
 	if (e?.response?.status !== 422) return 'Speichern fehlgeschlagen.'
 	return e.response.data?.errors?.body?.[0] ?? 'Bitte Text eingeben.'
 }
-
-// Any click outside an open "…" menu closes it. The trigger and the menu both
-// stop propagation so a click on them doesn't immediately re-close it.
-const closeMenu = () => (openMenuId.value = null)
-onMounted(() => document.addEventListener('click', closeMenu))
-onUnmounted(() => document.removeEventListener('click', closeMenu))
 </script>
 
 <template>
@@ -191,22 +178,13 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
 
           <template v-else>
             <p class="mt-5 whitespace-pre-line text-blue">{{ note.body }}</p>
-            <div class="relative mt-5 flex justify-end">
-              <button type="button" class="text-gray transition-colors hover:text-blue" @click.stop="toggleMenu(note.id)">
-                <PhDotsThree :size="24" weight="bold" />
+            <div class="mt-5 flex justify-end gap-15">
+              <button type="button" class="text-gray transition-colors hover:text-blue" title="Bearbeiten" @click="startEdit(note)">
+                <PhPencilSimple :size="20" />
               </button>
-              <div
-                v-if="openMenuId === note.id"
-                class="absolute right-0 top-full z-10 mt-2 min-w-[140px] rounded-lg bg-white py-5 shadow-lg"
-                @click.stop
-              >
-                <button type="button" class="block w-full px-15 py-8 text-left text-sm text-blue hover:bg-light-blue" @click="startEdit(note)">
-                  Bearbeiten
-                </button>
-                <button type="button" class="block w-full px-15 py-8 text-left text-sm text-red hover:bg-light-red/50" @click="remove(note)">
-                  Löschen
-                </button>
-              </div>
+              <button type="button" class="text-gray transition-colors hover:text-red" title="Löschen" @click="remove(note)">
+                <PhTrash :size="20" />
+              </button>
             </div>
           </template>
         </div>
