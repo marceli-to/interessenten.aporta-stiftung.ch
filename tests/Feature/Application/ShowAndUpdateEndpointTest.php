@@ -105,7 +105,15 @@ it('changes the status and records an audit event', function () {
 		]);
 
 	$response->assertOk()
-		->assertJsonPath('data.status.value', 'archived');
+		->assertJsonPath('data.status.value', 'archived')
+		// Verlauf trail, newest first: the change we just made, then the
+		// actor-less intake event ("Über Webformular").
+		->assertJsonCount(2, 'data.status_events')
+		->assertJsonPath('data.status_events.0.status.value', 'archived')
+		->assertJsonPath('data.status_events.0.status.label', 'Archiviert')
+		->assertJsonPath('data.status_events.0.actor', $this->user->full_name)
+		->assertJsonPath('data.status_events.1.status.value', 'opened')
+		->assertJsonPath('data.status_events.1.actor', null);
 
 	expect($this->application->fresh()->status->value)->toBe('archived');
 

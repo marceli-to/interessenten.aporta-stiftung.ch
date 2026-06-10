@@ -12,6 +12,7 @@ import HousingPanel from '@/views/applications/panels/HousingPanel.vue'
 import HousingWishPanel from '@/views/applications/panels/HousingWishPanel.vue'
 import HouseholdPanel from '@/views/applications/panels/HouseholdPanel.vue'
 import NotesPanel from '@/views/applications/panels/NotesPanel.vue'
+import HistoryPanel from '@/views/applications/panels/HistoryPanel.vue'
 
 const props = defineProps({
 	id: { type: String, required: true },
@@ -158,10 +159,12 @@ const title = computed(() => {
           
 			</div>
 
-			<div class="col-span-4">
+			<div class="col-span-4 flex flex-col gap-30">
 				<NotesPanel
 					:application-id="app.id"
 					:notes="app.notes" />
+
+				<HistoryPanel :events="app.status_events" />
 			</div>
 		</div>
 	</div>

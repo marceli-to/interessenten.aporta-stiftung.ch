@@ -69,6 +69,9 @@ class ApplicationDetailResource extends JsonResource
 			// Initial list for the Notizen panel, newest first (ordered in
 			// Application\Show). The panel owns its list from here on.
 			'notes' => NoteResource::collection($this->notes),
+
+			// Status audit trail for the Verlauf panel, newest first.
+			'status_events' => StatusEventResource::collection($this->statusEvents),
 		];
 	}
 

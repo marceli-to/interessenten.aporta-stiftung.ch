@@ -21,6 +21,7 @@ class Show
 			'coApplicants.currentHousing',
 			'children' => fn ($query) => $query->orderBy('position'),
 			'notes' => fn ($query) => $query->with('user')->latest(),
+			'statusEvents' => fn ($query) => $query->with('actor')->orderByDesc('occurred_at'),
 		]);
 
 		$application->room_slugs = $this->slugs('application_rooms', 'room_slug', $application->id);
