@@ -66,4 +66,23 @@ enum IncomeBracket: string implements LabeledEnum
 	{
 		return true;
 	}
+
+	/**
+	 * The bracket slugs whose ordered position falls within [min, max], where each
+	 * bound is a bracket slug (either may be null/unknown for an open end). Used by
+	 * the list filter to turn a "from bracket – to bracket" range into a concrete
+	 * IN (...) set, so the ordering lives here with sortOrder() rather than in SQL.
+	 * Returns an empty array when the range is inverted (min above max).
+	 */
+	public static function slugsInRange(?string $minSlug, ?string $maxSlug): array
+	{
+		$min = self::tryFrom($minSlug ?? '')?->sortOrder() ?? PHP_INT_MIN;
+		$max = self::tryFrom($maxSlug ?? '')?->sortOrder() ?? PHP_INT_MAX;
+
+		return collect(self::cases())
+			->filter(fn (self $bracket) => $bracket->sortOrder() >= $min && $bracket->sortOrder() <= $max)
+			->map(fn (self $bracket) => $bracket->value)
+			->values()
+			->all();
+	}
 }

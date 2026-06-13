@@ -29,10 +29,16 @@ Stack: Laravel 13 API + Vue 3 SPA (vue-router, pinia). Hauptansichten unter
         werden verworfen).
       - `Get.php`: `whereIn('status', $statuses)` statt `where`.
 
-- [ ] **Filter Einkommen (Brackets)**
-      Einkommens-Filter mit Bereichen (Brackets) ergänzen – analog zu Miete
-      (`rent_min`/`rent_max`), aber als vordefinierte Brackets. Sowohl Filter-UI
-      als auch API-Query.
+- [x] **Filter Einkommen (Brackets)**
+      Erledigt. Einkommen ist als Bracket (`IncomeBracket`-Enum, 12 geordnete
+      Stufen) am Arbeitgeber des Bewerbers gespeichert. Filter als Von–Bis-Bereich
+      über zwei Dropdowns, gematcht auf **nur den Hauptmieter** (Entscheid Kunde):
+      - `IncomeBracket::slugsInRange()` löst die Von/Bis-Slugs über `sortOrder()`
+        in die konkrete Slug-Menge auf.
+      - `GetRequest`: `income_min`/`income_max` → `incomeBracketSlugs()`.
+      - `Get.php`: `whereHas('mainApplicant.employer', whereIn(...))`.
+      - `Filter.vue`: zwei `Select` (von/bis) aus `lookups.options('income_brackets')`.
+      - Tests: Bereich, offene Grenze, „nur Hauptmieter" (Mitmieter ignoriert).
 
 ## 2. Darstellung
 

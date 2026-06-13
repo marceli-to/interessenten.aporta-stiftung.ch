@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Application;
 
+use App\Enums\IncomeBracket;
 use App\Enums\Status;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -32,6 +33,8 @@ class GetRequest extends FormRequest
 			'move_in_to' => ['sometimes', 'nullable', 'date'],
 			'rent_min' => ['sometimes', 'nullable', 'numeric'],
 			'rent_max' => ['sometimes', 'nullable', 'numeric'],
+			'income_min' => ['sometimes', 'nullable', 'string'],
+			'income_max' => ['sometimes', 'nullable', 'string'],
 			'districts' => ['sometimes', 'nullable', 'string'],
 			'rooms' => ['sometimes', 'nullable', 'string'],
 		];
@@ -77,6 +80,7 @@ class GetRequest extends FormRequest
 			'move_in_to' => $this->validated('move_in_to'),
 			'rent_min' => $this->validated('rent_min'),
 			'rent_max' => $this->validated('rent_max'),
+			'income' => $this->incomeBracketSlugs(),
 			'districts' => $this->splitSlugs($this->validated('districts')),
 			'rooms' => $this->splitSlugs($this->validated('rooms')),
 		], fn ($value) => $value !== null && $value !== []);
@@ -100,5 +104,22 @@ class GetRequest extends FormRequest
 		$valid = array_column(Status::cases(), 'value');
 
 		return array_values(array_intersect($this->splitSlugs($value), $valid));
+	}
+
+	/**
+	 * Resolve the income_min / income_max bracket bounds into the concrete set of
+	 * bracket slugs the range covers. Returns an empty array when neither bound is
+	 * set, so the filter only kicks in once the user picks a range.
+	 */
+	private function incomeBracketSlugs(): array
+	{
+		$min = $this->validated('income_min');
+		$max = $this->validated('income_max');
+
+		if (($min ?? '') === '' && ($max ?? '') === '') {
+			return [];
+		}
+
+		return IncomeBracket::slugsInRange($min, $max);
 	}
 }

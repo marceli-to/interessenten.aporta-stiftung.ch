@@ -9,6 +9,7 @@ import SearchInput from '@/components/ui/form/Search.vue'
 import Input from '@/components/ui/form/Input.vue'
 import ChipGroup from '@/components/ui/form/ChipGroup.vue'
 import Selectable from '@/components/ui/form/Selectable.vue'
+import Select from '@/components/ui/form/Select.vue'
 import Label from '@/components/ui/form/Label.vue'
 
 // Search is owned by the parent's list query; the rest of the filters are mirrored
@@ -23,7 +24,7 @@ const store = useApplicationsStore()
 
 const showFilter = ref(false)
 
-const FILTER_KEYS = ['status', 'move_in_from', 'move_in_to', 'rent_min', 'rent_max', 'districts', 'rooms']
+const FILTER_KEYS = ['status', 'move_in_from', 'move_in_to', 'rent_min', 'rent_max', 'income_min', 'income_max', 'districts', 'rooms']
 
 // A writable computed over one URL query param. Arrays are stored comma-joined;
 // scalars are dropped from the URL when cleared. Every write resets to page 1.
@@ -52,6 +53,8 @@ const moveInFrom = filterRef('move_in_from')
 const moveInTo = filterRef('move_in_to')
 const rentMin = filterRef('rent_min', { number: true })
 const rentMax = filterRef('rent_max', { number: true })
+const incomeMin = filterRef('income_min')
+const incomeMax = filterRef('income_max')
 const districts = filterRef('districts', { array: true })
 const rooms = filterRef('rooms', { array: true })
 
@@ -135,6 +138,17 @@ onMounted(() => {
 						<Input v-model.number="rentMin" type="number" variant="outline" class="w-150" placeholder="1200" />
 						<span class="text-blue/50">–</span>
 						<Input v-model.number="rentMax" type="number" variant="outline" class="w-150" placeholder="3800" />
+					</div>
+				</div>
+
+				<div>
+					<Label>
+						Einkommen (Hauptmieter)
+					</Label>
+					<div class="flex items-center gap-10">
+						<Select v-model="incomeMin" :options="lookups.options('income_brackets')" variant="outline" class="w-150" placeholder="von" />
+						<span class="text-blue/50">–</span>
+						<Select v-model="incomeMax" :options="lookups.options('income_brackets')" variant="outline" class="w-150" placeholder="bis" />
 					</div>
 				</div>
 			</div>

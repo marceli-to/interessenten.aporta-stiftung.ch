@@ -48,6 +48,7 @@ class Get
 			->when($filters['move_in_to'] ?? null, fn ($query, $date) => $query->whereDate('earliest_move_in', '<=', $date))
 			->when($filters['rent_min'] ?? null, fn ($query, $value) => $query->where('max_gross_rent', '>=', $value))
 			->when($filters['rent_max'] ?? null, fn ($query, $value) => $query->where('max_gross_rent', '<=', $value))
+			->when($filters['income'] ?? null, fn ($query, $slugs) => $query->whereHas('mainApplicant.employer', fn ($employer) => $employer->whereIn('annual_income_bracket_slug', $slugs)))
 			->when($filters['districts'] ?? null, fn ($query, $slugs) => $this->whereHasAny($query, 'application_districts', 'district_slug', $slugs))
 			->when($filters['rooms'] ?? null, fn ($query, $slugs) => $this->whereHasAny($query, 'application_rooms', 'room_slug', $slugs))
 			->orderBy($sort, $direction)
