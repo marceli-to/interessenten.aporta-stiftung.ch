@@ -75,13 +75,6 @@ function resetFilter() {
 onMounted(() => {
 	// Reference sets for the Stadtkreis / Zimmer chips (no-op if already loaded).
 	lookups.fetch()
-
-	// On a fresh landing (no query at all) default to open applications — the
-	// common working view. A `replace` keeps it out of history, and because this
-	// only runs on mount it doesn't fight an explicit "Zurücksetzen".
-	if (Object.keys(route.query).length === 0) {
-		router.replace({ query: { status: 'opened' } })
-	}
 })
 </script>
 

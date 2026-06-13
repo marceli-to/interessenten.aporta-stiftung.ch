@@ -15,9 +15,10 @@ Stack: Laravel 13 API + Vue 3 SPA (vue-router, pinia). Hauptansichten unter
       matcht jetzt zusätzlich `total_persons`, und es wird über die `notes`-Relation
       im `body` gesucht (zusätzlich zu Referenznummer + Name/Ort des Hauptbewerbers).
 
-- [ ] **Kein Default-Filter**
-      Aktuell setzt `Filter.vue` (`onMounted`) bei leerem Query automatisch
-      `status=opened`. Dieses Default-Verhalten entfernen → Start ohne Filter.
+- [x] **Kein Default-Filter**
+      Erledigt: Das `onMounted`-Default (`status=opened` bei leerem Query) in
+      `Filter.vue` entfernt. Frische Landung zeigt jetzt alle Bewerbungen (677 statt
+      666). `useListQuery` + `GetApplications` filtern ohnehin nur auf gesetzte Werte.
 
 - [ ] **Statusfilter kombinieren (Mehrfachauswahl)**
       Aktuell ist der Status ein Single-Toggle (`toggleStatus` ersetzt den Wert).
