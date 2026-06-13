@@ -99,8 +99,14 @@ it('returns total counts per status, ignoring the active filters', function () {
 	expect(ids($response))->toHaveCount(3);
 });
 
-it('rejects an unknown status with 422', function () {
-	listApplications(['status' => 'bogus'])
-		->assertStatus(422)
-		->assertJsonValidationErrors('status');
+it('ignores an unknown status value', function () {
+	$opened = Application::factory()->create(['status' => Status::Opened]);
+	Application::factory()->create(['status' => Status::Archived]);
+
+	// A lone bogus value drops out, leaving no status filter -> all rows.
+	expect(ids(listApplications(['status' => 'bogus'])->assertOk()))->toHaveCount(2);
+
+	// Mixed with a valid value, only the valid one applies.
+	expect(ids(listApplications(['status' => 'opened,bogus'])->assertOk()))
+		->toBe([$opened->id]);
 });

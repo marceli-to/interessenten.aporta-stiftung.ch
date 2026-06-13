@@ -7,75 +7,29 @@ use App\Actions\Application\Get as GetApplications;
 use App\Actions\Application\Show as ShowApplication;
 use App\Actions\Application\Update as UpdateApplication;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Application\GetRequest;
 use App\Http\Requests\Application\UpdateRequest;
-use App\Enums\Status;
 use App\Http\Resources\ApplicationDetailResource;
 use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
-use Illuminate\Http\Request;
 
 class ApplicationController extends Controller
 {
-	public function index(Request $request)
+	public function index(GetRequest $request)
 	{
-		$validated = $request->validate([
-			'per_page' => ['sometimes', 'integer'],
-			'search' => ['sometimes', 'nullable', 'string'],
-			'sort' => ['sometimes', 'string'],
-			'direction' => ['sometimes', 'in:asc,desc'],
-			'status' => ['sometimes', 'nullable', 'string'],
-			'move_in_from' => ['sometimes', 'nullable', 'date'],
-			'move_in_to' => ['sometimes', 'nullable', 'date'],
-			'rent_min' => ['sometimes', 'nullable', 'numeric'],
-			'rent_max' => ['sometimes', 'nullable', 'numeric'],
-			'districts' => ['sometimes', 'nullable', 'string'],
-			'rooms' => ['sometimes', 'nullable', 'string'],
-		]);
-
-		$perPage = min(max((int) ($validated['per_page'] ?? 25), 1), 100);
-		$search = trim($validated['search'] ?? '') ?: null;
-		$sort = $validated['sort'] ?? 'opened_at';
-		$direction = $validated['direction'] ?? 'desc';
-
-		// Multi-selects arrive as comma-joined slug lists; everything else is scalar.
-		// Drop empties so the action only filters on values the user actually set.
-		$filters = array_filter([
-			'status' => $this->splitStatuses($validated['status'] ?? null),
-			'move_in_from' => $validated['move_in_from'] ?? null,
-			'move_in_to' => $validated['move_in_to'] ?? null,
-			'rent_min' => $validated['rent_min'] ?? null,
-			'rent_max' => $validated['rent_max'] ?? null,
-			'districts' => $this->splitSlugs($validated['districts'] ?? null),
-			'rooms' => $this->splitSlugs($validated['rooms'] ?? null),
-		], fn ($value) => $value !== null && $value !== []);
-
 		$action = new GetApplications();
 
 		return ApplicationResource::collection(
-			$action->execute($perPage, $search, $sort, $direction, $filters)
+			$action->execute(
+				$request->perPage(),
+				$request->search(),
+				$request->sort(),
+				$request->direction(),
+				$request->filters(),
+			)
 		)->additional([
 			'status_counts' => $action->statusCounts(),
 		]);
-	}
-
-	/**
-	 * Split a comma-joined slug list (e.g. "k4,k5") into a clean array of slugs.
-	 */
-	private function splitSlugs(?string $value): array
-	{
-		return $value ? array_values(array_filter(explode(',', $value))) : [];
-	}
-
-	/**
-	 * Split a comma-joined status list (e.g. "opened,archived") into a clean array,
-	 * keeping only values that are real Status enum cases so a bogus URL param can
-	 * never reach the query.
-	 */
-	private function splitStatuses(?string $value): array
-	{
-		$valid = array_column(Status::cases(), 'value');
-
-		return array_values(array_intersect($this->splitSlugs($value), $valid));
 	}
 
 	public function show(Application $application)
