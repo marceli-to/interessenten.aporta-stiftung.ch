@@ -70,8 +70,11 @@ function nationality(a) {
 				<InfoRow label="Nationalität">
 					{{ nationality(data) }}
 				</InfoRow>
-				<InfoRow label="Telefon">
+				<InfoRow label="Telefon (mobil)">
 					{{ fmtPhone(data.mobile_phone) }}
+				</InfoRow>
+				<InfoRow v-if="data.landline_phone" label="Telefon (Festnetz)">
+					{{ fmtPhone(data.landline_phone) }}
 				</InfoRow>
 				<InfoRow label="E-Mail">
 					{{ data.email || '–' }}
