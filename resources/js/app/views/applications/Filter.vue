@@ -143,7 +143,7 @@ onMounted(() => {
 
 				<div>
 					<Label>
-						Einkommen (Hauptmieter)
+						Einkommen
 					</Label>
 					<div class="flex items-center gap-10">
 						<Select v-model="incomeMin" :options="lookups.options('income_brackets')" variant="outline" class="w-150" placeholder="von" />
