@@ -1,6 +1,6 @@
 <script setup>
 import { useLookupsStore } from '@/stores/lookups'
-import { fmtDate, fmtYesNo } from '@/utils/format'
+import { fmtDate, fmtYesNo, fmtPhone } from '@/utils/format'
 import { yesNoOptions } from '@/utils/options'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
@@ -71,7 +71,7 @@ function nationality(a) {
 					{{ nationality(data) }}
 				</InfoRow>
 				<InfoRow label="Telefon">
-					{{ data.mobile_phone || '–' }}
+					{{ fmtPhone(data.mobile_phone) }}
 				</InfoRow>
 				<InfoRow label="E-Mail">
 					{{ data.email || '–' }}

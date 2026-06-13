@@ -36,10 +36,12 @@ Stack: Laravel 13 API + Vue 3 SPA (vue-router, pinia). Hauptansichten unter
 
 ## 2. Darstellung
 
-- [ ] **Telefonnummer mit Abständen formatieren**
-      Telefonnummern in der Darstellung gruppiert/mit Abständen anzeigen
-      (Format definieren, z.B. `+41 79 123 45 67`). Format-Util (`utils/format.js`)
-      bzw. Anzeige im `ApplicantPanel`.
+- [x] **Telefonnummer mit Abständen formatieren**
+      Erledigt. Neuer `fmtPhone()` in `utils/format.js`: gruppiert in E.164
+      gespeicherte CH-Nummern zu `+41 79 409 49 27`; Nicht-CH/unparsbare Werte
+      werden unverändert angezeigt. Eingesetzt in der Anzeige von `ApplicantPanel`
+      (mobile_phone) und `HousingPanel` (landlord_phone). Edit-Felder bleiben auf
+      dem rohen Wert (Backend-Normalizer macht beim Speichern wieder E.164).
 
 ## 3. Listenansicht & Multiedit
 

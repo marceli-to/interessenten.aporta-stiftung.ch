@@ -1,6 +1,6 @@
 <script setup>
 import { useLookupsStore } from '@/stores/lookups'
-import { fmtYesNo } from '@/utils/format'
+import { fmtYesNo, fmtPhone } from '@/utils/format'
 import { yesNoOptions } from '@/utils/options'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
@@ -23,7 +23,8 @@ const props = defineProps({
 const lookups = useLookupsStore()
 
 function landlord(ch) {
-	return [ch?.landlord_name, ch?.landlord_contact_person, ch?.landlord_phone]
+	const phone = ch?.landlord_phone ? fmtPhone(ch.landlord_phone) : null
+	return [ch?.landlord_name, ch?.landlord_contact_person, phone]
 		.filter(Boolean)
 		.join(' · ') || '–'
 }
