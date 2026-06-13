@@ -101,7 +101,7 @@ onMounted(() => {
 
 			<!-- Status -->
 			<div class="min-w-200">
-				<Label>
+				<Label class="mb-5!">
 					Status
 				</Label>
 				<div class="flex flex-col gap-10">
@@ -120,7 +120,7 @@ onMounted(() => {
 			<!-- Date and rent ranges -->
 			<div class="flex flex-col gap-20">
 				<div>
-					<Label>
+					<Label class="mb-5!">
 						Mietbeginn
 					</Label>
 					<div class="flex items-center gap-10">
@@ -131,7 +131,7 @@ onMounted(() => {
 				</div>
 
 				<div>
-					<Label>
+					<Label class="mb-5!">
 						Max. Bruttomiete
 					</Label>
 					<div class="flex items-center gap-10">
@@ -142,7 +142,7 @@ onMounted(() => {
 				</div>
 
 				<div>
-					<Label>
+					<Label class="mb-5!">
 						Einkommen
 					</Label>
 					<div class="flex items-center gap-10">
@@ -160,13 +160,13 @@ onMounted(() => {
 			<!-- District and room chips -->
 			<div class="flex flex-col gap-20">
 				<div>
-					<Label>
+					<Label class="mb-5!">
 						Stadtkreis
 					</Label>
 					<ChipGroup v-model="districts" :options="lookups.options('districts')" size="md" />
 				</div>
 				<div>
-					<Label>
+					<Label class="mb-5!">
 						Zimmer
 					</Label>
 					<ChipGroup v-model="rooms" :options="lookups.options('rooms')" size="md" />
