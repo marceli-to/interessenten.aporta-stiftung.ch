@@ -1,4 +1,5 @@
 <script setup>
+import { fmtYesNo } from '@/utils/format'
 import { yesNoOptions } from '@/utils/options'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
@@ -56,6 +57,9 @@ function childrenError(errors) {
 				</InfoRow>
 				<InfoRow v-if="data.children?.length" label="Kinder (Jahrgänge)">
 					{{ years(data.children) }}
+				</InfoRow>
+				<InfoRow v-if="data.children?.length" label="Kinder dauerhaft im Haushalt">
+					{{ fmtYesNo(data.info.all_children_live_constantly) }}
 				</InfoRow>
 				<InfoRow label="Musikinstrumente">
 					{{ data.info.plays_music ? (data.info.musical_instruments || 'Ja') : 'Keine' }}
