@@ -47,6 +47,15 @@ it('requires authentication', function () {
 		->assertUnauthorized();
 });
 
+it('still resolves the detail of a soft-deleted application', function () {
+	$this->application->delete();
+
+	$this->actingAs($this->user)
+		->getJson("/api/dashboard/applications/{$this->application->id}")
+		->assertOk()
+		->assertJsonPath('data.main_applicant.last_name', 'Laâfif');
+});
+
 it('updates only the housing_wish section and leaves the rest untouched', function () {
 	$originalOccupation = $this->application->mainApplicant->occupation;
 

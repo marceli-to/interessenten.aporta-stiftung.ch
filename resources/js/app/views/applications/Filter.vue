@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useLookupsStore } from '@/stores/lookups'
 import { useApplicationsStore } from '@/stores/applications'
-import { PhFolderOpen, PhClockClockwise, PhArchive, PhProhibit } from '@phosphor-icons/vue'
+import { PhFolderOpen, PhClockClockwise, PhArchive, PhProhibit, PhTrash } from '@phosphor-icons/vue'
 import Button from '@/components/ui/form/Button.vue'
 import SearchInput from '@/components/ui/form/Search.vue'
 import Input from '@/components/ui/form/Input.vue'
@@ -65,11 +65,22 @@ const statusOptions = [
 	{ value: 'knif', label: 'KNIF', icon: PhProhibit },
 ]
 
+// "Gelöscht" rides the same `status` param but is a distinct view onto the
+// soft-deleted rows — exclusive of the normal statuses. Picking a normal status
+// drops it; picking it clears the normal statuses.
+const TRASHED = 'deleted'
+
+const trashedActive = computed(() => statusFilter.value.includes(TRASHED))
+
 function toggleStatus(value) {
-	const active = statusFilter.value
+	const active = statusFilter.value.filter((status) => status !== TRASHED)
 	statusFilter.value = active.includes(value)
 		? active.filter((status) => status !== value)
 		: [...active, value]
+}
+
+function toggleTrashed() {
+	statusFilter.value = trashedActive.value ? [] : [TRASHED]
 }
 
 function resetFilter() {
@@ -113,6 +124,14 @@ onMounted(() => {
 						:count="store.statusCounts[option.value] ?? null"
 						:active="statusFilter.includes(option.value)"
 						@click="toggleStatus(option.value)"
+					/>
+					<!-- Soft-deleted: distinct view onto the trashed rows, at the end -->
+					<Selectable
+						:icon="PhTrash"
+						label="Gelöscht"
+						:count="store.statusCounts.deleted ?? null"
+						:active="trashedActive"
+						@click="toggleTrashed"
 					/>
 				</div>
 			</div>

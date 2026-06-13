@@ -42,6 +42,10 @@ class Get
 
 		$applications = Application::query()
 			->with(['mainApplicant.employer'])
+			// "Gelöscht" is a view onto the soft-deleted rows, which the default
+			// global scope hides. It's exclusive of the status filter (the UI clears
+			// one when the other is picked).
+			->when($filters['trashed'] ?? null, fn ($query) => $query->onlyTrashed())
 			->when($search, $this->applySearch(...))
 			->when($filters['status'] ?? null, fn ($query, $statuses) => $query->whereIn('status', $statuses))
 			->when($filters['move_in_from'] ?? null, fn ($query, $date) => $query->whereDate('earliest_move_in', '>=', $date))
@@ -79,15 +83,20 @@ class Get
 	/**
 	 * Total applications per status, keyed by status value, for the filter's
 	 * status badges. Ignores the active filters so each badge always shows the
-	 * full size of its bucket.
+	 * full size of its bucket. A `deleted` key carries the soft-deleted total so
+	 * the "Gelöscht" filter button can show its count alongside the others.
 	 */
 	public function statusCounts(): array
 	{
-		return Application::query()
+		$counts = Application::query()
 			->selectRaw('status, count(*) as total')
 			->groupBy('status')
 			->pluck('total', 'status')
 			->all();
+
+		$counts['deleted'] = Application::onlyTrashed()->count();
+
+		return $counts;
 	}
 
 	/**

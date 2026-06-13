@@ -14,6 +14,13 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class GetRequest extends FormRequest
 {
+	/**
+	 * Pseudo-status the list filter sends to request soft-deleted applications.
+	 * It rides the `status` param but is not a real Status enum case: when present
+	 * the list switches to "only trashed" instead of filtering by status value.
+	 */
+	public const TRASHED = 'deleted';
+
 	public function authorize(): bool
 	{
 		// Route is behind the `auth` middleware; matches the rest of the dashboard
@@ -76,6 +83,7 @@ class GetRequest extends FormRequest
 	{
 		return array_filter([
 			'status' => $this->splitStatuses($this->validated('status')),
+			'trashed' => $this->wantsTrashed(),
 			'move_in_from' => $this->validated('move_in_from'),
 			'move_in_to' => $this->validated('move_in_to'),
 			'rent_min' => $this->validated('rent_min'),
@@ -97,13 +105,24 @@ class GetRequest extends FormRequest
 	/**
 	 * Split a comma-joined status list (e.g. "opened,archived") into a clean array,
 	 * keeping only values that are real Status enum cases so a bogus query param can
-	 * never reach the query.
+	 * never reach the query. The `deleted` sentinel is intentionally excluded here
+	 * (it's handled by wantsTrashed()).
 	 */
 	private function splitStatuses(?string $value): array
 	{
 		$valid = array_column(Status::cases(), 'value');
 
 		return array_values(array_intersect($this->splitSlugs($value), $valid));
+	}
+
+	/**
+	 * Whether the list should show only soft-deleted applications, signalled by the
+	 * `deleted` sentinel in the status param. Returns null (not false) when absent so
+	 * the empties-filter in filters() drops it.
+	 */
+	private function wantsTrashed(): ?bool
+	{
+		return in_array(self::TRASHED, $this->splitSlugs($this->validated('status')), true) ?: null;
 	}
 
 	/**

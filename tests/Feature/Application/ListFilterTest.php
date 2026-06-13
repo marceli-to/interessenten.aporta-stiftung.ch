@@ -129,6 +129,28 @@ it('matches income on the main applicant only, never the co-applicant', function
 	expect(ids($response))->toBe([$mainInRange->id]);
 });
 
+it('shows only soft-deleted applications when status=deleted', function () {
+	$live = Application::factory()->create(['status' => Status::Opened]);
+	$trashed = Application::factory()->create(['status' => Status::Opened]);
+	$trashed->delete();
+
+	// Normal list hides the trashed row.
+	expect(ids(listApplications()->assertOk()))->toBe([$live->id]);
+
+	// status=deleted flips to the trashed-only view.
+	expect(ids(listApplications(['status' => 'deleted'])->assertOk()))->toBe([$trashed->id]);
+});
+
+it('exposes a deleted count in status_counts', function () {
+	Application::factory()->count(2)->create();
+	$gone = Application::factory()->create();
+	$gone->delete();
+
+	$response = listApplications()->assertOk();
+
+	expect($response->json('status_counts.deleted'))->toBe(1);
+});
+
 it('combines filters', function () {
 	$match = Application::factory()->create(['status' => Status::Opened, 'max_gross_rent' => '1800.00']);
 	Application::factory()->create(['status' => Status::Archived, 'max_gross_rent' => '1800.00']);

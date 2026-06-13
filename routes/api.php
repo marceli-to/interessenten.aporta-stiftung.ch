@@ -18,7 +18,10 @@ Route::prefix('dashboard')
 			->prefix('applications')
 			->group(function () {
 				Route::get('/', 'index');
-				Route::get('/{application}', 'show');
+				// Detail resolves soft-deleted rows too, so the "Gelöscht" list
+				// can open a trashed application read-only. Update/destroy stay on
+				// the default scope (they don't act on trashed records).
+				Route::get('/{application}', 'show')->withTrashed();
 				Route::put('/{application}', 'update');
 				Route::delete('/{application}', 'destroy');
 			});
