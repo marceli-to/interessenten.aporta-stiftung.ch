@@ -13,7 +13,6 @@ use App\Http\Resources\ApplicationDetailResource;
 use App\Http\Resources\ApplicationResource;
 use App\Models\Application;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class ApplicationController extends Controller
 {
@@ -24,7 +23,7 @@ class ApplicationController extends Controller
 			'search' => ['sometimes', 'nullable', 'string'],
 			'sort' => ['sometimes', 'string'],
 			'direction' => ['sometimes', 'in:asc,desc'],
-			'status' => ['sometimes', 'nullable', Rule::enum(Status::class)],
+			'status' => ['sometimes', 'nullable', 'string'],
 			'move_in_from' => ['sometimes', 'nullable', 'date'],
 			'move_in_to' => ['sometimes', 'nullable', 'date'],
 			'rent_min' => ['sometimes', 'nullable', 'numeric'],
@@ -41,7 +40,7 @@ class ApplicationController extends Controller
 		// Multi-selects arrive as comma-joined slug lists; everything else is scalar.
 		// Drop empties so the action only filters on values the user actually set.
 		$filters = array_filter([
-			'status' => $validated['status'] ?? null,
+			'status' => $this->splitStatuses($validated['status'] ?? null),
 			'move_in_from' => $validated['move_in_from'] ?? null,
 			'move_in_to' => $validated['move_in_to'] ?? null,
 			'rent_min' => $validated['rent_min'] ?? null,
@@ -65,6 +64,18 @@ class ApplicationController extends Controller
 	private function splitSlugs(?string $value): array
 	{
 		return $value ? array_values(array_filter(explode(',', $value))) : [];
+	}
+
+	/**
+	 * Split a comma-joined status list (e.g. "opened,archived") into a clean array,
+	 * keeping only values that are real Status enum cases so a bogus URL param can
+	 * never reach the query.
+	 */
+	private function splitStatuses(?string $value): array
+	{
+		$valid = array_column(Status::cases(), 'value');
+
+		return array_values(array_intersect($this->splitSlugs($value), $valid));
 	}
 
 	public function show(Application $application)

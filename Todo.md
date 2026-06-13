@@ -20,10 +20,14 @@ Stack: Laravel 13 API + Vue 3 SPA (vue-router, pinia). Hauptansichten unter
       `Filter.vue` entfernt. Frische Landung zeigt jetzt alle Bewerbungen (677 statt
       666). `useListQuery` + `GetApplications` filtern ohnehin nur auf gesetzte Werte.
 
-- [ ] **Statusfilter kombinieren (Mehrfachauswahl)**
-      Aktuell ist der Status ein Single-Toggle (`toggleStatus` ersetzt den Wert).
-      Auf Mehrfachauswahl umstellen (mehrere Status gleichzeitig aktiv), inkl.
-      API-Query (`status` als Liste statt Einzelwert) und URL-Encoding.
+- [x] **Statusfilter kombinieren (Mehrfachauswahl)**
+      Erledigt. Status ist jetzt eine Mehrfachauswahl (analog zu Stadtkreis/Zimmer):
+      - `Filter.vue`: `statusFilter` als `array`, `toggleStatus` fügt hinzu/entfernt,
+        `:active` via `.includes()`. URL-Encoding kommagetrennt über `filterRef`.
+      - `ApplicationController`: `status` als kommagetrennter String validiert und über
+        neuen `splitStatuses()`-Helper auf gültige Enum-Werte gefiltert (bogus Werte
+        werden verworfen).
+      - `Get.php`: `whereIn('status', $statuses)` statt `where`.
 
 - [ ] **Filter Einkommen (Brackets)**
       Einkommens-Filter mit Bereichen (Brackets) ergänzen – analog zu Miete

@@ -43,7 +43,7 @@ class Get
 		$applications = Application::query()
 			->with(['mainApplicant.employer'])
 			->when($search, $this->applySearch(...))
-			->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+			->when($filters['status'] ?? null, fn ($query, $statuses) => $query->whereIn('status', $statuses))
 			->when($filters['move_in_from'] ?? null, fn ($query, $date) => $query->whereDate('earliest_move_in', '>=', $date))
 			->when($filters['move_in_to'] ?? null, fn ($query, $date) => $query->whereDate('earliest_move_in', '<=', $date))
 			->when($filters['rent_min'] ?? null, fn ($query, $value) => $query->where('max_gross_rent', '>=', $value))

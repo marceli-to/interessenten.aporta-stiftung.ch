@@ -47,7 +47,7 @@ function filterRef(key, { array = false, number = false } = {}) {
 	})
 }
 
-const statusFilter = filterRef('status')
+const statusFilter = filterRef('status', { array: true })
 const moveInFrom = filterRef('move_in_from')
 const moveInTo = filterRef('move_in_to')
 const rentMin = filterRef('rent_min', { number: true })
@@ -63,7 +63,10 @@ const statusOptions = [
 ]
 
 function toggleStatus(value) {
-	statusFilter.value = statusFilter.value === value ? null : value
+	const active = statusFilter.value
+	statusFilter.value = active.includes(value)
+		? active.filter((status) => status !== value)
+		: [...active, value]
 }
 
 function resetFilter() {
@@ -105,7 +108,7 @@ onMounted(() => {
 						:icon="option.icon"
 						:label="option.label"
 						:count="store.statusCounts[option.value] ?? null"
-						:active="statusFilter === option.value"
+						:active="statusFilter.includes(option.value)"
 						@click="toggleStatus(option.value)"
 					/>
 				</div>
