@@ -104,20 +104,25 @@ class Get
 	}
 
 	/**
-	 * Match the term against the reference number (when numeric) and the main
-	 * applicant's name and city.
+	 * Match the term against the reference number and person count (when numeric),
+	 * the main applicant's name and city, and the text of any attached note.
 	 */
 	private function applySearch($query, string $search): void
 	{
 		$query->where(function ($query) use ($search) {
 			if (is_numeric($search)) {
 				$query->orWhere('reference_number', (int) $search);
+				$query->orWhere('total_persons', (int) $search);
 			}
 
 			$query->orWhereHas('mainApplicant', function ($applicant) use ($search) {
 				$applicant->where('first_name', 'like', "%{$search}%")
 					->orWhere('last_name', 'like', "%{$search}%")
 					->orWhere('city', 'like', "%{$search}%");
+			});
+
+			$query->orWhereHas('notes', function ($note) use ($search) {
+				$note->where('body', 'like', "%{$search}%");
 			});
 		});
 	}
