@@ -5,6 +5,7 @@ export default {
 	show: (id) => api.get(`/applications/${id}`),
 	update: (id, data) => api.put(`/applications/${id}`, data),
 	destroy: (id) => api.delete(`/applications/${id}`),
+	restore: (id) => api.post(`/applications/${id}/restore`),
 	updateStatus: (id, data) => api.put(`/applications/${id}/status`, data),
 
 	storeNote: (id, data) => api.post(`/applications/${id}/notes`, data),

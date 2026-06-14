@@ -24,6 +24,8 @@ Route::prefix('dashboard')
 				Route::get('/{application}', 'show')->withTrashed();
 				Route::put('/{application}', 'update');
 				Route::delete('/{application}', 'destroy');
+				// Restore acts on trashed rows, so the binding must resolve them.
+				Route::post('/{application}/restore', 'restore')->withTrashed();
 			});
 
 		Route::put('applications/{application}/status', [ApplicationStatusController::class, 'update']);

@@ -32,6 +32,10 @@ class ApplicationDetailResource extends JsonResource
 			'opened_at' => $this->opened_at?->toIso8601String(),
 			'extended_at' => $this->extended_at?->toIso8601String(),
 			'archived_at' => $this->archived_at?->toIso8601String(),
+			// Non-null when the application is soft-deleted: the detail view shows
+			// the restore panel instead of the delete panel (the "Gelöscht" list
+			// opens trashed rows via the withTrashed show route).
+			'deleted_at' => $this->deleted_at?->toIso8601String(),
 			'last_changed_at' => $this->last_changed_at?->toIso8601String(),
 
 			'housing_wish' => [

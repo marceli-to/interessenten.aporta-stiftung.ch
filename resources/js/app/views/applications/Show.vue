@@ -15,6 +15,7 @@ import HouseholdPanel from '@/views/applications/panels/HouseholdPanel.vue'
 import NotesPanel from '@/views/applications/panels/NotesPanel.vue'
 import HistoryPanel from '@/views/applications/panels/HistoryPanel.vue'
 import DeletePanel from '@/views/applications/panels/DeletePanel.vue'
+import RestorePanel from '@/views/applications/panels/RestorePanel.vue'
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue'
 
 const props = defineProps({
@@ -96,6 +97,22 @@ async function handleDelete() {
 	} catch {
 		// failure already surfaced as a toast by the axios interceptor
 		confirmingDelete.value = false
+	}
+}
+
+// Soft-deleted applications open read-only from the "Gelöscht" list; the sidebar
+// shows the restore panel instead of the delete one (toggled on `deleted_at`).
+const isTrashed = computed(() => !!app.value?.deleted_at)
+
+// Restore is non-destructive, so no confirm dialog: one click, then back to the
+// list (mirroring the delete flow's redirect).
+async function handleRestore() {
+	try {
+		await api.restore(props.id)
+		toast.success('Bewerbung wiederhergestellt.')
+		router.push({ name: 'applications.index' })
+	} catch {
+		// failure already surfaced as a toast by the axios interceptor
 	}
 }
 
@@ -191,7 +208,8 @@ const title = computed(() => {
 
 				<HistoryPanel :events="app.status_events" />
 
-				<DeletePanel :onDelete="askDelete" />
+				<RestorePanel v-if="isTrashed" :onRestore="handleRestore" />
+				<DeletePanel v-else :onDelete="askDelete" />
 			</div>
 		</div>
 

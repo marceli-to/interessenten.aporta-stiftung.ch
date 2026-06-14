@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Actions\Application\Delete as DeleteApplication;
 use App\Actions\Application\Get as GetApplications;
+use App\Actions\Application\Restore as RestoreApplication;
 use App\Actions\Application\Show as ShowApplication;
 use App\Actions\Application\Update as UpdateApplication;
 use App\Http\Controllers\Controller;
@@ -53,5 +54,14 @@ class ApplicationController extends Controller
 		(new DeleteApplication())->execute($application);
 
 		return response()->json(null, 204);
+	}
+
+	public function restore(Application $application)
+	{
+		(new RestoreApplication())->execute($application);
+
+		return new ApplicationDetailResource(
+			(new ShowApplication())->execute($application)
+		);
 	}
 }
