@@ -52,9 +52,12 @@ Stack: Laravel 13 API + Vue 3 SPA (vue-router, pinia). Hauptansichten unter
 ## 3. Listenansicht & Multiedit
 
 Aufgeteilt in zwei Teile (Entscheid): Teil A = Bulk-Bar + In-Place-Aktionen,
-Teil B = Resultatansicht/Browse als Folge-Task. Die Auswahl (angehakte Zeilen)
-ist die gemeinsame Basis für alle vier Aktionen (Abwählen, Export, Löschen,
-Öffnen).
+Teil B = Resultatansicht/Browse. Die Auswahl (angehakte Zeilen) ist die
+gemeinsame Basis für die Bulk-Aktionen (Abwählen, Öffnen, Export, Löschen bzw.
+Wiederherstellen in der „Gelöscht"-Ansicht).
+
+**Stand:** Bulk-Bar, Auswahl-Modell, Löschen, Wiederherstellen und
+Resultatansicht/Browse erledigt. Offen nur noch **Export** (§4).
 
 **Auswahl-Modell (Entscheid):** Sammelaktionen sind **filter-gebunden** — es
 gibt kein globales „alle 677 auswählen". Ablauf:
@@ -71,12 +74,14 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 
 ### Teil A – Bulk-Bar + Aktionen
 
-- [ ] **Listenansicht mit Checkbox-Multiedit erweitern**
-      In `Index.vue` Auswahl-Checkboxen pro Zeile + „Alle auswählen" ergänzt
-      (`RowCheckbox`), schwebende `BulkActionBar` (Abwählen/Export/Löschen/Öffnen).
-  - [ ] Auswahl seitenübergreifend halten; bei Filter-/Suchwechsel leeren.
-  - [ ] Bar nur bei aktivem Filter/Suche zeigen; Zähler „X von N".
-  - [ ] „Alle N auswählen" (select-all-matching) inkl. Ausnahmen (`exclude`).
+- [x] **Listenansicht mit Checkbox-Multiedit erweitern**
+      Erledigt. In `Index.vue` Auswahl-Checkboxen pro Zeile + „Seite auswählen"
+      (`RowCheckbox`), schwebende `BulkActionBar` (Abwählen/Öffnen/Export/Löschen,
+      kanonische `Button`-Komponente mit On-Dark-Varianten).
+  - [x] Auswahl seitenübergreifend halten; bei Filter-/Suchwechsel leeren.
+  - [x] Bar (und Checkbox-Spalte) nur bei aktivem Filter/Suche zeigen; Zähler
+        „X von N".
+  - [x] „Alle N auswählen" (select-all-matching) inkl. Ausnahmen (`exclude`).
   - [x] **Aktion: Alle (ausgewählten) löschen**
         Erledigt. `POST applications/bulk-delete` (`ApplicationBulkController`),
         Payload `{ ids }` ODER Filter-Parameter (+`exclude`) für all-matching.
@@ -107,16 +112,17 @@ gibt kein globales „alle 677 auswählen". Ablauf:
       **geordnete ID-Liste** auf (`POST applications/bulk-resolve` →
       `Application\ResolveIds`, gleiche Reihenfolge wie die Liste über
       `applyListOrder` im Query-Trait; ungescopt = leer), öffnet die erste
-      Bewerbung im Detail.
+      Bewerbung im Detail. Tests: `BulkResolveEndpointTest` (Reihenfolge,
+      all-matching, exclude, trashed, leere Auswahl, Auth).
   - [x] Auswahl bleibt über die Navigation bestehen — **Pinia-`browse`-Store**
         (`start/clear/position/prevId/nextId`, hält nur IDs, In-Session). Einzel-
         Öffnen einer Zeile leert den Browse-Set.
-  - [x] Prev/Next-UI in `Show.vue` zentriert im Header (geteilter
-        `pagination/Button`, Position „3 / 12", Grenzen via disabled). `Show.vue`
-        lädt bei `:id`-Wechsel neu (watch, da Komponente wiederverwendet wird).
-  - [ ] PDF-Export der Resultate (hängt an PDF-Klärung, §4 — separat).
-        Tests: `BulkResolveEndpointTest` (Reihenfolge, all-matching, exclude,
-        trashed, leere Auswahl, Auth).
+  - [x] Prev/Next-UI in eigener Komponente `Browse.vue`, zentriert im
+        `Show.vue`-Header (geteilter `pagination/Button`, Position „3 / 12",
+        Grenzen via disabled). `Show.vue` lädt bei `:id`-Wechsel neu (watch, da
+        Komponente wiederverwendet wird).
+  - PDF-Export der Resultate: siehe §4 (eigener Async-Flow, nutzt dieselbe
+    Auswahl-Auflösung).
 
 ## 4. Export
 
@@ -247,7 +253,9 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 
 ## 8. Design
 
-- [ ] **Logogrösse prüfen** (ggf. anpassen)
+- [x] **Logogrösse prüfen** (ggf. anpassen)
+      Erledigt. Logo `h-36` → `h-48`, Header-Padding `py-30` → `py-20`
+      (`components/ui/layout/Header.vue`).
 - [ ] **Rot anpassen** auf den Jam'on-Farbwert (CSS-Variable / Tailwind-Farbe;
       vgl. `text-red` in `Index.vue`)
 - [ ] **Benutzer-Formular: Button anpassen** (`views/users/`)
@@ -259,4 +267,5 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 - Excel-Export: Welche Felder?
 - Copy to Clipboard: Welche Felder?
 - Automatisches Löschen: Genaue Frist?
-- PDF-Ansatz/Library bestätigen.
+- PDF-Layout/Branding: Logo, Schrift, Reihenfolge der Felder.
+  (PDF-Ansatz/Library bestätigt: Spatie Laravel PDF + Browsershot/Sidecar.)
