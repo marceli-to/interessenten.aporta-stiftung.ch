@@ -21,7 +21,6 @@ class Application extends Model
 	{
 		return [
 			'status' => Status::class,
-			'flagged' => 'boolean',
 			'shares_apartment' => 'boolean',
 			'opened_at' => 'datetime',
 			'extended_at' => 'datetime',
@@ -76,7 +75,7 @@ class Application extends Model
 	{
 		return LogOptions::defaults()
 			->logOnly([
-				'status', 'flagged', 'archived_at', 'extended_at',
+				'status', 'archived_at', 'extended_at',
 				'wants_balcony', 'wants_elevator', 'max_gross_rent', 'earliest_move_in',
 				'property_group', 'property_class',
 				'total_persons', 'adults_count', 'children_count',

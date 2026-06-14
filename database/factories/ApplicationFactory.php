@@ -21,7 +21,6 @@ class ApplicationFactory extends Factory
 		return [
 			'reference_number' => fn () => app(ReferenceNumberSequence::class)->next(),
 			'status' => Status::Opened,
-			'flagged' => false,
 			'opened_at' => $openedAt,
 			'extended_at' => null,
 			'archived_at' => null,

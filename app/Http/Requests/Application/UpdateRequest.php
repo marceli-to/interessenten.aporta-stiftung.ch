@@ -34,7 +34,6 @@ class UpdateRequest extends FormRequest
 		return array_merge(
 			[
 				'shares_apartment' => ['sometimes', 'boolean'],
-				'flagged' => ['sometimes', 'boolean'],
 			],
 			$this->housingWishRules(sectionRequired: false),
 			$this->householdInfoRules(sectionRequired: false),

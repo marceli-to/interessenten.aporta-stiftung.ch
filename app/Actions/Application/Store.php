@@ -52,7 +52,6 @@ class Store
 		$application = Application::create([
 			'reference_number' => $sequence->next(),
 			'status' => Status::Opened,
-			'flagged' => false,
 			'opened_at' => $submittedAt,
 			'last_changed_at' => $submittedAt,
 			'shares_apartment' => $data['shares_apartment'],

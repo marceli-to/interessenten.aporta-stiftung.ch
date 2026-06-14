@@ -13,7 +13,6 @@ return new class extends Migration
 			$table->id();
 			$table->unsignedInteger('reference_number')->unique();
 			$table->string('status', 20)->index();
-			$table->boolean('flagged')->default(false);
 			$table->boolean('shares_apartment')->default(false);
 
 			// Housing wish (1:1 — inlined). Multi-selects live in application_districts/floors/rooms pivots.

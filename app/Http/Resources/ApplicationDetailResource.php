@@ -27,7 +27,6 @@ class ApplicationDetailResource extends JsonResource
 				'value' => $this->status->value,
 				'label' => $this->status->label(),
 			],
-			'flagged' => (bool) $this->flagged,
 			'shares_apartment' => (bool) $this->shares_apartment,
 			'opened_at' => $this->opened_at?->toIso8601String(),
 			'extended_at' => $this->extended_at?->toIso8601String(),

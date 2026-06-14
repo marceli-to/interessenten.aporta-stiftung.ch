@@ -71,7 +71,6 @@ class Update
 	{
 		return array_intersect_key($data, array_flip([
 			'shares_apartment',
-			'flagged',
 		]));
 	}
 

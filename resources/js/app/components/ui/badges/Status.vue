@@ -1,18 +1,16 @@
 <script setup>
 import { computed } from 'vue'
-import { PhFolderOpen, PhClockClockwise, PhStar, PhProhibit } from '@phosphor-icons/vue'
+import { PhFolderOpen, PhClockClockwise, PhProhibit } from '@phosphor-icons/vue'
 
 const props = defineProps({
 	statusKey: { type: String, required: true },
 	label: { type: String, required: true },
 })
 
-// Badge appearance per status key. `flagged` and `archived` are resolved by
-// the caller; this map only translates a key into colours + icon.
+// Translates a status key into badge colours + icon.
 const styles = {
 	opened: { badge: 'bg-light-green text-green', icon: PhFolderOpen },
 	extended: { badge: 'bg-light-violet text-violet', icon: PhClockClockwise },
-	flagged: { badge: 'bg-light-red text-red', icon: PhStar },
 	archived: { badge: 'bg-light-gray text-gray', icon: null },
 	knif: { badge: 'bg-light-red text-red', icon: PhProhibit },
 }
