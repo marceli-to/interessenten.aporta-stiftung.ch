@@ -77,9 +77,19 @@ gibt kein globales „alle 677 auswählen". Ablauf:
   - [ ] Auswahl seitenübergreifend halten; bei Filter-/Suchwechsel leeren.
   - [ ] Bar nur bei aktivem Filter/Suche zeigen; Zähler „X von N".
   - [ ] „Alle N auswählen" (select-all-matching) inkl. Ausnahmen (`exclude`).
-  - [ ] **Aktion: Alle (ausgewählten) löschen** (Backend `{ids|filters}` +
-        Bestätigung mit echter Anzahl; Soft-Delete als Sicherheitsnetz)
-  - [ ] **Aktion: Alle (ausgewählten) exportieren** (hängt an Export-Klärung, §4)
+  - [x] **Aktion: Alle (ausgewählten) löschen**
+        Erledigt. `POST applications/bulk-delete` (`ApplicationBulkController`),
+        Payload `{ ids }` ODER Filter-Parameter (+`exclude`) für all-matching.
+        `Application\BulkDelete` löst die IDs über das geteilte
+        `BuildsApplicationListQuery`-Trait auf (gleiche Logik wie die Liste),
+        löscht je Zeile via `Application\Delete` (Soft-Delete, Aktivitätslog).
+        Filter-Parsing in Request-Trait `ParsesApplicationFilters` (geteilt mit
+        `GetRequest`). Request lehnt „weder ids noch Filter" ab (422). Frontend:
+        ConfirmDialog mit echter Anzahl → API → Auswahl leeren → Liste neu laden.
+        Tests: `BulkDeleteEndpointTest` (ids, all-matching, exclude, Guard, schon
+        gelöscht, Auth).
+  - [ ] **Aktion: Alle (ausgewählten) exportieren** (hängt an Export-Klärung, §4;
+        kommt als zweite Methode in `ApplicationBulkController`)
 
 ### Teil B – Resultatansicht / Browse (Folge-Task)
 

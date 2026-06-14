@@ -3,6 +3,8 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApplicationsStore } from '@/stores/applications'
 import { useListQuery } from '@/composables/useListQuery'
+import { useToast } from '@/composables/useToast'
+import api from '@/api/applications'
 import { fmtDate, fmtMoney, fmtList } from '@/utils/format'
 import Panel from '@/components/ui/panels/Display.vue'
 import Pagination from '@/components/ui/pagination/Pagination.vue'
@@ -11,13 +13,15 @@ import TableHeadCell from '@/components/ui/table/HeadCell.vue'
 import TableCell from '@/components/ui/table/Cell.vue'
 import RowCheckbox from '@/components/ui/table/RowCheckbox.vue'
 import BulkActionBar from '@/components/ui/table/BulkActionBar.vue'
+import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue'
 import Filter from './Filter.vue'
 
 const route = useRoute()
 const router = useRouter()
 const store = useApplicationsStore()
+const toast = useToast()
 
-const { sort, direction, search, goToPage, toggleSort } = useListQuery({
+const { sort, direction, search, goToPage, toggleSort, reload } = useListQuery({
 	fetch: store.fetch,
 	perPage: 15,
 })
@@ -142,24 +146,52 @@ function selectAll() {
 
 const clearSelection = resetSelection
 
-// The payload bulk endpoints will receive: either explicit ids, or the active
-// filters + exclusions for all-matching. (Backend wiring lands next.)
+// The payload bulk endpoints receive: either explicit ids, or — for all-matching
+// — the active filter params (flat, same names as the list query) plus the
+// exclusions. The backend resolves the set server-side through the shared filter
+// parsing, so it deletes exactly the rows the filter matched.
 function selectionPayload() {
 	if (selectAllMatching.value) {
 		const filters = { ...route.query }
 		NON_SCOPE_KEYS.forEach((key) => delete filters[key])
-		return { filters, exclude: [...excluded.value] }
+		return { ...filters, exclude: [...excluded.value] }
 	}
 	return { ids: [...selected.value] }
 }
 
+// --- Bulk delete (confirmed) -------------------------------------------------
+// The button opens a ConfirmDialog showing the real count; confirming POSTs the
+// selection payload, then clears the selection and refreshes the list in place.
+const confirmingDelete = ref(false)
+const deleting = ref(false)
+
+const askBulkDelete = () => { confirmingDelete.value = true }
+
+const deleteMessage = computed(() =>
+	`${selectedCount.value} ${selectedCount.value === 1 ? 'Bewerbung wird' : 'Bewerbungen werden'} aus der Liste entfernt. `
+	+ 'Sie bleiben gespeichert und können später wiederhergestellt werden.'
+)
+
+async function handleBulkDelete() {
+	deleting.value = true
+	try {
+		const { data } = await api.bulkDestroy(selectionPayload())
+		confirmingDelete.value = false
+		clearSelection()
+		reload()
+		toast.success(`${data.deleted} ${data.deleted === 1 ? 'Bewerbung' : 'Bewerbungen'} gelöscht.`)
+	} catch {
+		// failure already surfaced as a toast by the axios interceptor
+		confirmingDelete.value = false
+	} finally {
+		deleting.value = false
+	}
+}
+
 // Placeholder actions — wired up in later steps:
-//  - delete / export: Teil A (backend wiring, next).
+//  - export: Teil A (hängt an §4-Klärung: Felder / Format).
 //  - open: Teil B (Resultatansicht — opens the first selected application and
 //    enables prev/next browsing through the selection).
-function bulkDelete() {
-	console.log('bulk delete', selectionPayload())
-}
 function bulkExport() {
 	console.log('bulk export', selectionPayload())
 }
@@ -354,6 +386,17 @@ function open(application) {
     @clear="clearSelection"
     @open="bulkOpen"
     @export="bulkExport"
-    @delete="bulkDelete"
+    @delete="askBulkDelete"
+  />
+
+  <ConfirmDialog
+    :open="confirmingDelete"
+    :title="`${selectedCount} ${selectedCount === 1 ? 'Bewerbung' : 'Bewerbungen'} löschen`"
+    :message="deleteMessage"
+    confirmLabel="Löschen bestätigen"
+    cancelLabel="Abbrechen"
+    :destructive="true"
+    @confirm="handleBulkDelete"
+    @cancel="confirmingDelete = false"
   />
 </template>

@@ -1,19 +1,20 @@
 <script setup>
-import { PhArrowSquareOut, PhDownloadSimple, PhTrash } from '@phosphor-icons/vue'
+import Button from '@/components/ui/form/Button.vue'
 
 // Floating action bar for list multi-select. Pinned bottom-center, it appears
 // (with a short slide/fade) only while at least one row is selected and follows
 // the page as it scrolls. The parent owns the selection set and the actions; we
 // only render the count, the actions, and a "clear" affordance.
 //
+// Dark-blue pill surface (kept for visibility over the table). Actions use the
+// canonical Button with the on-dark variants — inverse-outline for the neutral
+// actions, inverse-ghost for the text affordances, danger-solid for the
+// destructive Löschen (the red fill reads fine on dark blue).
+//
 // Selection is filter-scoped: `count` is how many are selected, `total` is the
 // size of the current filtered result. When the whole page is ticked but more
 // rows match (`canSelectAll`), we offer the "Alle N auswählen" upgrade, which
 // switches the parent into all-matching mode (`allMatching`).
-//
-// Actions, left → right: Öffnen (browse the selection — Resultatansicht),
-// Exportieren, Löschen. Löschen is destructive, so it gets the solid red
-// treatment to set it apart from the two neutral outline actions.
 defineProps({
 	count: { type: Number, required: true },
 	total: { type: Number, default: 0 },
@@ -51,50 +52,26 @@ defineEmits(['selectAll', 'clear', 'open', 'export', 'delete'])
 					</template>
 				</span>
 
-				<button
-					v-if="canSelectAll"
-					type="button"
-					class="cursor-pointer text-sm text-white underline hover:text-white/80"
-					@click="$emit('selectAll')"
-				>
+				<Button v-if="canSelectAll" variant="inverse-ghost" size="sm" @click="$emit('selectAll')">
 					Alle {{ total }} auswählen
-				</button>
+				</Button>
 
-				<button
-					type="button"
-					class="cursor-pointer text-sm text-white/70 underline hover:text-white"
-					@click="$emit('clear')"
-				>
+				<Button variant="inverse-ghost" size="sm" @click="$emit('clear')">
 					Abwählen
-				</button>
+				</Button>
 
 				<div class="h-20 w-px bg-white/20" />
 
 				<div class="flex items-center gap-10">
-					<button
-						type="button"
-						class="inline-flex h-30 cursor-pointer items-center gap-5 rounded-full border border-white/40 pl-10 pr-12 text-sm hover:bg-white/10"
-						@click="$emit('open')"
-					>
-						<PhArrowSquareOut :size="16" weight="regular" />
+					<Button variant="inverse-outline" size="sm" icon="arrow-square-out" @click="$emit('open')">
 						Öffnen
-					</button>
-					<button
-						type="button"
-						class="inline-flex h-30 cursor-pointer items-center gap-5 rounded-full border border-white/40 pl-10 pr-12 text-sm hover:bg-white/10"
-						@click="$emit('export')"
-					>
-						<PhDownloadSimple :size="16" weight="regular" />
+					</Button>
+					<Button variant="inverse-outline" size="sm" icon="download-simple" @click="$emit('export')">
 						Exportieren
-					</button>
-					<button
-						type="button"
-						class="inline-flex h-30 cursor-pointer items-center gap-5 rounded-full bg-red pl-10 pr-12 text-sm font-medium hover:bg-red/90"
-						@click="$emit('delete')"
-					>
-						<PhTrash :size="16" weight="regular" />
+					</Button>
+					<Button variant="danger-solid" size="sm" icon="trash" @click="$emit('delete')">
 						Löschen
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>

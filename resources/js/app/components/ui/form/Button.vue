@@ -10,6 +10,7 @@ import {
 	PhTrash,
 	PhDotsThree,
 	PhArrowsClockwise,
+	PhArrowSquareOut,
 } from '@phosphor-icons/vue'
 
 const icons = {
@@ -22,11 +23,14 @@ const icons = {
 	trash: PhTrash,
 	'dots-three': PhDotsThree,
 	'arrows-clockwise': PhArrowsClockwise,
+	'arrow-square-out': PhArrowSquareOut,
 }
 
 const props = defineProps({
 	type: { type: String, default: 'button' },
-	variant: { type: String, default: 'primary' }, // primary | outline | ghost | danger | danger-solid
+	// Light-surface: primary | outline | ghost | danger | danger-solid
+	// Dark-surface (e.g. BulkActionBar): inverse-outline | inverse-ghost
+	variant: { type: String, default: 'primary' },
 	size: { type: String, default: 'md' }, // sm | md | lg
 	icon: { type: String, default: null },
 })
@@ -37,10 +41,13 @@ const variants = {
 	ghost: 'text-blue hover:opacity-70',
 	danger: 'text-red hover:opacity-70',
 	'danger-solid': 'border border-red bg-red text-white rounded-full hover:bg-red/90',
+	// On a dark surface: white border/text outline and a white text-only ghost.
+	'inverse-outline': 'border border-white/40 text-white rounded-full hover:bg-white/10',
+	'inverse-ghost': 'text-white/70 underline hover:text-white',
 }
 
 // Borderless, text-only variants share the no-chrome sizing and icon scale.
-const textOnly = ['ghost', 'danger']
+const textOnly = ['ghost', 'danger', 'inverse-ghost']
 
 const containedSizes = {
 	sm: 'h-30 px-12 text-sm font-normal gap-5',

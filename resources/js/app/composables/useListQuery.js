@@ -73,5 +73,9 @@ export function useListQuery({ fetch, perPage = 25, defaultSort = 'opened_at', d
 
 	onBeforeUnmount(() => clearTimeout(searchTimer))
 
-	return { sort, direction, search, goToPage, toggleSort }
+	// Re-run the current query without changing the URL — for after a mutation
+	// (e.g. bulk delete) that should refresh the list in place.
+	const reload = () => load()
+
+	return { sort, direction, search, goToPage, toggleSort, reload }
 }
