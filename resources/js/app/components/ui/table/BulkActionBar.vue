@@ -54,7 +54,7 @@ defineEmits(['selectAll', 'clear', 'open', 'export', 'delete'])
 				<button
 					v-if="canSelectAll"
 					type="button"
-					class="text-sm text-white underline hover:text-white/80"
+					class="cursor-pointer text-sm text-white underline hover:text-white/80"
 					@click="$emit('selectAll')"
 				>
 					Alle {{ total }} auswählen
@@ -62,7 +62,7 @@ defineEmits(['selectAll', 'clear', 'open', 'export', 'delete'])
 
 				<button
 					type="button"
-					class="text-sm text-white/70 underline hover:text-white"
+					class="cursor-pointer text-sm text-white/70 underline hover:text-white"
 					@click="$emit('clear')"
 				>
 					Abwählen
@@ -73,7 +73,7 @@ defineEmits(['selectAll', 'clear', 'open', 'export', 'delete'])
 				<div class="flex items-center gap-10">
 					<button
 						type="button"
-						class="inline-flex h-30 items-center gap-5 rounded-full border border-white/40 pl-10 pr-12 text-sm hover:bg-white/10"
+						class="inline-flex h-30 cursor-pointer items-center gap-5 rounded-full border border-white/40 pl-10 pr-12 text-sm hover:bg-white/10"
 						@click="$emit('open')"
 					>
 						<PhArrowSquareOut :size="16" weight="regular" />
@@ -81,7 +81,7 @@ defineEmits(['selectAll', 'clear', 'open', 'export', 'delete'])
 					</button>
 					<button
 						type="button"
-						class="inline-flex h-30 items-center gap-5 rounded-full border border-white/40 pl-10 pr-12 text-sm hover:bg-white/10"
+						class="inline-flex h-30 cursor-pointer items-center gap-5 rounded-full border border-white/40 pl-10 pr-12 text-sm hover:bg-white/10"
 						@click="$emit('export')"
 					>
 						<PhDownloadSimple :size="16" weight="regular" />
@@ -89,7 +89,7 @@ defineEmits(['selectAll', 'clear', 'open', 'export', 'delete'])
 					</button>
 					<button
 						type="button"
-						class="inline-flex h-30 items-center gap-5 rounded-full bg-red pl-10 pr-12 text-sm font-medium hover:bg-red/90"
+						class="inline-flex h-30 cursor-pointer items-center gap-5 rounded-full bg-red pl-10 pr-12 text-sm font-medium hover:bg-red/90"
 						@click="$emit('delete')"
 					>
 						<PhTrash :size="16" weight="regular" />
