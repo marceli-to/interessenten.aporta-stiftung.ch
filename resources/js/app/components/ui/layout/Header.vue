@@ -15,7 +15,7 @@ onMounted(() => userStore.fetchUser())
 
 <template>
 
-	<header class="bg-light-blue border-b border-b-blue/30 py-30 mb-30 w-full">
+	<header class="bg-light-blue border-b border-b-blue/30 py-20 mb-30 w-full">
 
     <div class="grid grid-cols-12 items-center">
 
@@ -27,7 +27,7 @@ onMounted(() => userStore.fetchUser())
 
       <div class="col-span-4 flex justify-center">
         <RouterLink :to="{ name: 'applications.index' }">
-          <Logo class="h-36 w-auto" />
+          <Logo class="h-48 w-auto" />
         </RouterLink>
       </div>
 
