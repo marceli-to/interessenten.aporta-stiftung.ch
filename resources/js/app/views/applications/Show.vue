@@ -1,9 +1,10 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import api from '@/api/applications'
 import { useLookupsStore } from '@/stores/lookups'
 import { useToast } from '@/composables/useToast'
+import Browse from '@/views/applications/Browse.vue'
 import Heading1 from '@/components/ui/headings/H1.vue'
 import Button from '@/components/ui/form/Button.vue'
 import StatusPanel from '@/views/applications/panels/StatusPanel.vue'
@@ -29,14 +30,21 @@ const toast = useToast()
 const app = ref(null)
 const loading = ref(true)
 
-onMounted(async () => {
+async function load(id) {
+	loading.value = true
 	try {
-		const [, { data }] = await Promise.all([lookups.fetch(), api.show(props.id)])
+		const [, { data }] = await Promise.all([lookups.fetch(), api.show(id)])
 		app.value = data.data
 	} finally {
 		loading.value = false
 	}
-})
+}
+
+onMounted(() => load(props.id))
+
+// Browsing a selection re-uses this component (only the :id param changes), so a
+// route change won't re-trigger onMounted — reload explicitly when the id moves.
+watch(() => props.id, (id) => load(id))
 
 // One canonical object, one save path. A panel hands us the section payload; we
 // PUT it, then replace `app` with the server's fresh full representation so every
@@ -120,6 +128,18 @@ async function handleRestore() {
 // in history state; fall back to the bare list for deep links / refreshes.
 const backTo = window.history.state?.from || { name: 'applications.index' }
 
+// --- Browse (Resultatansicht) ------------------------------------------------
+// The Browse component (header) owns the prev/next UI + browse-store derivation;
+// the view just handles navigation, carrying the same `from` state so the back
+// link survives stepping through the set.
+function goToBrowse(id) {
+	router.push({
+		name: 'applications.show',
+		params: { id },
+		state: { from: backTo },
+	})
+}
+
 const title = computed(() => {
 	if (!app.value) return ''
 	const a = app.value.main_applicant
@@ -129,16 +149,23 @@ const title = computed(() => {
 </script>
 
 <template>
-	<div v-if="loading" class="text-sm text-light-gray">
-		Laden …
-	</div>
+	<template v-if="loading">
+		<div class="text-sm text-light-gray">
+			Laden …
+		</div>
+	</template>
 
-	<div v-else-if="app">
-		<header class="flex items-center justify-between mb-30">
-			<Heading1>{{ title }}</Heading1>
-			<RouterLink :to="backTo">
-				<Button variant="ghost" size="sm">← Zurück zur Liste</Button>
-			</RouterLink>
+	<template v-else-if="app">
+		<header class="grid grid-cols-3 items-center mb-30">
+			<Heading1 class="truncate">{{ title }}</Heading1>
+
+			<Browse :id="id" @navigate="goToBrowse" />
+
+			<div class="justify-self-end">
+				<RouterLink :to="backTo">
+					<Button variant="ghost" size="sm">← Zurück zur Liste</Button>
+				</RouterLink>
+			</div>
 		</header>
 
 		<div class="grid grid-cols-12 gap-30">
@@ -208,8 +235,12 @@ const title = computed(() => {
 
 				<HistoryPanel :events="app.status_events" />
 
-				<RestorePanel v-if="isTrashed" :onRestore="handleRestore" />
-				<DeletePanel v-else :onDelete="askDelete" />
+				<template v-if="isTrashed">
+					<RestorePanel :onRestore="handleRestore" />
+				</template>
+				<template v-else>
+					<DeletePanel :onDelete="askDelete" />
+				</template>
 			</div>
 		</div>
 
@@ -223,5 +254,5 @@ const title = computed(() => {
 			@confirm="handleDelete"
 			@cancel="confirmingDelete = false"
 		/>
-	</div>
+	</template>
 </template>

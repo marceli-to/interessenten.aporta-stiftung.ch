@@ -102,24 +102,43 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 
 ### Teil B – Resultatansicht / Browse (Folge-Task)
 
-- [ ] **Resultatansicht: angehakte Bewerbungen durchblättern**
-      „Öffnen" in der Bulk-Bar öffnet die erste ausgewählte Bewerbung im
-      Detail und blendet dort eine Prev/Next-Navigation ein, die **nur durch
-      die angehakten Zeilen** blättert (Entscheid: nicht das ganze Filter-Set).
-  - [ ] Auswahl muss über die Navigation hinweg bestehen bleiben
-        (Ansatz offen: Pinia-„Browse-Set"-Store vs. URL vs. Hybrid).
-  - [ ] Prev/Next-UI in `Show.vue` (Position „3 / 12", Grenzen abfangen).
-  - [ ] PDF-Export der Resultate (hängt an PDF-Klärung, §4).
+- [x] **Resultatansicht: angehakte Bewerbungen durchblättern**
+      Erledigt. „Öffnen" in der Bulk-Bar löst die Auswahl serverseitig in die
+      **geordnete ID-Liste** auf (`POST applications/bulk-resolve` →
+      `Application\ResolveIds`, gleiche Reihenfolge wie die Liste über
+      `applyListOrder` im Query-Trait; ungescopt = leer), öffnet die erste
+      Bewerbung im Detail.
+  - [x] Auswahl bleibt über die Navigation bestehen — **Pinia-`browse`-Store**
+        (`start/clear/position/prevId/nextId`, hält nur IDs, In-Session). Einzel-
+        Öffnen einer Zeile leert den Browse-Set.
+  - [x] Prev/Next-UI in `Show.vue` zentriert im Header (geteilter
+        `pagination/Button`, Position „3 / 12", Grenzen via disabled). `Show.vue`
+        lädt bei `:id`-Wechsel neu (watch, da Komponente wiederverwendet wird).
+  - [ ] PDF-Export der Resultate (hängt an PDF-Klärung, §4 — separat).
+        Tests: `BulkResolveEndpointTest` (Reihenfolge, all-matching, exclude,
+        trashed, leere Auswahl, Auth).
 
 ## 4. Export
 
-- [ ] **PDF-Export (kompletter Datensatz, 1..n Bewerbungen)**
+- [ ] **PDF-Export (kompletter Datensatz, 1..n Bewerbungen) — ASYNCHRON**
       Den vollständigen Datensatz **einer oder mehrerer** Bewerbungen als PDF
       exportieren. Ansatz bestätigt (siehe `.install/pdf-generation.md`):
       **Spatie Laravel PDF** (Blade → HTML → Chrome) mit **Browsershot lokal**
       und **AWS Lambda via Hammerstone Sidecar** in Produktion. Ein Export-Lauf
       erzeugt **ein PDF** (alle ausgewählten Bewerbungen hintereinander, je
-      Bewerbung eine neue Seite via `page-break`), zum Download im Browser.
+      Bewerbung eine neue Seite via `page-break`).
+
+      **Async-Entscheid (Kunde):** Generierung läuft in einem **Queue-Job**, da
+      eine All-Matching-Auswahl hunderte Datensätze umfassen kann (Request-/
+      Lambda-Timeout vermeiden). Ablauf:
+      1. Frontend startet Export → Endpoint legt einen Export-Auftrag an,
+         dispatcht den Job, gibt **sofort eine `export_id`** zurück (kein PDF).
+      2. Frontend **pollt** einen Status-Endpoint (`pending` → `ready` /
+         `failed`).
+      3. Bei `ready`: **In-App-Benachrichtigung/Toast** mit **Download-Link**
+         (signierte, zeitlich befristete URL). Kein E-Mail, kein Broadcasting.
+      4. PDF liegt als **temporäre Datei** (S3 in Prod / local in Dev), wird per
+         **Scheduled Command nach ~24h** aufgeräumt.
 
       Auswahl-Auflösung ist bereits vorhanden und wird wiederverwendet: gleicher
       `{ ids }` ODER `{ filters, exclude }`-Mechanismus wie Bulk-Löschen
@@ -134,34 +153,71 @@ gibt kein globales „alle 677 auswählen". Ablauf:
         `config/sidecar.php` + `config/sidecar-browsershot.php` anlegen, Env-Vars
         (§6 der Doku) ergänzen. Lambda-Deploy (`sidecar:configure` +
         `sidecar:deploy --activate`) ist ein **Prod-/AWS-Schritt** — lokal ohne
-        `->onLambda()` mit Puppeteer testen.
-  - [ ] **Blade-View `pdf/application.blade.php`** (+ ggf. Header/Footer-Partials)
+        `->onLambda()` mit Puppeteer testen. Queue-Worker braucht in Prod
+        AWS-Zugang (`onLambda()` läuft auf dem Worker, vgl. Doku §4/§10).
+  - [ ] **Export-Auftrag-Tracking** (leichtgewichtig, kein Verlaufs-Feature)
+        Status eines Laufs (`pending`/`ready`/`failed`, Pfad, `user_id`,
+        `expires_at`) persistieren — Tabelle `application_exports` oder per
+        Cache-Eintrag mit TTL. Genügt für Polling + signierten Download; bewusst
+        **keine** durchsuchbare Export-Historie.
+  - [ ] **Queue-Job `GenerateApplicationsPdfJob`**
+        Auflösung der IDs (geteiltes Trait) → lädt Bewerbungen mit dem
+        Eager-Load-Baum aus `Show` → rendert `Pdf::view('pdf.applications', …)`
+        (`->onLambda()` nur in Prod) → speichert temporäre Datei → setzt Status
+        auf `ready` (bzw. `failed` bei Exception). `tries`/`backoff` setzen.
+        Reine Render-Logik ggf. in Action `GenerateApplicationsPdf` auslagern.
+  - [ ] **Blade-View `pdf/applications.blade.php`** (+ ggf. Header/Footer-Partials)
         nach den Konventionen der Doku §7: eigenständiges HTML-Dokument,
         Schriften/Logo als base64 eingebettet, **inline/kompiliertes CSS** statt
         Tailwind-CDN, `page-break-before` pro Bewerbung, Seitenzahlen via
         `@pageNumber / @totalPages`. Layout an den Detail-Panels orientieren
         (alle Sektionen aus `Show.vue`).
-  - [ ] **Action `app/Actions/Application/GenerateApplicationsPdf.php`**
-        (analog `GenerateInvoicePdf` der Doku): lädt die Bewerbungen mit dem
-        Eager-Load-Baum aus `Show`, rendert `Pdf::view(...)`, `->onLambda()` nur
-        in Produktion, gibt Pfad/Stream zurück.
-  - [ ] **Endpoint `POST applications/bulk-export`** als dritte Methode in
-        `ApplicationBulkController` (neben `destroy`/`restore`) + neuer
-        `ExportRequest extends BulkSelectionRequest`. IDs über das geteilte
-        Trait auflösen, PDF generieren, als Download (`application/pdf`)
-        zurückgeben. Route in `routes/api.php` ergänzen.
-  - [ ] **Frontend**: `bulkExport()` in `Index.vue` verdrahten (ersetzt den
-        aktuellen Konsolen-Platzhalter), `api.bulkExport(payload)` als
-        Blob-Download in `api/applications.js` ergänzen, Export-Button in
-        `BulkActionBar.vue` aktivieren (Ladezustand bei grossen Mengen bedenken).
-  - [ ] **Tests**: `BulkExportEndpointTest` analog `BulkDeleteEndpointTest`
-        (ids, all-matching, exclude, Guard „weder ids noch Filter", Auth);
-        Rendering lokal ohne Lambda. Grenzfälle: nur Hauptmieter, ohne
-        Mitmieter, ohne Notizen/Kinder.
+  - [ ] **Endpoints** in `ApplicationBulkController` (neben `destroy`/`restore`):
+    - [ ] `POST applications/bulk-export` (`ExportRequest extends
+          BulkSelectionRequest`) — IDs auflösen, Auftrag anlegen, Job
+          dispatchen, `{ export_id }` (202) zurückgeben.
+    - [ ] `GET applications/exports/{export}` — Status-Polling
+          (`{ status, download_url? }`), nur eigener Auftrag (Authorization).
+    - [ ] `GET applications/exports/{export}/download` — signierter/temporärer
+          Download der fertigen PDF; nach Ablauf 404/410.
+          Routen in `routes/api.php` ergänzen.
+  - [ ] **Cleanup-Command** (Scheduled): abgelaufene Export-Dateien + Tracking-
+        Einträge nach ~24h entfernen (`expires_at`); in den Scheduler hängen
+        (vgl. §6 Lifecycle).
+  - [ ] **Frontend** (UI-Kern des Async-Flows):
+    - [ ] **App-weiter Export-Tracker (Pinia-Store), NICHT an `Index.vue`
+          gebunden** (Entscheid): Laufende Exporte werden global verwaltet, das
+          Polling läuft **unabhängig von der aktuellen Ansicht** weiter. Damit
+          erscheint die „PDF bereit"-Benachrichtigung auch dann, wenn der Nutzer
+          **die Ansicht gewechselt** oder **den Filter geändert** hat (was die
+          Zeilenauswahl leert) — der Export ist von der Auswahl entkoppelt,
+          sobald er gestartet wurde. Mehrere parallele Exporte möglich.
+          (Optional: laufende `export_id`s in `localStorage` persistieren, damit
+          ein Reload den Lauf weiter pollt.)
+    - [ ] `bulkExport()` in `Index.vue` verdrahten (ersetzt Konsolen-
+          Platzhalter): startet Export → übergibt `export_id` an den Store
+          (Store übernimmt Polling), Auswahl darf danach geleert werden.
+    - [ ] **Poll-Mechanik** im Store (z.B. `useExportsStore`/`useExportPolling`):
+          pollt Status-Endpoint im Intervall, stoppt je Lauf bei
+          `ready`/`failed`, mit Timeout-/Fehlerbehandlung.
+    - [ ] **UI-Feedback (global gemountet, z.B. im App-Layout)**: kurzer
+          Ladehinweis „PDF wird erstellt …" beim Start; bei `ready`
+          Toast/Benachrichtigung mit Download-Link; bei `failed` Fehlermeldung +
+          Retry. (Bestehende Toast-/Notification-Komponente prüfen/
+          wiederverwenden.)
+    - [ ] API-Methoden in `api/applications.js`: `startExport(payload)`,
+          `exportStatus(id)`, Download via signierter URL.
+  - [ ] **Tests**:
+    - [ ] Backend: Start-Endpoint (ids, all-matching, exclude, Guard „weder ids
+          noch Filter", Auth) → dispatcht Job; Status-Endpoint (`pending`→
+          `ready`, fremder Auftrag = 403); Download (ok / abgelaufen).
+          Job-Test mit `Queue::fake()` bzw. synchroner Ausführung; Rendering
+          lokal ohne Lambda. Grenzfälle: nur Hauptmieter, ohne Mitmieter, ohne
+          Notizen/Kinder.
+    - [ ] Cleanup-Command entfernt nur abgelaufene Einträge/Dateien.
 
       **OFFEN/Klärung Kunde:** PDF-Layout/Branding (Logo, Schrift, Reihenfolge
-      der Felder); bei sehr grossen Auswahlen ggf. asynchron (Queue + Mail/
-      Download-Link) statt synchron — vgl. queued-Variante in der Doku §4.
+      der Felder).
 
 - [ ] **Excel-Export (Datensätze)**
       Mehrere Datensätze als Excel exportieren.

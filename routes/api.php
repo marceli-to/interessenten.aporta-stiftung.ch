@@ -35,6 +35,8 @@ Route::prefix('dashboard')
 		// Export will join here once the field set is confirmed (§4).
 		Route::post('applications/bulk-delete', [ApplicationBulkController::class, 'destroy']);
 		Route::post('applications/bulk-restore', [ApplicationBulkController::class, 'restore']);
+		// Resolve a selection to the ordered id list seeding the browse set.
+		Route::post('applications/bulk-resolve', [ApplicationBulkController::class, 'resolve']);
 
 		// {note} is scope-bound to {application} so a note from another
 		// application resolves to 404 rather than being editable here.

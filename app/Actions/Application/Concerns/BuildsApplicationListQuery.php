@@ -17,6 +17,20 @@ use Illuminate\Database\Eloquent\Builder;
 trait BuildsApplicationListQuery
 {
 	/**
+	 * Columns the list may be sorted by. Anything outside this whitelist falls
+	 * back to the default so user-supplied sort input never reaches orderBy raw.
+	 */
+	private const SORTABLE = [
+		'reference_number',
+		'status',
+		'opened_at',
+		'extended_at',
+		'earliest_move_in',
+		'max_gross_rent',
+		'total_persons',
+	];
+
+	/**
 	 * Apply search + filters to a fresh Application query. Ordering and pagination
 	 * are left to the caller (the list paginates; bulk just plucks ids).
 	 */
@@ -36,6 +50,18 @@ trait BuildsApplicationListQuery
 			->when($filters['income'] ?? null, fn ($query, $slugs) => $query->whereHas('mainApplicant.employer', fn ($employer) => $employer->whereIn('annual_income_bracket_slug', $slugs)))
 			->when($filters['districts'] ?? null, fn ($query, $slugs) => $this->whereHasAny($query, 'application_districts', 'district_slug', $slugs))
 			->when($filters['rooms'] ?? null, fn ($query, $slugs) => $this->whereHasAny($query, 'application_rooms', 'room_slug', $slugs));
+	}
+
+	/**
+	 * Apply the list's ordering to a query: the (whitelisted) sort column with a
+	 * stable `id desc` tiebreaker, so list / bulk / browse all agree on order.
+	 */
+	protected function applyListOrder(Builder $query, string $sort, string $direction): Builder
+	{
+		$sort = in_array($sort, self::SORTABLE, true) ? $sort : 'opened_at';
+		$direction = $direction === 'asc' ? 'asc' : 'desc';
+
+		return $query->orderBy($sort, $direction)->orderBy('id', 'desc');
 	}
 
 	/**

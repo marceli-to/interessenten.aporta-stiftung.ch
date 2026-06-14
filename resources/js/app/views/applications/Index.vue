@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApplicationsStore } from '@/stores/applications'
+import { useBrowseStore } from '@/stores/browse'
 import { useListQuery } from '@/composables/useListQuery'
 import { useToast } from '@/composables/useToast'
 import api from '@/api/applications'
@@ -19,6 +20,7 @@ import Filter from './Filter.vue'
 const route = useRoute()
 const router = useRouter()
 const store = useApplicationsStore()
+const browse = useBrowseStore()
 const toast = useToast()
 
 const { sort, direction, search, goToPage, toggleSort, reload } = useListQuery({
@@ -200,15 +202,27 @@ async function handleBulkRestore() {
 	}
 }
 
-// Placeholder actions — wired up in later steps:
+// --- Öffnen (Resultatansicht) ------------------------------------------------
+// Resolve the selection to its ordered ids (server-side, same order as the list),
+// seed the browse store, and open the first one. The detail view then shows a
+// prev/next control that steps through exactly this set.
+async function bulkOpen() {
+	const payload = { ...selectionPayload(), sort: sort.value, direction: direction.value }
+	const { data } = await api.bulkResolve(payload)
+	if (!data.ids.length) return
+
+	browse.start(data.ids)
+	router.push({
+		name: 'applications.show',
+		params: { id: data.ids[0] },
+		state: { from: route.fullPath },
+	})
+}
+
+// Placeholder action — wired up later:
 //  - export: Teil A (hängt an §4-Klärung: Felder / Format).
-//  - open: Teil B (Resultatansicht — opens the first selected application and
-//    enables prev/next browsing through the selection).
 function bulkExport() {
 	console.log('bulk export', selectionPayload())
-}
-function bulkOpen() {
-	console.log('bulk open (browse)', selectionPayload())
 }
 
 // Visual treatment per row. `flagged` (Wichtig) overrides the open/extended
@@ -234,8 +248,10 @@ function display(application) {
 }
 
 // Carry the current list URL (search / page / sort) into history state so the
-// detail view's back link can return to the exact same filtered list.
+// detail view's back link can return to the exact same filtered list. Opening a
+// single row is not a browse session, so clear any active browse set.
 function open(application) {
+	browse.clear()
 	router.push({
 		name: 'applications.show',
 		params: { id: application.id },

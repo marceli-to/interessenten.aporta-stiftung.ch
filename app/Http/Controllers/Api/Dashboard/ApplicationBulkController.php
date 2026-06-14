@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Actions\Application\BulkDelete as BulkDeleteApplications;
 use App\Actions\Application\BulkRestore as BulkRestoreApplications;
+use App\Actions\Application\ResolveIds as ResolveApplicationIds;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ApplicationBulk\DeleteRequest;
+use App\Http\Requests\ApplicationBulk\ResolveRequest;
 use App\Http\Requests\ApplicationBulk\RestoreRequest;
 
 /**
@@ -41,5 +43,23 @@ class ApplicationBulkController extends Controller
 		);
 
 		return response()->json(['restored' => $restored]);
+	}
+
+	/**
+	 * Resolve a selection to the ordered id list that seeds the browse set
+	 * (Resultatansicht). Read-only.
+	 */
+	public function resolve(ResolveRequest $request)
+	{
+		$ids = (new ResolveApplicationIds())->execute(
+			ids: $request->ids(),
+			search: $request->search(),
+			sort: $request->sort(),
+			direction: $request->direction(),
+			filters: $request->filters(),
+			exclude: $request->exclude(),
+		);
+
+		return response()->json(['ids' => $ids]);
 	}
 }

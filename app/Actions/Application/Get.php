@@ -12,20 +12,6 @@ class Get
 	use BuildsApplicationListQuery;
 
 	/**
-	 * Columns the list may be sorted by. Anything outside this whitelist falls
-	 * back to the default so user-supplied sort input never reaches orderBy raw.
-	 */
-	private const SORTABLE = [
-		'reference_number',
-		'status',
-		'opened_at',
-		'extended_at',
-		'earliest_move_in',
-		'max_gross_rent',
-		'total_persons',
-	];
-
-	/**
 	 * Paginated list of applications for the dashboard, each enriched with its
 	 * room/district slug lists. The pivots are fetched in two batched queries
 	 * (keyed by application id) rather than one query per row.
@@ -40,13 +26,9 @@ class Get
 		string $direction = 'desc',
 		array $filters = [],
 	): LengthAwarePaginator {
-		$sort = in_array($sort, self::SORTABLE, true) ? $sort : 'opened_at';
-		$direction = $direction === 'asc' ? 'asc' : 'desc';
+		$query = $this->filteredQuery($search, $filters)->with(['mainApplicant.employer']);
 
-		$applications = $this->filteredQuery($search, $filters)
-			->with(['mainApplicant.employer'])
-			->orderBy($sort, $direction)
-			->orderBy('id', 'desc')
+		$applications = $this->applyListOrder($query, $sort, $direction)
 			->paginate($perPage)
 			->withQueryString();
 
