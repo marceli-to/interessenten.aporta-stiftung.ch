@@ -167,11 +167,6 @@ const deleting = ref(false)
 
 const askBulkDelete = () => { confirmingDelete.value = true }
 
-const deleteMessage = computed(() =>
-	`${selectedCount.value} ${selectedCount.value === 1 ? 'Bewerbung wird' : 'Bewerbungen werden'} aus der Liste entfernt. `
-	+ 'Sie bleiben gespeichert und können später wiederhergestellt werden.'
-)
-
 async function handleBulkDelete() {
 	deleting.value = true
 	try {
@@ -185,6 +180,23 @@ async function handleBulkDelete() {
 		confirmingDelete.value = false
 	} finally {
 		deleting.value = false
+	}
+}
+
+// --- Bulk restore ------------------------------------------------------------
+// Relevant only in the "Gelöscht" view (status=deleted), where the selection is
+// over soft-deleted rows. The bar swaps Löschen for Wiederherstellen there.
+// Restore is non-destructive, so no confirm dialog (mirrors single restore).
+const trashedView = computed(() => route.query.status === 'deleted')
+
+async function handleBulkRestore() {
+	try {
+		const { data } = await api.bulkRestore(selectionPayload())
+		clearSelection()
+		reload()
+		toast.success(`${data.restored} ${data.restored === 1 ? 'Bewerbung' : 'Bewerbungen'} wiederhergestellt.`)
+	} catch {
+		// failure already surfaced as a toast by the axios interceptor
 	}
 }
 
@@ -382,21 +394,27 @@ function open(application) {
     :total="store.total"
     :can-select-all="canSelectAllMatching"
     :all-matching="selectAllMatching"
+    :trashed="trashedView"
     @select-all="selectAll"
     @clear="clearSelection"
     @open="bulkOpen"
     @export="bulkExport"
     @delete="askBulkDelete"
+    @restore="handleBulkRestore"
   />
 
   <ConfirmDialog
     :open="confirmingDelete"
-    :title="`${selectedCount} ${selectedCount === 1 ? 'Bewerbung' : 'Bewerbungen'} löschen`"
-    :message="deleteMessage"
+    title="Bewerbungen löschen"
     confirmLabel="Löschen bestätigen"
     cancelLabel="Abbrechen"
     :destructive="true"
     @confirm="handleBulkDelete"
     @cancel="confirmingDelete = false"
-  />
+  >
+    <strong>{{ selectedCount }} {{ selectedCount === 1 ? 'Bewerbung' : 'Bewerbungen' }}</strong>
+    {{ selectedCount === 1 ? 'wird' : 'werden' }} aus der Liste entfernt.
+    Sie {{ selectedCount === 1 ? 'bleibt' : 'bleiben' }} gespeichert und
+    {{ selectedCount === 1 ? 'kann' : 'können' }} später wiederhergestellt werden.
+  </ConfirmDialog>
 </template>

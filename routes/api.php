@@ -34,6 +34,7 @@ Route::prefix('dashboard')
 		// Bulk operations over a selected set (explicit ids or filter + exclusions).
 		// Export will join here once the field set is confirmed (§4).
 		Route::post('applications/bulk-delete', [ApplicationBulkController::class, 'destroy']);
+		Route::post('applications/bulk-restore', [ApplicationBulkController::class, 'restore']);
 
 		// {note} is scope-bound to {application} so a note from another
 		// application resolves to 404 rather than being editable here.

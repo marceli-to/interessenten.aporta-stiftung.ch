@@ -11,6 +11,9 @@ import Button from '@/components/ui/form/Button.vue'
 // actions, inverse-ghost for the text affordances, danger-solid for the
 // destructive Löschen (the red fill reads fine on dark blue).
 //
+// In the "Gelöscht" view (`trashed`), the selection is over soft-deleted rows,
+// so the destructive Löschen is swapped for a Wiederherstellen action.
+//
 // Selection is filter-scoped: `count` is how many are selected, `total` is the
 // size of the current filtered result. When the whole page is ticked but more
 // rows match (`canSelectAll`), we offer the "Alle N auswählen" upgrade, which
@@ -20,9 +23,10 @@ defineProps({
 	total: { type: Number, default: 0 },
 	canSelectAll: { type: Boolean, default: false },
 	allMatching: { type: Boolean, default: false },
+	trashed: { type: Boolean, default: false },
 })
 
-defineEmits(['selectAll', 'clear', 'open', 'export', 'delete'])
+defineEmits(['selectAll', 'clear', 'open', 'export', 'delete', 'restore'])
 </script>
 
 <template>
@@ -69,7 +73,22 @@ defineEmits(['selectAll', 'clear', 'open', 'export', 'delete'])
 					<Button variant="inverse-outline" size="sm" icon="download-simple" @click="$emit('export')">
 						Exportieren
 					</Button>
-					<Button variant="danger-solid" size="sm" icon="trash" @click="$emit('delete')">
+					<Button
+						v-if="trashed"
+						variant="inverse-outline"
+						size="sm"
+						icon="arrows-clockwise"
+						@click="$emit('restore')"
+					>
+						Wiederherstellen
+					</Button>
+					<Button
+						v-else
+						variant="danger-solid"
+						size="sm"
+						icon="trash"
+						@click="$emit('delete')"
+					>
 						Löschen
 					</Button>
 				</div>

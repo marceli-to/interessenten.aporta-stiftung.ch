@@ -6,6 +6,7 @@ export default {
 	update: (id, data) => api.put(`/applications/${id}`, data),
 	destroy: (id) => api.delete(`/applications/${id}`),
 	bulkDestroy: (payload) => api.post('/applications/bulk-delete', payload),
+	bulkRestore: (payload) => api.post('/applications/bulk-restore', payload),
 	restore: (id) => api.post(`/applications/${id}/restore`),
 	updateStatus: (id, data) => api.put(`/applications/${id}/status`, data),
 

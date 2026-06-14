@@ -16,7 +16,10 @@ const emit = defineEmits(['confirm', 'cancel'])
 
 <template>
 	<AppDialog :open="open" :title="title" @close="emit('cancel')">
-		<p class="text-sm text-black">{{ message }}</p>
+		<!-- Default slot for marked-up messages; falls back to the plain `message` prop. -->
+		<p class="text-sm text-black">
+			<slot>{{ message }}</slot>
+		</p>
 
 		<template #footer>
 			<div class="flex justify-end gap-15">

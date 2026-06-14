@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\Dashboard;
 
 use App\Actions\Application\BulkDelete as BulkDeleteApplications;
+use App\Actions\Application\BulkRestore as BulkRestoreApplications;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ApplicationBulk\DeleteRequest;
+use App\Http\Requests\ApplicationBulk\RestoreRequest;
 
 /**
  * Bulk operations over a set of applications selected from the dashboard list.
@@ -27,5 +29,17 @@ class ApplicationBulkController extends Controller
 		);
 
 		return response()->json(['deleted' => $deleted]);
+	}
+
+	public function restore(RestoreRequest $request)
+	{
+		$restored = (new BulkRestoreApplications())->execute(
+			ids: $request->ids(),
+			search: $request->search(),
+			filters: $request->filters(),
+			exclude: $request->exclude(),
+		);
+
+		return response()->json(['restored' => $restored]);
 	}
 }

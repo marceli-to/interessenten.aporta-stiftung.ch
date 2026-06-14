@@ -88,8 +88,17 @@ gibt kein globales „alle 677 auswählen". Ablauf:
         ConfirmDialog mit echter Anzahl → API → Auswahl leeren → Liste neu laden.
         Tests: `BulkDeleteEndpointTest` (ids, all-matching, exclude, Guard, schon
         gelöscht, Auth).
+  - [x] **Aktion: Alle (ausgewählten) wiederherstellen**
+        Erledigt. `POST applications/bulk-restore` (gleicher Controller). Nur in
+        der „Gelöscht"-Ansicht (`status=deleted`): die Bar tauscht Löschen gegen
+        Wiederherstellen (nicht-destruktiv, kein ConfirmDialog). `Application\
+        BulkRestore` spiegelt BulkDelete; IDs-Pfad scoped `onlyTrashed()`, Filter-
+        Pfad über `trashed` im geteilten Query-Trait. Shared Request-Basis
+        `BulkSelectionRequest` (Delete/Restore erben nur die Fehlermeldung).
+        Tests: `BulkRestoreEndpointTest` (ids, all-matching, exclude, Guard, nicht-
+        gelöscht übersprungen, Auth).
   - [ ] **Aktion: Alle (ausgewählten) exportieren** (hängt an Export-Klärung, §4;
-        kommt als zweite Methode in `ApplicationBulkController`)
+        kommt als weitere Methode in `ApplicationBulkController`)
 
 ### Teil B – Resultatansicht / Browse (Folge-Task)
 
@@ -104,9 +113,55 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 
 ## 4. Export
 
-- [ ] **PDF-Export (kompletter Datensatz)**
-      Vollständigen Datensatz einer Bewerbung als PDF exportieren.
-      → Klären: PDF-Library/Ansatz (z.B. dompdf / Browsershot).
+- [ ] **PDF-Export (kompletter Datensatz, 1..n Bewerbungen)**
+      Den vollständigen Datensatz **einer oder mehrerer** Bewerbungen als PDF
+      exportieren. Ansatz bestätigt (siehe `.install/pdf-generation.md`):
+      **Spatie Laravel PDF** (Blade → HTML → Chrome) mit **Browsershot lokal**
+      und **AWS Lambda via Hammerstone Sidecar** in Produktion. Ein Export-Lauf
+      erzeugt **ein PDF** (alle ausgewählten Bewerbungen hintereinander, je
+      Bewerbung eine neue Seite via `page-break`), zum Download im Browser.
+
+      Auswahl-Auflösung ist bereits vorhanden und wird wiederverwendet: gleicher
+      `{ ids }` ODER `{ filters, exclude }`-Mechanismus wie Bulk-Löschen
+      (`BuildsApplicationListQuery` + `ParsesApplicationFilters`). Datenumfang =
+      voller Detail-Datensatz wie im `Show`-Action-Eager-Load (Haupt-/Mitmieter
+      inkl. Arbeitgeber + aktuelle Wohnsituation, Kinder, Wohnungswunsch,
+      Haushalt, Notizen, Status-Verlauf).
+
+  - [ ] **Setup: Spatie Laravel PDF + Browsershot/Sidecar**
+        `composer require spatie/laravel-pdf hammerstone/sidecar
+        wnx/sidecar-browsershot`; `npm install --save-dev puppeteer` (lokal).
+        `config/sidecar.php` + `config/sidecar-browsershot.php` anlegen, Env-Vars
+        (§6 der Doku) ergänzen. Lambda-Deploy (`sidecar:configure` +
+        `sidecar:deploy --activate`) ist ein **Prod-/AWS-Schritt** — lokal ohne
+        `->onLambda()` mit Puppeteer testen.
+  - [ ] **Blade-View `pdf/application.blade.php`** (+ ggf. Header/Footer-Partials)
+        nach den Konventionen der Doku §7: eigenständiges HTML-Dokument,
+        Schriften/Logo als base64 eingebettet, **inline/kompiliertes CSS** statt
+        Tailwind-CDN, `page-break-before` pro Bewerbung, Seitenzahlen via
+        `@pageNumber / @totalPages`. Layout an den Detail-Panels orientieren
+        (alle Sektionen aus `Show.vue`).
+  - [ ] **Action `app/Actions/Application/GenerateApplicationsPdf.php`**
+        (analog `GenerateInvoicePdf` der Doku): lädt die Bewerbungen mit dem
+        Eager-Load-Baum aus `Show`, rendert `Pdf::view(...)`, `->onLambda()` nur
+        in Produktion, gibt Pfad/Stream zurück.
+  - [ ] **Endpoint `POST applications/bulk-export`** als dritte Methode in
+        `ApplicationBulkController` (neben `destroy`/`restore`) + neuer
+        `ExportRequest extends BulkSelectionRequest`. IDs über das geteilte
+        Trait auflösen, PDF generieren, als Download (`application/pdf`)
+        zurückgeben. Route in `routes/api.php` ergänzen.
+  - [ ] **Frontend**: `bulkExport()` in `Index.vue` verdrahten (ersetzt den
+        aktuellen Konsolen-Platzhalter), `api.bulkExport(payload)` als
+        Blob-Download in `api/applications.js` ergänzen, Export-Button in
+        `BulkActionBar.vue` aktivieren (Ladezustand bei grossen Mengen bedenken).
+  - [ ] **Tests**: `BulkExportEndpointTest` analog `BulkDeleteEndpointTest`
+        (ids, all-matching, exclude, Guard „weder ids noch Filter", Auth);
+        Rendering lokal ohne Lambda. Grenzfälle: nur Hauptmieter, ohne
+        Mitmieter, ohne Notizen/Kinder.
+
+      **OFFEN/Klärung Kunde:** PDF-Layout/Branding (Logo, Schrift, Reihenfolge
+      der Felder); bei sehr grossen Auswahlen ggf. asynchron (Queue + Mail/
+      Download-Link) statt synchron — vgl. queued-Variante in der Doku §4.
 
 - [ ] **Excel-Export (Datensätze)**
       Mehrere Datensätze als Excel exportieren.
