@@ -44,4 +44,5 @@ function go(id) {
 			<PhCaretRight :size="16" weight="regular" />
 		</PaginationButton>
 	</div>
+  <div v-else></div>
 </template>
