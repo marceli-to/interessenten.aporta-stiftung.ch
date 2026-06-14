@@ -51,13 +51,46 @@ Stack: Laravel 13 API + Vue 3 SPA (vue-router, pinia). Hauptansichten unter
 
 ## 3. Listenansicht & Multiedit
 
-- [ ] **Listenansicht mit Checkbox-Multiedit erweitern**
-      In `Index.vue` Auswahl-Checkboxen pro Zeile + „Alle auswählen" ergänzen.
-  - [ ] **Aktion: Alle (ausgewählten) löschen**
-  - [ ] **Aktion: Alle (ausgewählten) exportieren**
+Aufgeteilt in zwei Teile (Entscheid): Teil A = Bulk-Bar + In-Place-Aktionen,
+Teil B = Resultatansicht/Browse als Folge-Task. Die Auswahl (angehakte Zeilen)
+ist die gemeinsame Basis für alle vier Aktionen (Abwählen, Export, Löschen,
+Öffnen).
 
-- [ ] **Resultatansicht**
-      Ausgewählte/gefilterte Resultate öffnen lassen (Browse) und als PDF exportieren.
+**Auswahl-Modell (Entscheid):** Sammelaktionen sind **filter-gebunden** — es
+gibt kein globales „alle 677 auswählen". Ablauf:
+- Bulk-Bar erscheint **nur wenn ein Filter ODER eine Suche aktiv ist**
+  (sonst ausgeblendet, ggf. Hinweis „Filter setzen").
+- Checkboxen sind **Opt-in innerhalb des Filters**: Bar zeigt „5 von 213
+  ausgewählt".
+- Auswahl **bleibt über Seitenwechsel bestehen** (5 von 213 geht über Seiten),
+  wird aber **bei Filter-/Suchwechsel geleert** (Scope geändert).
+- „Alle auswählen" = **select-all-matching**: keine 213 IDs zum Client; ein
+  Flag trägt den aktuellen Filter. Backend-Endpoints akzeptieren
+  `{ ids }` ODER `{ filters, exclude: [ids] }`, serverseitig aufgelöst
+  (Filter-Parsing aus `GetRequest`/`Get.php` wiederverwenden).
+
+### Teil A – Bulk-Bar + Aktionen
+
+- [ ] **Listenansicht mit Checkbox-Multiedit erweitern**
+      In `Index.vue` Auswahl-Checkboxen pro Zeile + „Alle auswählen" ergänzt
+      (`RowCheckbox`), schwebende `BulkActionBar` (Abwählen/Export/Löschen/Öffnen).
+  - [ ] Auswahl seitenübergreifend halten; bei Filter-/Suchwechsel leeren.
+  - [ ] Bar nur bei aktivem Filter/Suche zeigen; Zähler „X von N".
+  - [ ] „Alle N auswählen" (select-all-matching) inkl. Ausnahmen (`exclude`).
+  - [ ] **Aktion: Alle (ausgewählten) löschen** (Backend `{ids|filters}` +
+        Bestätigung mit echter Anzahl; Soft-Delete als Sicherheitsnetz)
+  - [ ] **Aktion: Alle (ausgewählten) exportieren** (hängt an Export-Klärung, §4)
+
+### Teil B – Resultatansicht / Browse (Folge-Task)
+
+- [ ] **Resultatansicht: angehakte Bewerbungen durchblättern**
+      „Öffnen" in der Bulk-Bar öffnet die erste ausgewählte Bewerbung im
+      Detail und blendet dort eine Prev/Next-Navigation ein, die **nur durch
+      die angehakten Zeilen** blättert (Entscheid: nicht das ganze Filter-Set).
+  - [ ] Auswahl muss über die Navigation hinweg bestehen bleiben
+        (Ansatz offen: Pinia-„Browse-Set"-Store vs. URL vs. Hybrid).
+  - [ ] Prev/Next-UI in `Show.vue` (Position „3 / 12", Grenzen abfangen).
+  - [ ] PDF-Export der Resultate (hängt an PDF-Klärung, §4).
 
 ## 4. Export
 

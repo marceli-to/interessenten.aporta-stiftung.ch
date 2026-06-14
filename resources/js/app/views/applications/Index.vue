@@ -1,4 +1,5 @@
 <script setup>
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApplicationsStore } from '@/stores/applications'
 import { useListQuery } from '@/composables/useListQuery'
@@ -8,6 +9,8 @@ import Pagination from '@/components/ui/pagination/Pagination.vue'
 import StatusBadge from '@/components/ui/badges/Status.vue'
 import TableHeadCell from '@/components/ui/table/HeadCell.vue'
 import TableCell from '@/components/ui/table/Cell.vue'
+import RowCheckbox from '@/components/ui/table/RowCheckbox.vue'
+import BulkActionBar from '@/components/ui/table/BulkActionBar.vue'
 import Filter from './Filter.vue'
 
 const route = useRoute()
@@ -18,6 +21,151 @@ const { sort, direction, search, goToPage, toggleSort } = useListQuery({
 	fetch: store.fetch,
 	perPage: 15,
 })
+
+// --- Multi-select (filter-scoped) --------------------------------------------
+// Bulk actions are bound to the *current filtered result*; there is no global
+// "select all 677". The bar only shows when a filter or search is active, and
+// the selection survives pagination within that filter but is cleared whenever
+// the filter scope changes (a different set of rows now matches).
+//
+// Two selection modes:
+//  - explicit:  `selected` holds the picked ids (opt-in, may span pages).
+//  - all-matching: `selectAllMatching` is true and the whole filtered result is
+//    in scope; `excluded` holds ids the user unticked. We never materialise the
+//    full id list client-side — bulk endpoints resolve it server-side from the
+//    same filters the list uses (see store.fetch / GetRequest).
+
+// Query keys that define ordering/paging, not *which* rows match. Selection is
+// kept across changes to these, and cleared when anything else changes.
+const NON_SCOPE_KEYS = ['page', 'sort', 'direction']
+
+// True when the list is narrowed by a search term or any filter chip.
+const filterActive = computed(() =>
+	Object.keys(route.query).some((key) => !NON_SCOPE_KEYS.includes(key) && route.query[key] !== '')
+)
+
+// 11 data columns, plus the selection checkbox column when the filter is active
+// (used for the loading / empty-state colspans).
+const columnCount = computed(() => (filterActive.value ? 12 : 11))
+
+// A stable signature of the current filter scope (search + chips, order-agnostic).
+// When this changes, the matching set changed, so any selection is stale.
+const scopeKey = computed(() =>
+	Object.keys(route.query)
+		.filter((key) => !NON_SCOPE_KEYS.includes(key))
+		.sort()
+		.map((key) => `${key}=${route.query[key]}`)
+		.join('&')
+)
+
+const selected = ref(new Set())
+const selectAllMatching = ref(false)
+const excluded = ref(new Set())
+
+function resetSelection() {
+	selected.value = new Set()
+	selectAllMatching.value = false
+	excluded.value = new Set()
+}
+
+// Clear when the filter scope changes (not on mere paging / sorting), and also
+// whenever the filter is dropped entirely.
+watch(scopeKey, resetSelection)
+watch(filterActive, (active) => { if (!active) resetSelection() })
+
+const isSelected = (id) =>
+	selectAllMatching.value ? !excluded.value.has(id) : selected.value.has(id)
+
+function toggleRow(id) {
+	if (selectAllMatching.value) {
+		const next = new Set(excluded.value)
+		next.has(id) ? next.delete(id) : next.add(id)
+		excluded.value = next
+		return
+	}
+	const next = new Set(selected.value)
+	next.has(id) ? next.delete(id) : next.add(id)
+	selected.value = next
+}
+
+// Effective count: in all-matching mode it's the filtered total minus exclusions;
+// otherwise the size of the explicit set.
+const selectedCount = computed(() =>
+	selectAllMatching.value
+		? Math.max(0, store.total - excluded.value.size)
+		: selected.value.size
+)
+
+// Header checkbox reflects the *current page* only (it's a per-page toggle).
+const pageIds = computed(() => store.applications.map((a) => a.id))
+const pageAllSelected = computed(
+	() => pageIds.value.length > 0 && pageIds.value.every((id) => isSelected(id))
+)
+const pageSomeSelected = computed(
+	() => !pageAllSelected.value && pageIds.value.some((id) => isSelected(id))
+)
+
+function toggleAll() {
+	if (pageAllSelected.value) {
+		// Deselect the current page. In all-matching mode that means excluding it.
+		if (selectAllMatching.value) {
+			excluded.value = new Set([...excluded.value, ...pageIds.value])
+		} else {
+			const next = new Set(selected.value)
+			pageIds.value.forEach((id) => next.delete(id))
+			selected.value = next
+		}
+		return
+	}
+	// Select the current page (explicit mode — the "Alle N" upgrade is separate).
+	if (selectAllMatching.value) {
+		const next = new Set(excluded.value)
+		pageIds.value.forEach((id) => next.delete(id))
+		excluded.value = next
+	} else {
+		selected.value = new Set([...selected.value, ...pageIds.value])
+	}
+}
+
+// "Alle N auswählen" upgrade: switch to all-matching (whole filtered result),
+// resolved server-side. Offered by the bar once the page is fully ticked and
+// more rows exist beyond the page.
+const canSelectAllMatching = computed(
+	() => !selectAllMatching.value && pageAllSelected.value && store.total > pageIds.value.length
+)
+
+function selectAll() {
+	selected.value = new Set()
+	excluded.value = new Set()
+	selectAllMatching.value = true
+}
+
+const clearSelection = resetSelection
+
+// The payload bulk endpoints will receive: either explicit ids, or the active
+// filters + exclusions for all-matching. (Backend wiring lands next.)
+function selectionPayload() {
+	if (selectAllMatching.value) {
+		const filters = { ...route.query }
+		NON_SCOPE_KEYS.forEach((key) => delete filters[key])
+		return { filters, exclude: [...excluded.value] }
+	}
+	return { ids: [...selected.value] }
+}
+
+// Placeholder actions — wired up in later steps:
+//  - delete / export: Teil A (backend wiring, next).
+//  - open: Teil B (Resultatansicht — opens the first selected application and
+//    enables prev/next browsing through the selection).
+function bulkDelete() {
+	console.log('bulk delete', selectionPayload())
+}
+function bulkExport() {
+	console.log('bulk export', selectionPayload())
+}
+function bulkOpen() {
+	console.log('bulk open (browse)', selectionPayload())
+}
 
 // Visual treatment per row. `flagged` (Wichtig) overrides the open/extended
 // status; an archived application is terminal and overrides everything.
@@ -61,7 +209,15 @@ function open(application) {
       <table class="w-full text-sm whitespace-nowrap">
         <thead class="text-left text-black border-b border-blue/20">
           <tr>
-            <TableHeadCell variant="first" sort-key="reference_number" :sort="sort" :direction="direction" @sort="toggleSort">
+            <TableHeadCell v-if="filterActive" variant="first" class="pr-10!">
+              <RowCheckbox
+                :model-value="pageAllSelected"
+                :indeterminate="pageSomeSelected"
+                aria-label="Seite auswählen"
+                @update:model-value="toggleAll"
+              />
+            </TableHeadCell>
+            <TableHeadCell :variant="filterActive ? null : 'first'" sort-key="reference_number" :sort="sort" :direction="direction" @sort="toggleSort">
               Nr.
             </TableHeadCell>
             <TableHeadCell>
@@ -99,7 +255,7 @@ function open(application) {
         <tbody class="divide-y divide-blue/20">
           <template v-if="store.loading">
             <tr>
-              <td colspan="11">
+              <td :colspan="columnCount">
                 Laden …
               </td>
             </tr>
@@ -108,9 +264,17 @@ function open(application) {
             <tr
               v-for="application in store.applications"
               :key="application.id"
-              class="cursor-pointer hover:bg-light-gray/10 align-top"
+              class="cursor-pointer align-top"
+              :class="isSelected(application.id) ? 'bg-light-blue/60' : 'hover:bg-light-gray/10'"
               @click="open(application)">
-              <TableCell variant="first" class="font-bold" :class="display(application).text">
+              <TableCell v-if="filterActive" variant="first" @click.stop class="pr-10!">
+                <RowCheckbox
+                  :model-value="isSelected(application.id)"
+                  :aria-label="`Bewerbung ${application.reference_number} auswählen`"
+                  @update:model-value="toggleRow(application.id)"
+                />
+              </TableCell>
+              <TableCell :variant="filterActive ? null : 'first'" class="font-bold" :class="display(application).text">
                 {{ application.reference_number }}
               </TableCell>
 
@@ -160,7 +324,7 @@ function open(application) {
               </TableCell>
             </tr>
             <tr v-if="!store.applications.length">
-              <td colspan="11" class="py-30 text-center text-sm text-light-gray">
+              <td :colspan="columnCount" class="py-30 text-center text-sm text-light-gray">
                 Keine Anmeldungen gefunden.
               </td>
             </tr>
@@ -180,4 +344,16 @@ function open(application) {
       @change="goToPage"
     />
   </div>
+
+  <BulkActionBar
+    :count="selectedCount"
+    :total="store.total"
+    :can-select-all="canSelectAllMatching"
+    :all-matching="selectAllMatching"
+    @select-all="selectAll"
+    @clear="clearSelection"
+    @open="bulkOpen"
+    @export="bulkExport"
+    @delete="bulkDelete"
+  />
 </template>
