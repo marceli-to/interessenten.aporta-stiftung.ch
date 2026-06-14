@@ -1,8 +1,7 @@
-# cms.marceli.to
+# interessenten.aporta-stiftung.ch
 
-[![Tests](https://github.com/marceli-to/cms.marceli.to/actions/workflows/tests.yml/badge.svg)](https://github.com/marceli-to/cms.marceli.to/actions/workflows/tests.yml)
-
-A lightweight, custom-built CMS powered by Laravel 12, Vue 3, and Tailwind CSS.
+Verwaltung der Wohnungs-Bewerbungen (Interessenten) der aporta-Stiftung.
+Laravel 12 Backend mit Vue 3 SPA.
 
 ## Stack
 
@@ -10,33 +9,23 @@ A lightweight, custom-built CMS powered by Laravel 12, Vue 3, and Tailwind CSS.
 - **Frontend:** Vue 3 (SPA), Vue Router, Pinia
 - **Styling:** Tailwind CSS
 - **Icons:** Phosphor Icons
-- **Editor:** TipTap
-- **Upload:** Uppy
-- **Drag & Drop:** vuedraggable
 
-## Modules
+## Funktionen
 
-### Blog
-- Create, edit, and delete posts
-- Rich text editor (TipTap)
-- Publish/draft toggle
-- Per-post media gallery with drag & drop reordering
-- Teaser image selection
+- Bewerbungen auflisten, filtern, suchen, sortieren und paginieren
+- Detailansicht mit editierbaren Panels (Status, Wohnwunsch, Haushalt, Kinder)
+- Status-Workflow (Angemeldet, Verlängert, Archiviert, KNIF) mit Verlauf
+- Notizen pro Bewerbung
+- Mehrfachauswahl mit Bulk-Aktionen (Löschen, Wiederherstellen, Öffnen)
+- Soft-Delete mit „Gelöscht"-Ansicht
+- Öffentliche Intake-API (`/api/v1/applications`), die Formular-Einreichungen entgegennimmt
 
-### Media
-- Central media library with grid view
-- Upload via drag & drop or file picker (JPG, PNG, WebP, GIF — max 50 MB)
-- Edit alt text and captions via slide-in drawer
-- Search/filter by filename, alt text, or caption
-- Delete protection for images in use ("Verwendet" badge)
-- Teaser toggle (set/unset)
+## Architektur
 
-## Architecture
-
-- **API routes:** `routes/api.php` — RESTful endpoints under `/api/dashboard/`
-- **Actions:** `app/Actions/` — single-responsibility action classes
-- **Vue SPA:** `resources/js/app/` — views, components, stores, API layer
-- **Reusable components:** `PageHeader`, `FormButton`, `FormGroup`, `MediaUploader`, `MediaGrid`, `MediaEditModal`, `Editor`, `ConfirmDialog`, `Toast`
+- **API-Routen:** `routes/api.php` — Dashboard unter `/api/dashboard/`, Intake unter `/api/v1/`
+- **Actions:** `app/Actions/` — Single-Responsibility-Klassen
+- **Vue SPA:** `resources/js/app/` — Views, Components, Stores, API-Layer
+- **Composables:** `resources/js/app/composables/` — z. B. `useListQuery`, `useListSelection`
 
 ## Setup
 
@@ -49,7 +38,7 @@ php artisan migrate
 npm run build
 ```
 
-## Development
+## Entwicklung
 
 ```bash
 npm run dev
