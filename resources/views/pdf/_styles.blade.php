@@ -1,5 +1,5 @@
-{{-- Inline styles for the application PDF. Shared by pdf.application (single,
-     dev preview) and pdf.applications (multi, real export). Needs $fonts. --}}
+{{-- Inline styles for the application PDF (pdf.applications / _application).
+     Needs $fonts. --}}
 <style>
   /* --- Schrift (Segment, eingebettet als Base64 für stabiles PDF-Rendering) --- */
   @font-face {

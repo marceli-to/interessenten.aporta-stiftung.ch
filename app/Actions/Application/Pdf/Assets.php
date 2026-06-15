@@ -6,9 +6,8 @@ class Assets
 {
 	/**
 	 * The Segment webfonts, embedded as base64 data URIs so the PDF renders
-	 * reproducibly without a Vite/asset pipeline. Shared by the real export
-	 * (Pdf\Generate) and the dev preview (_preview_data.php) so the embedded
-	 * fonts can never drift between the two.
+	 * reproducibly without a Vite/asset pipeline (used by the document body and
+	 * the Browsershot footer).
 	 *
 	 * @return array{regular: string, medium: string, bold: string}
 	 */
