@@ -245,8 +245,28 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 
 - Excel-Export: Welche Felder?
 - Copy to Clipboard: Welche Felder?
-- PDF-Layout/Branding: Logo, Schrift, Reihenfolge der Felder.
-  (PDF-Ansatz/Library bestätigt: Spatie Laravel PDF + Browsershot/Sidecar.)
+
+### Setup Prod: Crontab (zwingend für Queue + Lifecycle)
+
+Prod hat **keinen dauerhaften Worker-Prozess**. Der gesamte Scheduler
+(`routes/console.php`) hängt an **einem** Crontab-Eintrag, der jede Minute
+`schedule:run` aufruft:
+
+```
+* * * * * cd /pfad/zur/app && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Damit laufen automatisch:
+- `queue:work --stop-when-empty` (jede Minute, kurzlebiger Worker — leert die
+  DB-Queue und beendet sich; u.a. `NotifyNewApplication`, PDF-Rendering).
+- `app:archive-stale` — täglich **03:00**, Auto-Archivieren (9 Mt.).
+- `app:delete-archived` — täglich **03:10**, Auto-Löschen (Soft-Delete, 3 Mt.
+  nach `archived_at`; läuft 10 Min. nach dem Archivieren, damit frisch
+  Archivierte erst nach ihrer eigenen Frist gelöscht werden).
+
+Ohne diesen Crontab-Eintrag läuft **weder** die Queue **noch** die
+Lifecycle-Automatisierung. Der Cron-Prozess braucht dieselbe Umgebung wie der
+Web-Prozess (inkl. AWS-Credentials für `->onLambda()`-PDF-Rendering).
 
 ---
 

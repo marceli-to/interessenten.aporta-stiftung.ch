@@ -13,7 +13,7 @@ class Generate
 {
 	/**
 	 * Render a selection of applications into a single PDF and store it on the
-	 * given disk (used by the app:export-pdf command for local previews).
+	 * given disk.
 	 *
 	 * @param  Collection<int, Application>	 $applications
 	 */
