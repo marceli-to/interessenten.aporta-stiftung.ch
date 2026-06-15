@@ -2,6 +2,8 @@
 
 namespace App\Actions\Application\Pdf;
 
+use App\Actions\Application\Pdf\Support\Assets;
+use App\Actions\Application\Pdf\Support\Present;
 use App\Models\Application;
 use Illuminate\Support\Collection;
 use Spatie\LaravelPdf\PdfBuilder;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Application\Pdf;
+namespace App\Actions\Application\Pdf\Support;
 
 use App\Enums\District;
 use App\Enums\Floor;
