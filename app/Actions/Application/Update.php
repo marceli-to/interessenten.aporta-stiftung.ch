@@ -5,6 +5,7 @@ namespace App\Actions\Application;
 use App\Actions\Applicant\Upsert as UpsertApplicant;
 use App\Actions\Children\Sync as SyncChildren;
 use App\Actions\Housing\Sync as SyncHousing;
+use App\Actions\Housing\SyncRooms;
 use App\Models\Applicant;
 use App\Models\Application;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ class Update
 	public function __construct(
 		private UpsertApplicant $upsertApplicant,
 		private SyncHousing $syncHousing,
+		private SyncRooms $syncRooms,
 		private SyncChildren $syncChildren,
 	) {}
 
@@ -41,6 +43,12 @@ class Update
 
 			$application->last_changed_at = now();
 			$application->save();
+
+			// The room range is derived from the household size. Recompute it
+			// whenever household_info is touched so it never drifts from persons.
+			if (array_key_exists('household_info', $data) && is_array($data['household_info'])) {
+				$this->syncRooms->execute($application);
+			}
 
 			if (array_key_exists('main_applicant', $data) && is_array($data['main_applicant'])) {
 				$this->upsertApplicant->execute($application, $data['main_applicant'], 'main_applicant', 1);

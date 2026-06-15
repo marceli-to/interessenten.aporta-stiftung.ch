@@ -11,7 +11,9 @@ class Sync
 	{
 		$this->syncPivot('application_districts', 'district_slug', $application->id, $housing['districts'] ?? []);
 		$this->syncPivot('application_floors', 'floor_slug', $application->id, $housing['floors'] ?? []);
-		$this->syncPivot('application_rooms', 'room_slug', $application->id, $housing['rooms'] ?? []);
+		// Rooms are not part of the housing wish anymore — they are derived from
+		// the household size and materialized by SyncRooms (run on every write
+		// that can change total_persons).
 	}
 
 	private function syncPivot(string $table, string $slugColumn, int $applicationId, array $slugs): void

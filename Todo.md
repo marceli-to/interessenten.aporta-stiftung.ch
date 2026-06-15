@@ -222,10 +222,26 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 
 ## 7. Zimmer-/Wohnungsgrösse
 
-- [ ] **Zimmerzuteilung: Anzahl Personen + 1**
-      Zimmeranzahl wird aus Personenanzahl + 1 abgeleitet/zugeteilt.
-  - [ ] Muss **vor der Datenübergabe** erfolgen.
-  - [ ] **1/2-Zimmer-Schritte fallen weg** (nur ganze Zimmer).
+- [x] **Zimmerzuteilung: Anzahl Personen ± 1**
+      Erledigt (Backend; Statamic-Teil delegiert). Die Zimmer sind **keine freie
+      Auswahl** mehr, sondern ein **abgeleiteter Bereich** aus der Personenzahl:
+      `rooms = {Personen−1, Personen, Personen+1} ∩ ganze Zimmer 2–6`
+      (1 → [2], 3 → [2,3,4], 5 → [4,5,6]). Regel zentral in
+      `Room::rangeForPersons()`; Materialisierung via `Housing\SyncRooms`.
+  - [x] Muss **vor der Datenübergabe** erfolgen.
+        Das Backend leitet die Zimmer **bei der Aufnahme** aus `total_persons` ab
+        und **rechnet sie bei jeder Änderung der Haushaltsgrösse neu** (Store +
+        Update), sodass sie nie driften. Das Formular sendet **kein** `rooms`-Feld
+        mehr (wird ignoriert). Contract in `docs/Statamic-Integration.md`
+        §2.2/§3.4/§4.1/§5.2 aktualisiert (für Delegation des Statamic-Teils).
+  - [x] **1/2-Zimmer-Schritte fallen weg** (nur ganze Zimmer).
+        `Room`-Enum auf `rooms_2_0..rooms_6_0` reduziert (Halbschritte entfernt,
+        `rooms_6_0` ergänzt). `rooms` aus der Eingabe-Validierung entfernt (abgeleitet,
+        nicht gesendet). Im Backoffice **read-only** (`HousingWishPanel`, Hinweis
+        „automatisch aus der Personenzahl"). Filter/PDF/Resources übernehmen die
+        Enum-Werte automatisch (Pivot bleibt). **Migration**
+        `…collapse_application_rooms_to_whole` rechnet alle 677 Bestands-Bewerbungen
+        auf den abgeleiteten Bereich um. Domain-Model §2.5/§3.9/§4.3 angepasst.
 
 ## 8. Design
 

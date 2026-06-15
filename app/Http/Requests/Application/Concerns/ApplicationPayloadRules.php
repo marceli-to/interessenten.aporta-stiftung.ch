@@ -11,7 +11,6 @@ use App\Enums\Nationality;
 use App\Enums\RelationshipToMain;
 use App\Enums\RentDuration;
 use App\Enums\ResidencePermit;
-use App\Enums\Room;
 use App\Enums\Salutation;
 use App\Enums\TenantRole;
 use App\Support\PhoneNormalizer;
@@ -56,7 +55,7 @@ trait ApplicationPayloadRules
 
 		return [
 			'housing_wish' => [$req, 'array'],
-			'housing_wish.earliest_move_in' => [$req, 'date', 'after_or_equal:today'],
+			'housing_wish.earliest_move_in' => [$req, 'date'],
 			'housing_wish.max_gross_rent' => [$req, 'numeric', 'min:1200', 'max:20000'],
 			'housing_wish.wants_balcony' => ['nullable', 'boolean'],
 			'housing_wish.wants_elevator' => ['nullable', 'boolean'],
@@ -64,8 +63,6 @@ trait ApplicationPayloadRules
 			'housing_wish.districts.*' => ['string', Rule::enum(District::class)],
 			'housing_wish.floors' => [$req, 'array', 'min:1'],
 			'housing_wish.floors.*' => ['string', Rule::enum(Floor::class)],
-			'housing_wish.rooms' => [$req, 'array', 'min:1'],
-			'housing_wish.rooms.*' => ['string', Rule::enum(Room::class)],
 		];
 	}
 

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
 	$this->rawKey = 'test-intake-key-'.bin2hex(random_bytes(8));
@@ -132,15 +133,32 @@ it('rejects adults_count below 1', function () {
 	submit($data, $this->headers)->assertStatus(422)->assertJsonValidationErrors(['household_info.adults_count']);
 });
 
-it('requires at least one district, floor, and room', function () {
+it('requires at least one district and floor', function () {
 	$data = laafifFixture();
 	$data['housing_wish']['districts'] = [];
 	$data['housing_wish']['floors'] = [];
-	$data['housing_wish']['rooms'] = [];
 
 	submit($data, $this->headers)
 		->assertStatus(422)
-		->assertJsonValidationErrors(['housing_wish.districts', 'housing_wish.floors', 'housing_wish.rooms']);
+		->assertJsonValidationErrors(['housing_wish.districts', 'housing_wish.floors']);
+});
+
+it('derives the room range from the household size, ignoring any submitted rooms', function () {
+	$data = laafifFixture();
+	// Household of 3 → eligible rooms are persons ± 1 = 2, 3, 4.
+	$data['household_info']['adults_count'] = 2;
+	$data['household_info']['children_count'] = 1;
+	$data['household_info']['total_persons'] = 3;
+	$data['children'] = [['position' => 1, 'birth_year' => 2020]];
+	// A bogus rooms value in the payload must be ignored — rooms is derived.
+	$data['housing_wish']['rooms'] = ['rooms_5_0'];
+
+	submit($data, $this->headers)->assertStatus(201);
+
+	$application = \App\Models\Application::latest('id')->first();
+	$rooms = DB::table('application_rooms')->where('application_id', $application->id)->pluck('room_slug')->sort()->values()->all();
+
+	expect($rooms)->toBe(['rooms_2_0', 'rooms_3_0', 'rooms_4_0']);
 });
 
 it('requires co-applicant address fields when same_address_as_main is false', function () {

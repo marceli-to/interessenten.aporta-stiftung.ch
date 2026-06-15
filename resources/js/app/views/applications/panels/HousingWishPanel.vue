@@ -35,7 +35,7 @@ const lookups = useLookupsStore()
 				<InfoRow label="Stockwerke">
 					<ChipGroup class="py-3" :modelValue="data.floors" :options="lookups.options('floors')" readonly />
 				</InfoRow>
-				<InfoRow label="Zimmer">
+				<InfoRow label="Zimmer (Personen ± 1)">
 					<ChipGroup class="py-3" :modelValue="data.rooms" :options="lookups.options('rooms')" readonly />
 				</InfoRow>
 				<InfoRow label="Balkon">
@@ -61,9 +61,9 @@ const lookups = useLookupsStore()
 				<EditRow label="Stockwerke" :error="errors.floors">
 					<ChipGroup class="py-3" v-model="draft.floors" :options="lookups.options('floors')" />
 				</EditRow>
-				<EditRow label="Zimmer" :error="errors.rooms">
-					<ChipGroup class="py-3" v-model="draft.rooms" :options="lookups.options('rooms')" />
-				</EditRow>
+				<InfoRow label="Zimmer (Personen ± 1)">
+					<ChipGroup class="py-3" :modelValue="draft.rooms" :options="lookups.options('rooms')" readonly />
+				</InfoRow>
 				<EditRow label="Balkon">
 					<Select v-model="draft.wants_balcony" :options="yesNoOptions" />
 				</EditRow>

@@ -68,14 +68,14 @@ it('updates only the housing_wish section and leaves the rest untouched', functi
 				'wants_elevator' => true,
 				'districts' => ['kreis_6'],
 				'floors' => ['floor_1', 'floor_2'],
-				'rooms' => ['rooms_2_0', 'rooms_2_5'],
 			],
 		]);
 
 	$response->assertOk()
 		->assertJsonPath('data.housing_wish.max_gross_rent', '1800.00')
 		->assertJsonPath('data.housing_wish.districts', ['kreis_6'])
-		->assertJsonPath('data.housing_wish.rooms', ['rooms_2_0', 'rooms_2_5'])
+		// Rooms is derived from persons (1 → [2]); editing the housing wish leaves it.
+		->assertJsonPath('data.housing_wish.rooms', ['rooms_2_0'])
 		->assertJsonPath('data.housing_wish.wants_elevator', true);
 
 	// Pivots replaced, not appended.
@@ -83,6 +83,27 @@ it('updates only the housing_wish section and leaves the rest untouched', functi
 
 	// Main applicant section was not in the payload → untouched.
 	expect($this->application->mainApplicant->fresh()->occupation)->toBe($originalOccupation);
+});
+
+it('recomputes the derived room range when the household size changes', function () {
+	// Seeded applicant is a 1-person household → rooms [2].
+	expect(DB::table('application_rooms')->where('application_id', $this->application->id)->pluck('room_slug')->all())
+		->toBe(['rooms_2_0']);
+
+	// Grow to a 3-person household → eligible rooms become persons ± 1 = 2, 3, 4.
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", [
+			'household_info' => [
+				'adults_count' => 2,
+				'children_count' => 1,
+				'total_persons' => 3,
+				'plays_music' => false,
+				'has_pets' => false,
+			],
+			'children' => [['position' => 1, 'birth_year' => 2020]],
+		])
+		->assertOk()
+		->assertJsonPath('data.housing_wish.rooms', ['rooms_2_0', 'rooms_3_0', 'rooms_4_0']);
 });
 
 it('replaces the whole main applicant on a round-trip and preserves the employer', function () {

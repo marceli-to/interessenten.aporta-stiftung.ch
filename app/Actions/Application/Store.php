@@ -5,6 +5,7 @@ namespace App\Actions\Application;
 use App\Actions\Applicant\Upsert as UpsertApplicant;
 use App\Actions\Children\Sync as SyncChildren;
 use App\Actions\Housing\Sync as SyncHousing;
+use App\Actions\Housing\SyncRooms;
 use App\Actions\Status\Record as RecordStatus;
 use App\Enums\Status;
 use App\Jobs\NotifyNewApplication;
@@ -84,6 +85,7 @@ class Store
 		}
 
 		(new SyncHousing())->execute($application, $housing);
+		(new SyncRooms())->execute($application); // rooms = persons ± 1, derived from total_persons
 		(new SyncChildren())->execute($application, $data['children'] ?? []);
 
 		(new RecordStatus())->execute(
