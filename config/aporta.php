@@ -15,4 +15,15 @@ return [
 		// long it risks a timeout.
 		'max_sync' => (int) env('APORTA_EXPORT_MAX_SYNC', 100),
 	],
+
+	'lifecycle' => [
+		// Open/extended applications auto-archive this long after their reference
+		// date (extended_at when set, otherwise opened_at): 6 months validity +
+		// 3 months grace ("Kulanz").
+		'archive_after_months' => (int) env('APORTA_ARCHIVE_AFTER_MONTHS', 9),
+
+		// Archived applications are soft-deleted (recoverable via the "Gelöscht"
+		// view) this long after archived_at.
+		'delete_after_months' => (int) env('APORTA_DELETE_AFTER_MONTHS', 3),
+	],
 ];

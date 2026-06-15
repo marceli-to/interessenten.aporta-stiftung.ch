@@ -197,13 +197,28 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 
 ## 6. Automatisierung / Lifecycle
 
-- [ ] **Automatisches Archivieren**
-      Regel: Anmeldung + 6 Monate + 3 Monate Kulanz → automatisch archivieren.
-      (Scheduled Command + Status-Event; Status-Logik vgl. `StatusEvent` / `StatusPanel`.)
+- [x] **Automatisches Archivieren**
+      Erledigt. Regel: Stichtag + 6 Monate + 3 Monate Kulanz → automatisch
+      archivieren (= 9 Monate). Stichtag ist `extended_at` wenn gesetzt (eine
+      Verlängerung setzt die Uhr neu), sonst `opened_at`. Nur `Opened`/`Extended`
+      sind Kandidaten; `Archived`/`Knif` terminal. Action `Application\ArchiveStale`
+      (gefilterte Query + `whereRaw('COALESCE(extended_at, opened_at) <= ?')`),
+      Transition via `Status\Transition` → schreibt `StatusEvent` (Actor null =
+      System, Reason „Automatisch archiviert (Frist abgelaufen)") und stempelt
+      `archived_at`. Command `app:archive-stale`, täglich 03:00 (`routes/console.php`).
+      Frist konfigurierbar über `aporta.lifecycle.archive_after_months` (Default 9).
 
-- [ ] **Automatisches Löschen**
-      Regel definieren (Zeitpunkt nach Archivierung?) und als Scheduled Command umsetzen.
-      → Klären: genaue Frist fürs Löschen.
+- [x] **Automatisches Löschen**
+      Erledigt. Frist = **3 Monate** nach `archived_at` (Entscheid Kunde). Löschen
+      = **Soft-Delete** (wie Bulk-Delete → „Gelöscht"-Ansicht, wiederherstellbar),
+      kein forceDelete. Action `Application\DeleteArchived` (Status `Archived` +
+      `archived_at` gesetzt + älter als Frist → `Application\Delete`); Zeilen ohne
+      `archived_at` werden übersprungen (keine berechenbare Frist). Command
+      `app:delete-archived`, täglich 03:10 (läuft nach dem Archivieren, damit frisch
+      archivierte erst nach ihrer eigenen 3-Monats-Frist gelöscht werden). Frist
+      konfigurierbar über `aporta.lifecycle.delete_after_months` (Default 3).
+      Tests: `LifecycleAutomationTest` (Archiv-Frist, extended_at-Stichtag, terminale
+      Status, System-StatusEvent, Lösch-Frist, ohne archived_at, offene unangetastet).
 
 ## 7. Zimmer-/Wohnungsgrösse
 
@@ -230,7 +245,6 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 
 - Excel-Export: Welche Felder?
 - Copy to Clipboard: Welche Felder?
-- Automatisches Löschen: Genaue Frist?
 - PDF-Layout/Branding: Logo, Schrift, Reihenfolge der Felder.
   (PDF-Ansatz/Library bestätigt: Spatie Laravel PDF + Browsershot/Sidecar.)
 
