@@ -9,6 +9,12 @@
   background-image: url("../images/aporta-pattern.svg");
 }
 
+/* Slim, brand-coloured scrollbar via the standard properties (evergreen browsers). */
+@utility scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-light-gray) transparent;
+}
+
 strong {
   @apply font-bold
 }

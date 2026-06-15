@@ -124,6 +124,47 @@ async function handleRestore() {
 	}
 }
 
+// Synchronous PDF export of this single application: POST its id, stream the PDF
+// back and trigger a browser download (same contract as the list's bulk export).
+const exporting = ref(false)
+
+async function exportApplication() {
+	if (exporting.value) return
+	exporting.value = true
+	try {
+		const response = await api.bulkExport({ ids: [Number(props.id)] })
+		triggerDownload(response)
+	} catch (error) {
+		toast.error((await readBlobError(error)) ?? 'Der Export konnte nicht erstellt werden.')
+	} finally {
+		exporting.value = false
+	}
+}
+
+// Turn a blob response into a download, using the filename from Content-Disposition.
+function triggerDownload(response) {
+	const match = /filename="?([^"]+)"?/.exec(response.headers['content-disposition'] ?? '')
+	const url = URL.createObjectURL(response.data)
+	const link = document.createElement('a')
+	link.href = url
+	link.download = match?.[1] ?? 'export.pdf'
+	document.body.appendChild(link)
+	link.click()
+	link.remove()
+	URL.revokeObjectURL(url)
+}
+
+// Error bodies for a blob request arrive as a Blob; read the JSON message out.
+async function readBlobError(error) {
+	const data = error.response?.data
+	if (!(data instanceof Blob)) return null
+	try {
+		return JSON.parse(await data.text())?.message ?? null
+	} catch {
+		return null
+	}
+}
+
 // Return to the originating filtered list (search / page / sort) when we have it
 // in history state; fall back to the bare list for deep links / refreshes.
 const backTo = window.history.state?.from || { name: 'applications.index' }
@@ -161,10 +202,19 @@ const title = computed(() => {
 
 			<Browse :id="id" @navigate="goToBrowse" />
 
-			<div class="justify-self-end">
+			<div class="justify-self-end flex items-center gap-20">
 				<RouterLink :to="backTo">
 					<Button variant="ghost" size="sm">← Zurück zur Liste</Button>
 				</RouterLink>
+				<Button
+					variant="primary"
+					size="sm"
+					icon="download-simple"
+					:loading="exporting"
+					@click="exportApplication"
+				>
+					Exportieren
+				</Button>
 			</div>
 		</header>
 

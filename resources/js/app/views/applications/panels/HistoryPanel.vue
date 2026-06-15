@@ -13,7 +13,7 @@ defineProps({
 
 <template>
 	<Panel variant="highlight" title="Verlauf">
-		<div v-if="events.length" class="max-h-300 divide-y divide-black/20 overflow-y-auto border-y border-black/20">
+		<div v-if="events.length" class="scrollbar-slim max-h-300 divide-y divide-black/20 overflow-y-auto border-y border-black/20">
 			<div v-for="event in events" :key="event.id" class="py-10">
 				<div class="flex items-baseline justify-between gap-10">
 					<span class="font-bold text-blue">{{ event.status.label }}</span>
