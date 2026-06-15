@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-CZ6-rhVH.css",
+    "file": "assets/app-DKr3GFDH.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -37,7 +37,7 @@
     "src": "resources/images/aporta-pattern.svg"
   },
   "resources/js/app/app.js": {
-    "file": "assets/app-DfwtyTyZ.js",
+    "file": "assets/app-BjkbEpsC.js",
     "name": "app",
     "src": "resources/js/app/app.js",
     "isEntry": true

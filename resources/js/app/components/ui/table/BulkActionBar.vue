@@ -24,6 +24,7 @@ defineProps({
 	canSelectAll: { type: Boolean, default: false },
 	allMatching: { type: Boolean, default: false },
 	trashed: { type: Boolean, default: false },
+	exporting: { type: Boolean, default: false },
 })
 
 defineEmits(['selectAll', 'clear', 'open', 'export', 'delete', 'restore'])
@@ -70,7 +71,13 @@ defineEmits(['selectAll', 'clear', 'open', 'export', 'delete', 'restore'])
 					<Button variant="inverse-outline" size="sm" icon="arrow-square-out" @click="$emit('open')">
 						Öffnen
 					</Button>
-					<Button variant="inverse-outline" size="sm" icon="download-simple" @click="$emit('export')">
+					<Button
+						variant="inverse-outline"
+						size="sm"
+						icon="download-simple"
+						:loading="exporting"
+						@click="$emit('export')"
+					>
 						Exportieren
 					</Button>
 					<Button

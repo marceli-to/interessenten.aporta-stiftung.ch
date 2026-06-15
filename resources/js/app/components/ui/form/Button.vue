@@ -11,6 +11,7 @@ import {
 	PhDotsThree,
 	PhArrowsClockwise,
 	PhArrowSquareOut,
+	PhCircleNotch,
 } from '@phosphor-icons/vue'
 
 const icons = {
@@ -33,6 +34,10 @@ const props = defineProps({
 	variant: { type: String, default: 'primary' },
 	size: { type: String, default: 'md' }, // sm | md | lg
 	icon: { type: String, default: null },
+	// When loading, the button is disabled and its icon is swapped for a spinner
+	// (so an in-flight action can't be triggered twice). The label stays put.
+	loading: { type: Boolean, default: false },
+	disabled: { type: Boolean, default: false },
 })
 
 const variants = {
@@ -77,10 +82,12 @@ const iconSize = computed(() => {
 <template>
 	<button
 		:type="type"
+		:disabled="disabled || loading"
 		class="inline-flex items-center justify-center whitespace-nowrap cursor-pointer transition-colors focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
 		:class="[variants[variant], sizeClasses]"
 	>
 		<slot />
-		<component :is="iconComponent" v-if="iconComponent" :size="iconSize" weight="regular" />
+		<PhCircleNotch v-if="loading" :size="iconSize" weight="bold" class="animate-spin" />
+		<component :is="iconComponent" v-else-if="iconComponent" :size="iconSize" weight="regular" />
 	</button>
 </template>

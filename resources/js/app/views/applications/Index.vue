@@ -317,6 +317,7 @@ function open(application) {
     :can-select-all="canSelectAllMatching"
     :all-matching="selectAllMatching"
     :trashed="trashedView"
+    :exporting="exporting"
     @select-all="selectAll"
     @clear="clearSelection"
     @open="bulkOpen"
