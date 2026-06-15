@@ -35,7 +35,17 @@ http.interceptors.response.use(
 			// Session expired or CSRF token stale → SPA state is unrecoverable.
 			// A hard redirect re-establishes auth and refreshes the token.
 			window.location.href = '/login'
-		} else if (status === 403) {
+			return Promise.reject(error)
+		}
+
+		// Binary download endpoints (responseType 'blob') carry their error message
+		// in the blob body, which can't be read synchronously here — let the call
+		// site read it and surface the specific message instead of a generic toast.
+		if (error.config?.responseType === 'blob') {
+			return Promise.reject(error)
+		}
+
+		if (status === 403) {
 			toast.warning('Sie haben keine Berechtigung für diese Aktion.')
 		} else if (status === 404) {
 			toast.warning('Die angeforderte Ressource wurde nicht gefunden.')

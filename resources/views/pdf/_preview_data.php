@@ -5,29 +5,15 @@
  *
  * NUR für die Entwicklungs-Vorschau (Route /dev/pdf-vorschau, local only).
  * Spiegelt die View-Datenform von resources/views/pdf/application.blade.php:
- * Labels sind bereits aufgelöst (keine Enum-Slugs), so wie sie der spätere
- * Export-Controller liefern wird.
+ * Labels sind bereits aufgelöst (keine Enum-Slugs), genau wie sie
+ * App\Actions\Application\Pdf\Present für den echten Export liefert.
  *
- * @return array{logo:string, fonts:array, a:array}
+ * @return array{fonts:array, generatedAt:\Carbon\CarbonInterface, a:array}
  */
 
-$base = base_path();
-
-$asUri = function (string $path, string $mime): string {
-    return file_exists($path)
-        ? "data:{$mime};base64," . base64_encode((string) file_get_contents($path))
-        : '';
-};
-
-$fontDir = $base . '/resources/fonts';
-
 return [
-    'logo' => $asUri($base . '/public/img/aporta-logo.png', 'image/png'),
-    'fonts' => [
-        'regular' => $asUri($fontDir . '/Segment-Regular.woff2', 'font/woff2'),
-        'medium'  => $asUri($fontDir . '/Segment-Medium.woff2', 'font/woff2'),
-        'bold'    => $asUri($fontDir . '/Segment-Bold.woff2', 'font/woff2'),
-    ],
+    'fonts' => \App\Actions\Application\Pdf\Assets::fonts(),
+    'generatedAt' => now(),
     'a' => [
         'reference_number' => 1042,
         'status' => 'Eröffnet',

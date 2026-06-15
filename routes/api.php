@@ -32,11 +32,12 @@ Route::prefix('dashboard')
 		Route::put('applications/{application}/status', [ApplicationStatusController::class, 'update']);
 
 		// Bulk operations over a selected set (explicit ids or filter + exclusions).
-		// Export will join here once the field set is confirmed (§4).
 		Route::post('applications/bulk-delete', [ApplicationBulkController::class, 'destroy']);
 		Route::post('applications/bulk-restore', [ApplicationBulkController::class, 'restore']);
 		// Resolve a selection to the ordered id list seeding the browse set.
 		Route::post('applications/bulk-resolve', [ApplicationBulkController::class, 'resolve']);
+		// Synchronous PDF export of a selection (capped; streams the file back).
+		Route::post('applications/bulk-export', [ApplicationBulkController::class, 'export']);
 
 		// {note} is scope-bound to {application} so a note from another
 		// application resolves to 404 rather than being editable here.

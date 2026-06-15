@@ -102,8 +102,11 @@ gibt kein globales „alle 677 auswählen". Ablauf:
         `BulkSelectionRequest` (Delete/Restore erben nur die Fehlermeldung).
         Tests: `BulkRestoreEndpointTest` (ids, all-matching, exclude, Guard, nicht-
         gelöscht übersprungen, Auth).
-  - [ ] **Aktion: Alle (ausgewählten) exportieren** (hängt an Export-Klärung, §4;
-        kommt als weitere Methode in `ApplicationBulkController`)
+  - [x] **Aktion: Alle (ausgewählten) exportieren**
+        Erledigt (synchroner Download, siehe §4). `POST applications/bulk-export`
+        (`ApplicationBulkController@export`) löst die Auswahl wie die anderen
+        Bulk-Aktionen auf, rendert das PDF und streamt es zurück; Frontend
+        `bulkExport()` löst den Browser-Download aus.
 
 ### Teil B – Resultatansicht / Browse (Folge-Task)
 
@@ -126,36 +129,41 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 
 ## 4. Export
 
-**Stand PDF-Export:** Setup, Cron-Worker, AWS/Sidecar-Deploy, Tracking-Tabelle
-und Queue-Job erledigt (siehe Sub-Tasks). Offen: Blade-View, Endpoints, Cleanup-
-Command, Frontend, Tests.
+**Stand PDF-Export:** **Funktioniert end-to-end als synchroner Download**
+(Entscheid Kunde 15.06.: einfacher als der Async-Flow, der die UI stark
+verkompliziert). Rendering-Pipeline (`Application\Pdf\Generate` + `Present` +
+`Assets` + Blade-Views `pdf.applications`/`_application`/`_styles`/`footer`),
+Endpoint `POST applications/bulk-export` (capped) und Frontend-Anbindung sind
+erledigt; CLI `app:export-pdf` zum lokalen Prüfen vorhanden.
 
-- [ ] **PDF-Export (kompletter Datensatz, 1..n Bewerbungen) — ASYNCHRON**
-      Den vollständigen Datensatz **einer oder mehrerer** Bewerbungen als PDF
-      exportieren. Ansatz bestätigt (siehe `.install/pdf-generation.md`):
-      **Spatie Laravel PDF** (Blade → HTML → Chrome) mit **Browsershot lokal**
-      und **AWS Lambda via Hammerstone Sidecar** in Produktion. Ein Export-Lauf
-      erzeugt **ein PDF** (alle ausgewählten Bewerbungen hintereinander, je
-      Bewerbung eine neue Seite via `page-break`).
+**Async-Flow entfernt:** Der ursprünglich geplante Async-Weg (Queue-Job
+`GeneratePdf` + Tabelle `application_exports`) wurde wieder **entfernt** — die
+Code-Artefakte sind gelöscht. Begründung und Referenz-Design für eine spätere
+Ausbaustufe (falls der Cap `aporta.exports.max_sync` je stört) stehen im Anhang
+am Ende dieser Datei. Die Spatie/Browsershot/Sidecar-Infrastruktur bleibt (der
+synchrone Export nutzt sie via `->onLambda()` in Prod).
 
-      **Async-Entscheid (Kunde):** Generierung läuft in einem **Queue-Job**, da
-      eine All-Matching-Auswahl hunderte Datensätze umfassen kann (Request-/
-      Lambda-Timeout vermeiden). Ablauf:
-      1. Frontend startet Export → Endpoint legt einen Export-Auftrag an,
-         dispatcht den Job, gibt **sofort eine `export_id`** zurück (kein PDF).
-      2. Frontend **pollt** einen Status-Endpoint (`pending` → `ready` /
-         `failed`).
-      3. Bei `ready`: **In-App-Benachrichtigung/Toast** mit **Download-Link**
-         (signierte, zeitlich befristete URL). Kein E-Mail, kein Broadcasting.
-      4. PDF liegt als **temporäre Datei** (S3 in Prod / local in Dev), wird per
-         **Scheduled Command nach ~24h** aufgeräumt.
+- [x] **PDF-Export (kompletter Datensatz, 1..n Bewerbungen) — SYNCHRON umgesetzt**
+      Erledigt als synchroner Download (Entscheid 15.06., s. „Stand" oben):
+  - **Rendering** `Application\Pdf\Generate` (`build()` teilt View/Format/Margins/
+    Footer zwischen Disk-Save und Download), `Present` (Model → Anzeige-Array),
+    `Assets::fonts()` (base64), Blade `pdf.applications` + `_application` +
+    `_styles` + `footer`. `->onLambda()` nur in Prod.
+  - **Endpoint** `POST applications/bulk-export` (`ExportRequest`,
+    `ApplicationBulkController@export`): Auswahl wie die übrigen Bulk-Aktionen
+    auflösen (gescopt, in Listen-Reihenfolge), Cap `aporta.exports.max_sync`
+    (Default 100) → sonst 422; leere Auswahl → 422; PDF streamen.
+  - **Frontend** `bulkExport()` in `Index.vue` (Blob-Download + Dateiname aus
+    `Content-Disposition`; 422-Meldung aus dem Blob lesen). Axios-Interceptor
+    überlässt Blob-Fehler dem Aufrufer. API `bulkExport` (`responseType: blob`).
+  - **CLI** `app:export-pdf` für lokales Prüfen; **Tests**
+    `BulkExportEndpointTest` (ids, all-matching, Cap, leer, ungescopt, Auth).
 
-      Auswahl-Auflösung ist bereits vorhanden und wird wiederverwendet: gleicher
-      `{ ids }` ODER `{ filters, exclude }`-Mechanismus wie Bulk-Löschen
-      (`BuildsApplicationListQuery` + `ParsesApplicationFilters`). Datenumfang =
-      voller Detail-Datensatz wie im `Show`-Action-Eager-Load (Haupt-/Mitmieter
-      inkl. Arbeitgeber + aktuelle Wohnsituation, Kinder, Wohnungswunsch,
-      Haushalt, Notizen, Status-Verlauf).
+      Datenumfang = voller Detail-Datensatz wie im `Show`-Action-Eager-Load
+      (Haupt-/Mitmieter inkl. Arbeitgeber + aktuelle Wohnsituation, Kinder,
+      Wohnungswunsch, Haushalt, Notizen, Status-Verlauf). Auswahl-Auflösung
+      wiederverwendet wie bei Bulk-Löschen (`BuildsApplicationListQuery` +
+      `ParsesApplicationFilters`).
 
   - [x] **Setup: Spatie Laravel PDF + Browsershot/Sidecar**
         Erledigt. `spatie/laravel-pdf`, `hammerstone/sidecar`,
@@ -170,80 +178,6 @@ Command, Frontend, Tests.
         AWS-Einrichtung dokumentiert in `.install/sidecar-aws-runbook.md`
         (inkl. zwingender Execution-Role — wird *nicht* automatisch angelegt).
         Prod-Deploy mit `APP_ENV=production` erzeugt eine separate Prod-Funktion.
-  - [x] **Export-Auftrag-Tracking** (leichtgewichtig, kein Verlaufs-Feature)
-        Erledigt. Tabelle `application_exports` (Migration) mit `status`, `disk`,
-        `path`, `application_count`, `failure_reason`, `expires_at`, `user_id`-FK.
-        `ExportStatus`-Enum (`pending`/`ready`/`failed`). Model `ApplicationExport`
-        mit Casts, `user()`-Relation und Helpern `isReady()`/`isExpired()`/
-        `isDownloadable()` (für signierten Download). Factory (States
-        ready/failed/expired) + Model-Unit-Test. Bewusst **keine** durchsuchbare
-        Export-Historie — nur Polling + Download.
-  - [x] **Queue-Job `GeneratePdf`**
-        Erledigt. Job löst die Auswahl über `Application\ResolveIds` (geteiltes
-        Trait, gleiche Reihenfolge/Scope wie Liste & Browse) → lädt die
-        Bewerbungen mit dem vollen Detail-Datensatz über neues `Show::loadMany()`
-        (Eager-Load-Baum jetzt in `Show::relations()`, Präferenz-Slugs gebündelt
-        in `attachPreferenceSlugs()` — eine Quelle für Detail- und Export-Load) →
-        delegiert das Rendern an Action `Application\Pdf\Generate`
-        (`Pdf::view('pdf.applications', …)`, `->onLambda()` nur in Prod,
-        `->disk()->save()`). Setzt Status `ready` (mit `disk`/`path`/
-        `application_count`/`expires_at` aus `config('aporta.exports')`). Leere
-        Auswahl → sofort `failed` ohne Retry; Render-Exception wird geworfen
-        (`tries=3`, `backoff=[10,30,60]`), `failed()` setzt nach Aufbrauchen der
-        Versuche `failed` mit Grund. Tests: `GeneratePdfTest`
-        (ids, all-matching, exclude, trashed, leere Auswahl, Retry/Fail).
-        Hinweis: Blade-View `pdf.applications` + Renderer-Test folgen im
-        nächsten Sub-Task.
-  - [ ] **Blade-View `pdf/applications.blade.php`** (+ ggf. Header/Footer-Partials)
-        nach den Konventionen der Doku §7: eigenständiges HTML-Dokument,
-        Schriften/Logo als base64 eingebettet, **inline/kompiliertes CSS** statt
-        Tailwind-CDN, `page-break-before` pro Bewerbung, Seitenzahlen via
-        `@pageNumber / @totalPages`. Layout an den Detail-Panels orientieren
-        (alle Sektionen aus `Show.vue`).
-  - [ ] **Endpoints** in `ApplicationBulkController` (neben `destroy`/`restore`):
-    - [ ] `POST applications/bulk-export` (`ExportRequest extends
-          BulkSelectionRequest`) — IDs auflösen, Auftrag anlegen, Job
-          dispatchen, `{ export_id }` (202) zurückgeben.
-    - [ ] `GET applications/exports/{export}` — Status-Polling
-          (`{ status, download_url? }`), nur eigener Auftrag (Authorization).
-    - [ ] `GET applications/exports/{export}/download` — signierter/temporärer
-          Download der fertigen PDF; nach Ablauf 404/410.
-          Routen in `routes/api.php` ergänzen.
-  - [ ] **Cleanup-Command** (Scheduled): abgelaufene Export-Dateien + Tracking-
-        Einträge nach ~24h entfernen (`expires_at`); in den Scheduler hängen
-        (vgl. §6 Lifecycle).
-  - [ ] **Frontend** (UI-Kern des Async-Flows):
-    - [ ] **App-weiter Export-Tracker (Pinia-Store), NICHT an `Index.vue`
-          gebunden** (Entscheid): Laufende Exporte werden global verwaltet, das
-          Polling läuft **unabhängig von der aktuellen Ansicht** weiter. Damit
-          erscheint die „PDF bereit"-Benachrichtigung auch dann, wenn der Nutzer
-          **die Ansicht gewechselt** oder **den Filter geändert** hat (was die
-          Zeilenauswahl leert) — der Export ist von der Auswahl entkoppelt,
-          sobald er gestartet wurde. Mehrere parallele Exporte möglich.
-          (Optional: laufende `export_id`s in `localStorage` persistieren, damit
-          ein Reload den Lauf weiter pollt.)
-    - [ ] `bulkExport()` in `Index.vue` verdrahten (ersetzt Konsolen-
-          Platzhalter): startet Export → übergibt `export_id` an den Store
-          (Store übernimmt Polling), Auswahl darf danach geleert werden.
-    - [ ] **Poll-Mechanik** im Store (z.B. `useExportsStore`/`useExportPolling`):
-          pollt Status-Endpoint im Intervall, stoppt je Lauf bei
-          `ready`/`failed`, mit Timeout-/Fehlerbehandlung.
-    - [ ] **UI-Feedback (global gemountet, z.B. im App-Layout)**: kurzer
-          Ladehinweis „PDF wird erstellt …" beim Start; bei `ready`
-          Toast/Benachrichtigung mit Download-Link; bei `failed` Fehlermeldung +
-          Retry. (Bestehende Toast-/Notification-Komponente prüfen/
-          wiederverwenden.)
-    - [ ] API-Methoden in `api/applications.js`: `startExport(payload)`,
-          `exportStatus(id)`, Download via signierter URL.
-  - [ ] **Tests**:
-    - [ ] Backend: Start-Endpoint (ids, all-matching, exclude, Guard „weder ids
-          noch Filter", Auth) → dispatcht Job; Status-Endpoint (`pending`→
-          `ready`, fremder Auftrag = 403); Download (ok / abgelaufen).
-          Job-Test mit `Queue::fake()` bzw. synchroner Ausführung; Rendering
-          lokal ohne Lambda. Grenzfälle: nur Hauptmieter, ohne Mitmieter, ohne
-          Notizen/Kinder.
-    - [ ] Cleanup-Command entfernt nur abgelaufene Einträge/Dateien.
-
       **OFFEN/Klärung Kunde:** PDF-Layout/Branding (Logo, Schrift, Reihenfolge
       der Felder).
 
@@ -294,3 +228,44 @@ Command, Frontend, Tests.
 - Automatisches Löschen: Genaue Frist?
 - PDF-Layout/Branding: Logo, Schrift, Reihenfolge der Felder.
   (PDF-Ansatz/Library bestätigt: Spatie Laravel PDF + Browsershot/Sidecar.)
+
+---
+
+## Anhang: Async-PDF-Export (verworfen, Referenz-Design)
+
+Der PDF-Export war ursprünglich als **asynchroner Flow** geplant (Queue-Job +
+Tracking-Tabelle + Polling + globaler Store + Toast). Umgesetzt wurde stattdessen
+ein **synchroner Download** (siehe §4), weil die Async-Maschinerie die UI für den
+Normalfall (eine Handvoll angehakter Zeilen) stark verkompliziert hätte.
+
+**Entfernt** (2026-06-15, Code gelöscht):
+
+- `app/Jobs/GeneratePdf.php` — Queue-Job (Auflösung → `Show::loadMany()` →
+  `Pdf\Generate` → Disk-Save → Status-Update; `tries`/`backoff`/`failed()`).
+- Tabelle `application_exports` (Migration) + Model `ApplicationExport` +
+  Enum `ExportStatus` + Factory + Unit-Test.
+- Test `GeneratePdfTest`.
+- Config-Keys `aporta.exports.disk` / `aporta.exports.ttl_hours`.
+
+**Bleibt bestehen** (auch vom synchronen Export genutzt): die Rendering-Pipeline
+(`Application\Pdf\Generate`/`Present`/`Assets`, Blade-Views), `Show::loadMany()` +
+`Show::relations()` + `attachPreferenceSlugs()`, die Spatie/Browsershot/Sidecar-
+Infrastruktur (Prod-Rendering via `->onLambda()`) und der kurzlebige
+`queue:work`-Scheduler (weiterhin für `NotifyNewApplication` nötig).
+
+**Wann reaktivieren:** Falls eine sehr grosse Auswahl (über dem Cap
+`aporta.exports.max_sync`, Default 100) synchron zu langsam wird / Timeouts
+verursacht. Dann den `Exportieren`-Button auf einen Async-Flow umstellen:
+
+1. Tracking-Tabelle/Model/Enum wieder anlegen (war: `status`, `disk`, `path`,
+   `application_count`, `failure_reason`, `expires_at`, `user_id`).
+2. Queue-Job, der die Auswahl auflöst, rendert und per `Pdf\Generate::execute()`
+   auf einen Disk speichert + Status setzt.
+3. Endpoints: `POST bulk-export` (Auftrag anlegen, Job dispatchen, `export_id`
+   202 zurück), `GET exports/{export}` (Status-Polling), `GET
+   exports/{export}/download` (signiert/temporär).
+4. Cleanup-Command (Scheduled): abgelaufene Dateien/Einträge nach ~24h
+   (`expires_at`) entfernen.
+5. Frontend: app-weiter Export-Store (Polling unabhängig von der Ansicht),
+   `bulkExport()` startet den Lauf und übergibt die `export_id` an den Store,
+   globales UI-Feedback (Ladehinweis → Toast mit Download-Link bzw. Fehler).

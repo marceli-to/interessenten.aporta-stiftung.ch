@@ -100,9 +100,47 @@ async function bulkOpen() {
 	})
 }
 
-// TODO: export wired up later — Teil A (hängt an §4-Klärung: Felder / Format).
-function bulkExport() {
-	console.log('bulk export', selectionPayload())
+// Synchronous PDF export: POST the selection, stream the PDF back, trigger a
+// browser download. The endpoint caps the selection; an over-cap or empty
+// selection comes back as a 422 with a JSON message in the blob body.
+const exporting = ref(false)
+
+async function bulkExport() {
+	if (exporting.value) return
+	exporting.value = true
+	try {
+		const payload = { ...selectionPayload(), sort: sort.value, direction: direction.value }
+		const response = await api.bulkExport(payload)
+		triggerDownload(response)
+	} catch (error) {
+		toast.error((await readBlobError(error)) ?? 'Der Export konnte nicht erstellt werden.')
+	} finally {
+		exporting.value = false
+	}
+}
+
+// Turn a blob response into a download, using the filename from Content-Disposition.
+function triggerDownload(response) {
+	const match = /filename="?([^"]+)"?/.exec(response.headers['content-disposition'] ?? '')
+	const url = URL.createObjectURL(response.data)
+	const link = document.createElement('a')
+	link.href = url
+	link.download = match?.[1] ?? 'export.pdf'
+	document.body.appendChild(link)
+	link.click()
+	link.remove()
+	URL.revokeObjectURL(url)
+}
+
+// Error bodies for a blob request arrive as a Blob; read the JSON message out.
+async function readBlobError(error) {
+	const data = error.response?.data
+	if (!(data instanceof Blob)) return null
+	try {
+		return JSON.parse(await data.text())?.message ?? null
+	} catch {
+		return null
+	}
 }
 
 const styles = {
