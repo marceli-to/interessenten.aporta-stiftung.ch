@@ -178,6 +178,11 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
         AWS-Einrichtung dokumentiert in `.install/sidecar-aws-runbook.md`
         (inkl. zwingender Execution-Role — wird *nicht* automatisch angelegt).
         Prod-Deploy mit `APP_ENV=production` erzeugt eine separate Prod-Funktion.
+        **Lokal (Herd/Valet):** PHP-FPM hat nvm nicht im PATH → Browsershot
+        findet `node`/`npm` nicht (Exit 127). In `.env` daher
+        `LARAVEL_PDF_NODE_BINARY` + `LARAVEL_PDF_NPM_BINARY` auf die absoluten
+        nvm-Pfade setzen (`which node`/`which npm`), dann `php artisan
+        config:clear`. Nur Dev — in Prod rendert `->onLambda()`.
       **OFFEN/Klärung Kunde:** PDF-Layout/Branding (Logo, Schrift, Reihenfolge
       der Felder).
 
