@@ -88,8 +88,6 @@ class Update
 	private function housingAttributes(array $housing): array
 	{
 		return array_intersect_key($housing, array_flip([
-			'wants_balcony',
-			'wants_elevator',
 			'max_gross_rent',
 			'earliest_move_in',
 		]));
@@ -105,8 +103,6 @@ class Update
 			'adults_count',
 			'children_count',
 			'all_children_live_constantly',
-			'plays_music',
-			'musical_instruments',
 			'has_pets',
 			'pets_description',
 			'remarks',

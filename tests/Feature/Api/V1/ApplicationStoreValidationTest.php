@@ -82,14 +82,6 @@ it('requires termination_reason when terminated_by_landlord is true', function (
 	submit($data, $this->headers)->assertStatus(422)->assertJsonValidationErrors(['main_applicant.current_housing.termination_reason']);
 });
 
-it('requires musical_instruments when plays_music is true', function () {
-	$data = laafifFixture();
-	$data['household_info']['plays_music'] = true;
-	$data['household_info']['musical_instruments'] = null;
-
-	submit($data, $this->headers)->assertStatus(422)->assertJsonValidationErrors(['household_info.musical_instruments']);
-});
-
 it('requires pets_description when has_pets is true', function () {
 	$data = laafifFixture();
 	$data['household_info']['has_pets'] = true;

@@ -106,8 +106,6 @@
       <div class="row"><dt>Stadtkreise</dt><x-pdf.val :value="$h['districts']" /></div>
       <div class="row"><dt>Stockwerke</dt><x-pdf.val :value="$h['floors']" /></div>
       <div class="row"><dt>Zimmer</dt><x-pdf.val :value="$h['rooms']" /></div>
-      <div class="row"><dt>Balkon</dt><x-pdf.bool :value="$h['wants_balcony']" /></div>
-      <div class="row"><dt>Lift</dt><x-pdf.bool :value="$h['wants_elevator']" /></div>
     </dl>
   </div>
 
@@ -116,7 +114,6 @@
     $hh = $a['household_info'];
     $childYears = collect($a['children'] ?? [])->pluck('birth_year')->filter()->implode(', ');
     $hasChildren = !empty($a['children']);
-    $music = $hh['plays_music'] ? ($hh['musical_instruments'] ?: 'Ja') : 'Keine';
     $pets = $hh['has_pets'] ? ($hh['pets_description'] ?: 'Ja') : 'Keine';
   @endphp
   <div class="block">
@@ -127,7 +124,6 @@
         <div class="row"><dt>Kinder (Jahrgänge)</dt><x-pdf.val :value="$childYears ?: null" /></div>
         <div class="row"><dt>Kinder dauerhaft im Haushalt</dt><x-pdf.bool :value="$hh['all_children_live_constantly']" /></div>
       @endif
-      <div class="row"><dt>Musikinstrumente</dt><dd>{{ $music }}</dd></div>
       <div class="row"><dt>Haustiere</dt><dd>{{ $pets }}</dd></div>
       <div class="row"><dt>Bemerkungen</dt><dd class="long">{{ $hh['remarks'] ?: '–' }}</dd></div>
     </dl>

@@ -38,8 +38,6 @@ class ApplicationDetailResource extends JsonResource
 			'last_changed_at' => $this->last_changed_at?->toIso8601String(),
 
 			'housing_wish' => [
-				'wants_balcony' => $this->wants_balcony,
-				'wants_elevator' => $this->wants_elevator,
 				'max_gross_rent' => $this->max_gross_rent,
 				'earliest_move_in' => $this->earliest_move_in?->toDateString(),
 				'districts' => $this->district_slugs ?? [],
@@ -52,8 +50,6 @@ class ApplicationDetailResource extends JsonResource
 				'adults_count' => $this->adults_count,
 				'children_count' => $this->children_count,
 				'all_children_live_constantly' => $this->all_children_live_constantly,
-				'plays_music' => $this->plays_music,
-				'musical_instruments' => $this->musical_instruments,
 				'has_pets' => $this->has_pets,
 				'pets_description' => $this->pets_description,
 				'remarks' => $this->remarks,

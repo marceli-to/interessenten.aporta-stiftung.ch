@@ -44,7 +44,7 @@ it('soft-deletes and restores an application with the full aggregate intact', fu
 		'application' => $application->only([
 			'id', 'reference_number', 'status', 'submission_id',
 			'shares_apartment', 'max_gross_rent', 'total_persons',
-			'plays_music', 'has_pets',
+			'has_pets',
 		]),
 		'applicants' => Applicant::where('application_id', $applicationId)->orderBy('position')->get()->toArray(),
 		'employers' => Employer::whereIn('applicant_id', Applicant::where('application_id', $applicationId)->pluck('id'))->get()->toArray(),
@@ -86,7 +86,7 @@ it('soft-deletes and restores an application with the full aggregate intact', fu
 	expect($restored->only([
 		'id', 'reference_number', 'status', 'submission_id',
 		'shares_apartment', 'max_gross_rent', 'total_persons',
-		'plays_music', 'has_pets',
+		'has_pets',
 	]))->toEqual($before['application']);
 
 	// Same aggregate, row-for-row.

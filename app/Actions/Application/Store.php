@@ -61,8 +61,6 @@ class Store
 			'submitted_user_agent' => $data['submitted_meta']['user_agent'],
 
 			// Housing wish (inlined)
-			'wants_balcony' => $housing['wants_balcony'] ?? null,
-			'wants_elevator' => $housing['wants_elevator'] ?? null,
 			'max_gross_rent' => $housing['max_gross_rent'],
 			'earliest_move_in' => $housing['earliest_move_in'],
 
@@ -71,8 +69,6 @@ class Store
 			'adults_count' => $household['adults_count'],
 			'children_count' => $household['children_count'],
 			'all_children_live_constantly' => $household['all_children_live_constantly'] ?? null,
-			'plays_music' => $household['plays_music'],
-			'musical_instruments' => $household['musical_instruments'] ?? null,
 			'has_pets' => $household['has_pets'],
 			'pets_description' => $household['pets_description'] ?? null,
 			'remarks' => $household['remarks'] ?? null,

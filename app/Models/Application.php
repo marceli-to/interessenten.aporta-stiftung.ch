@@ -27,8 +27,6 @@ class Application extends Model
 			'archived_at' => 'datetime',
 			'last_changed_at' => 'datetime',
 
-			'wants_balcony' => 'boolean',
-			'wants_elevator' => 'boolean',
 			'max_gross_rent' => 'decimal:2',
 			'earliest_move_in' => 'date',
 
@@ -36,7 +34,6 @@ class Application extends Model
 			'adults_count' => 'integer',
 			'children_count' => 'integer',
 			'all_children_live_constantly' => 'boolean',
-			'plays_music' => 'boolean',
 			'has_pets' => 'boolean',
 		];
 	}
@@ -76,10 +73,10 @@ class Application extends Model
 		return LogOptions::defaults()
 			->logOnly([
 				'status', 'archived_at', 'extended_at',
-				'wants_balcony', 'wants_elevator', 'max_gross_rent', 'earliest_move_in',
+				'max_gross_rent', 'earliest_move_in',
 				'property_group', 'property_class',
 				'total_persons', 'adults_count', 'children_count',
-				'plays_music', 'has_pets', 'remarks',
+				'has_pets', 'remarks',
 			])
 			->logOnlyDirty()
 			->dontLogEmptyChanges();

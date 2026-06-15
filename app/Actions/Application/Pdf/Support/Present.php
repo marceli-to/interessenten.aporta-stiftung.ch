@@ -43,8 +43,6 @@ class Present
 			'housing_wish' => [
 				'max_gross_rent' => $this->money($application->max_gross_rent),
 				'earliest_move_in' => $this->date($application->earliest_move_in),
-				'wants_balcony' => $application->wants_balcony,
-				'wants_elevator' => $application->wants_elevator,
 				'districts' => $this->labels(District::class, $application->district_slugs ?? []),
 				'floors' => $this->labels(Floor::class, $application->floor_slugs ?? []),
 				'rooms' => $this->labels(Room::class, $application->room_slugs ?? []),
@@ -55,8 +53,6 @@ class Present
 				'adults_count' => $application->adults_count,
 				'children_count' => $application->children_count,
 				'all_children_live_constantly' => $application->all_children_live_constantly,
-				'plays_music' => $application->plays_music,
-				'musical_instruments' => $application->musical_instruments,
 				'has_pets' => $application->has_pets,
 				'pets_description' => $application->pets_description,
 				'remarks' => $application->remarks,

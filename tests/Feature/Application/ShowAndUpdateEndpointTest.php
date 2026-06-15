@@ -63,8 +63,6 @@ it('updates only the housing_wish section and leaves the rest untouched', functi
 			'housing_wish' => [
 				'earliest_move_in' => '2026-10-01',
 				'max_gross_rent' => '1800.00',
-				'wants_balcony' => false,
-				'wants_elevator' => true,
 				'districts' => ['kreis_6'],
 				'floors' => ['eg_hochparterre', 'obergeschoss'],
 			],
@@ -74,8 +72,7 @@ it('updates only the housing_wish section and leaves the rest untouched', functi
 		->assertJsonPath('data.housing_wish.max_gross_rent', '1800.00')
 		->assertJsonPath('data.housing_wish.districts', ['kreis_6'])
 		// Rooms is derived from persons (1 → [2]); editing the housing wish leaves it.
-		->assertJsonPath('data.housing_wish.rooms', ['rooms_2_0'])
-		->assertJsonPath('data.housing_wish.wants_elevator', true);
+		->assertJsonPath('data.housing_wish.rooms', ['rooms_2_0']);
 
 	// Pivots replaced, not appended.
 	expect(DB::table('application_districts')->where('application_id', $this->application->id)->count())->toBe(1);
@@ -96,7 +93,6 @@ it('recomputes the derived room range when the household size changes', function
 				'adults_count' => 2,
 				'children_count' => 1,
 				'total_persons' => 3,
-				'plays_music' => false,
 				'has_pets' => false,
 			],
 			'children' => [['position' => 1, 'birth_year' => 2020]],

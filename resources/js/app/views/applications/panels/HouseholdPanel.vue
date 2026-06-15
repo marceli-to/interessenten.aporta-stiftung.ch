@@ -61,9 +61,6 @@ function childrenError(errors) {
 				<InfoRow v-if="data.children?.length" label="Kinder dauerhaft im Haushalt">
 					{{ fmtYesNo(data.info.all_children_live_constantly) }}
 				</InfoRow>
-				<InfoRow label="Musikinstrumente">
-					{{ data.info.plays_music ? (data.info.musical_instruments || 'Ja') : 'Keine' }}
-				</InfoRow>
 				<InfoRow label="Haustiere">
 					{{ data.info.has_pets ? (data.info.pets_description || 'Ja') : 'Keine' }}
 				</InfoRow>
@@ -103,13 +100,6 @@ function childrenError(errors) {
 
 				<EditRow v-if="draft.children.length" label="Kinder dauerhaft im Haushalt">
 					<Select v-model="draft.info.all_children_live_constantly" :options="yesNoOptions" />
-				</EditRow>
-
-				<EditRow label="Musiziert">
-					<Select v-model="draft.info.plays_music" :options="yesNoOptions" />
-				</EditRow>
-				<EditRow v-if="draft.info.plays_music" label="Musikinstrumente" :error="errors['household_info.musical_instruments']">
-					<Input v-model="draft.info.musical_instruments" :hasError="!!errors['household_info.musical_instruments']" />
 				</EditRow>
 
 				<EditRow label="Haustiere">

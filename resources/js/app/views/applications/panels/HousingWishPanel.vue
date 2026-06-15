@@ -38,12 +38,6 @@ const lookups = useLookupsStore()
 				<InfoRow label="Zimmer (Personen ± 1)">
 					<ChipGroup class="py-3" :modelValue="data.rooms" :options="lookups.options('rooms')" readonly />
 				</InfoRow>
-				<InfoRow label="Balkon">
-					{{ fmtYesNo(data.wants_balcony) }}
-				</InfoRow>
-				<InfoRow label="Lift">
-					{{ fmtYesNo(data.wants_elevator) }}
-				</InfoRow>
 			</InfoList>
 		</template>
 
@@ -64,12 +58,6 @@ const lookups = useLookupsStore()
 				<InfoRow label="Zimmer (Personen ± 1)">
 					<ChipGroup class="py-3" :modelValue="draft.rooms" :options="lookups.options('rooms')" readonly />
 				</InfoRow>
-				<EditRow label="Balkon">
-					<Select v-model="draft.wants_balcony" :options="yesNoOptions" />
-				</EditRow>
-				<EditRow label="Lift">
-					<Select v-model="draft.wants_elevator" :options="yesNoOptions" />
-				</EditRow>
 			</InfoList>
 		</template>
 	</EditablePanel>
