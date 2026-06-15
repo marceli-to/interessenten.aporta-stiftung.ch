@@ -36,9 +36,7 @@
 			"termination_reason": null,
 			"landlord_name": "JUWO",
 			"landlord_contact_person": "Francy Kamm",
-			"landlord_phone": "+41442982047",
-			"rent_duration": "less_than_1_year",
-			"previous_landlord": "JUWO"
+			"landlord_phone": "+41442982047"
 		}
 	},
 	"shares_apartment": false,

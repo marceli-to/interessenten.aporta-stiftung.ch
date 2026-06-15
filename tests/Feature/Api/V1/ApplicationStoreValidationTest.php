@@ -82,14 +82,6 @@ it('requires termination_reason when terminated_by_landlord is true', function (
 	submit($data, $this->headers)->assertStatus(422)->assertJsonValidationErrors(['main_applicant.current_housing.termination_reason']);
 });
 
-it('requires previous_landlord when rent_duration is less_than_1_year', function () {
-	$data = laafifFixture();
-	$data['main_applicant']['current_housing']['rent_duration'] = 'less_than_1_year';
-	$data['main_applicant']['current_housing']['previous_landlord'] = null;
-
-	submit($data, $this->headers)->assertStatus(422)->assertJsonValidationErrors(['main_applicant.current_housing.previous_landlord']);
-});
-
 it('requires musical_instruments when plays_music is true', function () {
 	$data = laafifFixture();
 	$data['household_info']['plays_music'] = true;
@@ -189,7 +181,6 @@ it('requires co-applicant address fields when same_address_as_main is false', fu
 			'terminated_by_landlord' => false,
 			'termination_reason' => null,
 			'landlord_name' => 'Foo',
-			'rent_duration' => 'more_than_2_years',
 		],
 	];
 

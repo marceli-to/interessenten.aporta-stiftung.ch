@@ -123,8 +123,6 @@ class ApplicationDetailResource extends JsonResource
 				'landlord_name' => $applicant->currentHousing->landlord_name,
 				'landlord_contact_person' => $applicant->currentHousing->landlord_contact_person,
 				'landlord_phone' => $applicant->currentHousing->landlord_phone,
-				'rent_duration' => $applicant->currentHousing->rent_duration_slug?->value,
-				'previous_landlord' => $applicant->currentHousing->previous_landlord,
 			] : null,
 		];
 	}

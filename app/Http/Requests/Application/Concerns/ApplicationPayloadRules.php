@@ -9,7 +9,6 @@ use App\Enums\IncomeBracket;
 use App\Enums\MaritalStatus;
 use App\Enums\Nationality;
 use App\Enums\RelationshipToMain;
-use App\Enums\RentDuration;
 use App\Enums\ResidencePermit;
 use App\Enums\Salutation;
 use App\Enums\TenantRole;
@@ -160,8 +159,6 @@ trait ApplicationPayloadRules
 			"$prefix.current_housing.landlord_name" => [$required, 'string', 'max:200'],
 			"$prefix.current_housing.landlord_contact_person" => ['nullable', 'string', 'max:200'],
 			"$prefix.current_housing.landlord_phone" => ['nullable', 'string', 'max:30', $this->phoneRule()],
-			"$prefix.current_housing.rent_duration" => [$required, 'string', Rule::enum(RentDuration::class)],
-			"$prefix.current_housing.previous_landlord" => ['nullable', 'string', 'max:200', "required_if:$prefix.current_housing.rent_duration,less_than_1_year"],
 		];
 
 		if ($isMain) {

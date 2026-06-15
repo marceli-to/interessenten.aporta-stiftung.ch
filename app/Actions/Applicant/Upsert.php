@@ -59,8 +59,6 @@ class Upsert
 				'landlord_name' => $ch['landlord_name'],
 				'landlord_contact_person' => $ch['landlord_contact_person'] ?? null,
 				'landlord_phone' => $ch['landlord_phone'] ?? null,
-				'rent_duration_slug' => $ch['rent_duration'],
-				'previous_landlord' => $ch['previous_landlord'] ?? null,
 			]
 		);
 

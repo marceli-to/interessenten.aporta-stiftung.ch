@@ -41,8 +41,6 @@ $applicantAttributes = static fn (string $prefix): array => [
 	"$prefix.current_housing.landlord_name"         => 'Vermieter',
 	"$prefix.current_housing.landlord_contact_person" => 'Kontaktperson',
 	"$prefix.current_housing.landlord_phone"        => 'Telefon Vermieter',
-	"$prefix.current_housing.rent_duration"         => 'Wohnhaft seit',
-	"$prefix.current_housing.previous_landlord"     => 'Frühere*r Vermieter*in',
 ];
 
 $applicationAttributes = array_merge(

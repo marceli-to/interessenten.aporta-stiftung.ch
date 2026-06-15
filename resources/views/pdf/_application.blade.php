@@ -91,8 +91,6 @@
             <div class="row"><dt>Kündigungsgrund</dt><dd class="long">{{ $ch['termination_reason'] ?: '–' }}</dd></div>
           @endif
           <div class="row"><dt>Aktueller Vermieter</dt><x-pdf.val :value="$ch['landlord']" /></div>
-          <div class="row"><dt>Wohnhaft seit</dt><x-pdf.val :value="$ch['rent_duration']" /></div>
-          <div class="row"><dt>Frühere*r Vermieter*in</dt><x-pdf.val :value="$ch['previous_landlord']" /></div>
         </dl>
       </div>
     @endif

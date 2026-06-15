@@ -108,8 +108,6 @@ class Present
 				'terminated_by_landlord' => $a->currentHousing->terminated_by_landlord,
 				'termination_reason' => $a->currentHousing->termination_reason,
 				'landlord' => $this->landlord($a->currentHousing),
-				'rent_duration' => $a->currentHousing->rent_duration_slug?->label(),
-				'previous_landlord' => $a->currentHousing->previous_landlord,
 			] : null,
 		];
 	}

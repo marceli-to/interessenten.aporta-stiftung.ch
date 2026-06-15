@@ -34,7 +34,6 @@ it('returns the full detail payload with raw values', function () {
 	$response->assertOk()
 		// Raw enum slugs (not labels) so the SPA can bind them into form controls.
 		->assertJsonPath('data.main_applicant.last_name', 'Laâfif')
-		->assertJsonPath('data.main_applicant.current_housing.rent_duration', 'less_than_1_year')
 		->assertJsonPath('data.main_applicant.employer.annual_income_bracket', '30k_40k')
 		->assertJsonPath('data.housing_wish.districts', ['kreis_4', 'kreis_5'])
 		->assertJsonPath('data.housing_wish.rooms', ['rooms_2_0'])

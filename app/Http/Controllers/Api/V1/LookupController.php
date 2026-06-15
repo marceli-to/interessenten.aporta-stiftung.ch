@@ -10,7 +10,6 @@ use App\Enums\LabeledEnum;
 use App\Enums\MaritalStatus;
 use App\Enums\Nationality;
 use App\Enums\RelationshipToMain;
-use App\Enums\RentDuration;
 use App\Enums\ResidencePermit;
 use App\Enums\Room;
 use App\Enums\Salutation;
@@ -41,7 +40,6 @@ class LookupController
 			'floors' => $this->fromEnum(Floor::class),
 			'rooms' => $this->roomsList(),
 			'income_brackets' => $this->fromEnum(IncomeBracket::class),
-			'rent_durations' => $this->fromEnum(RentDuration::class),
 			'nationalities' => $this->fromEnum(Nationality::class),
 		];
 

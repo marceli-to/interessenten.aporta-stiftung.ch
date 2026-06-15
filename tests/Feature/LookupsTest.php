@@ -13,7 +13,7 @@ it('returns the full lookups payload', function () {
 	foreach ([
 		'statuses', 'salutations', 'marital_statuses', 'employment_statuses',
 		'residence_permits', 'relationships', 'tenant_roles', 'districts',
-		'floors', 'rooms', 'income_brackets', 'rent_durations', 'nationalities',
+		'floors', 'rooms', 'income_brackets', 'nationalities',
 	] as $key) {
 		expect($response->json())->toHaveKey($key);
 	}

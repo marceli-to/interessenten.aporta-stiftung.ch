@@ -51,12 +51,6 @@ function landlord(ch) {
 				<InfoRow label="Aktueller Vermieter">
 					{{ landlord(data.current_housing) }}
 				</InfoRow>
-				<InfoRow label="Wohnhaft seit">
-					{{ lookups.label('rent_durations', data.current_housing?.rent_duration) }}
-				</InfoRow>
-				<InfoRow label="Frühere*r Vermieter*in">
-					{{ data.current_housing?.previous_landlord || '–' }}
-				</InfoRow>
 			</InfoList>
 		</template>
 
@@ -79,12 +73,6 @@ function landlord(ch) {
 				</EditRow>
 				<EditRow label="Telefon Vermieter" :error="errors.landlord_phone">
 					<Input v-model="draft.current_housing.landlord_phone" :hasError="!!errors.landlord_phone" />
-				</EditRow>
-				<EditRow label="Wohnhaft seit" :error="errors.rent_duration">
-					<Select v-model="draft.current_housing.rent_duration" :options="lookups.options('rent_durations')" :hasError="!!errors.rent_duration" />
-				</EditRow>
-				<EditRow label="Frühere*r Vermieter*in" :error="errors.previous_landlord">
-					<Input v-model="draft.current_housing.previous_landlord" :hasError="!!errors.previous_landlord" />
 				</EditRow>
 			</InfoList>
 		</template>

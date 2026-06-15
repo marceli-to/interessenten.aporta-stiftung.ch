@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\RentDuration;
 use App\Enums\TenantRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +19,6 @@ class CurrentHousing extends Model
 	{
 		return [
 			'tenant_role' => TenantRole::class,
-			'rent_duration_slug' => RentDuration::class,
 			'terminated_by_landlord' => 'boolean',
 		];
 	}
@@ -35,7 +33,7 @@ class CurrentHousing extends Model
 		return LogOptions::defaults()
 			->logOnly([
 				'tenant_role', 'terminated_by_landlord', 'termination_reason',
-				'landlord_name', 'rent_duration_slug',
+				'landlord_name',
 			])
 			->logOnlyDirty()
 			->dontLogEmptyChanges();

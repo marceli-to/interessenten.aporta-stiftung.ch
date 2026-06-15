@@ -54,7 +54,6 @@ it('stores the Laâfif fixture and persists the full aggregate', function () {
 	expect($applicant->nationality->value)->toBe('CH');
 
 	expect(Employer::first()->annual_income_bracket_slug->value)->toBe('30k_40k');
-	expect(CurrentHousing::first()->rent_duration_slug->value)->toBe('less_than_1_year');
 
 	expect($application->statusEvents()->count())->toBe(1);
 	$event = $application->statusEvents()->first();

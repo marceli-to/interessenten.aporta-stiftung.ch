@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\RentDuration;
 use App\Enums\TenantRole;
 use App\Models\CurrentHousing;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,8 +22,6 @@ class CurrentHousingFactory extends Factory
 			'landlord_name' => fake()->company(),
 			'landlord_contact_person' => fake()->name(),
 			'landlord_phone' => '+41442982047',
-			'rent_duration_slug' => RentDuration::MoreThan2Years->value,
-			'previous_landlord' => null,
 		];
 	}
 }
