@@ -126,8 +126,8 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 
 ## 4. Export
 
-**Stand PDF-Export:** Setup, Cron-Worker, AWS/Sidecar-Deploy und Tracking-Tabelle
-erledigt (siehe Sub-Tasks). Offen: Queue-Job, Blade-View, Endpoints, Cleanup-
+**Stand PDF-Export:** Setup, Cron-Worker, AWS/Sidecar-Deploy, Tracking-Tabelle
+und Queue-Job erledigt (siehe Sub-Tasks). Offen: Blade-View, Endpoints, Cleanup-
 Command, Frontend, Tests.
 
 - [ ] **PDF-Export (kompletter Datensatz, 1..n Bewerbungen) — ASYNCHRON**
@@ -178,12 +178,22 @@ Command, Frontend, Tests.
         `isDownloadable()` (für signierten Download). Factory (States
         ready/failed/expired) + Model-Unit-Test. Bewusst **keine** durchsuchbare
         Export-Historie — nur Polling + Download.
-  - [ ] **Queue-Job `GenerateApplicationsPdfJob`**
-        Auflösung der IDs (geteiltes Trait) → lädt Bewerbungen mit dem
-        Eager-Load-Baum aus `Show` → rendert `Pdf::view('pdf.applications', …)`
-        (`->onLambda()` nur in Prod) → speichert temporäre Datei → setzt Status
-        auf `ready` (bzw. `failed` bei Exception). `tries`/`backoff` setzen.
-        Reine Render-Logik ggf. in Action `GenerateApplicationsPdf` auslagern.
+  - [x] **Queue-Job `GeneratePdf`**
+        Erledigt. Job löst die Auswahl über `Application\ResolveIds` (geteiltes
+        Trait, gleiche Reihenfolge/Scope wie Liste & Browse) → lädt die
+        Bewerbungen mit dem vollen Detail-Datensatz über neues `Show::loadMany()`
+        (Eager-Load-Baum jetzt in `Show::relations()`, Präferenz-Slugs gebündelt
+        in `attachPreferenceSlugs()` — eine Quelle für Detail- und Export-Load) →
+        delegiert das Rendern an Action `Application\Pdf\Generate`
+        (`Pdf::view('pdf.applications', …)`, `->onLambda()` nur in Prod,
+        `->disk()->save()`). Setzt Status `ready` (mit `disk`/`path`/
+        `application_count`/`expires_at` aus `config('aporta.exports')`). Leere
+        Auswahl → sofort `failed` ohne Retry; Render-Exception wird geworfen
+        (`tries=3`, `backoff=[10,30,60]`), `failed()` setzt nach Aufbrauchen der
+        Versuche `failed` mit Grund. Tests: `GeneratePdfTest`
+        (ids, all-matching, exclude, trashed, leere Auswahl, Retry/Fail).
+        Hinweis: Blade-View `pdf.applications` + Renderer-Test folgen im
+        nächsten Sub-Task.
   - [ ] **Blade-View `pdf/applications.blade.php`** (+ ggf. Header/Footer-Partials)
         nach den Konventionen der Doku §7: eigenständiges HTML-Dokument,
         Schriften/Logo als base64 eingebettet, **inline/kompiliertes CSS** statt

@@ -8,4 +8,14 @@ return [
 	'new_application_notify_email' => env('APORTA_NEW_APPLICATION_NOTIFY_EMAIL'),
 
 	'statamic_origin' => env('APORTA_STATAMIC_ORIGIN', 'https://aporta-stiftung.ch'),
+
+	'exports' => [
+		// Where generated export files are stored. Defaults to the app's default
+		// disk (local in dev); set to an S3 disk in production.
+		'disk' => env('APORTA_EXPORT_DISK', env('FILESYSTEM_DISK', 'local')),
+
+		// How long a generated export stays downloadable before the scheduled
+		// cleanup removes the file and tracking row.
+		'ttl_hours' => (int) env('APORTA_EXPORT_TTL_HOURS', 24),
+	],
 ];
