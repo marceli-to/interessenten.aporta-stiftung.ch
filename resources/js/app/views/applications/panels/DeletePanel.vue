@@ -12,12 +12,12 @@ defineProps({
 </script>
 
 <template>
-	<Panel variant="danger" title="Bewerbung löschen">
-		<p class="text-sm text-black">
+	<Panel variant="danger" title="Interessent löschen">
+		<p class="text-sm text-black border-t border-blue/20 pt-15">
 			Die Bewerbung wird aus der Liste entfernt, bleibt aber gespeichert und kann
 			später wiederhergestellt werden.
 		</p>
-		<div class="mt-15">
+		<div class="mt-20">
 			<Button variant="danger-solid" size="sm" icon="trash" @click="onDelete">
 				Löschen
 			</Button>
