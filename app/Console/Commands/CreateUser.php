@@ -27,7 +27,6 @@ class CreateUser extends Command
 			'name' => $name,
 			'email' => $email,
 			'password' => $password,
-			'role' => 'admin',
 		]);
 
 		$this->info("Admin user {$firstname} {$name} ({$email}) created.");

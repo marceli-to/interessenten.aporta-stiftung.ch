@@ -9,7 +9,6 @@ import Panel from '@/components/ui/panels/Display.vue'
 import Group from '@/components/ui/form/Group.vue'
 import Label from '@/components/ui/form/Label.vue'
 import Input from '@/components/ui/form/Input.vue'
-import Select from '@/components/ui/form/Select.vue'
 import Button from '@/components/ui/form/Button.vue'
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue'
 
@@ -28,24 +27,11 @@ const form = reactive({
 	name: '',
 	email: '',
 	password: '',
-	role: 'admin',
-	active: true,
 })
 
 const saving = ref(false)
 const loading = ref(false)
 const passwordVisible = ref(false)
-
-const roleOptions = [
-	{ value: 'admin', label: 'Administrator' },
-	{ value: 'editor', label: 'Bearbeiter' },
-	{ value: 'viewer', label: 'Betrachter' },
-]
-
-const activeOptions = [
-	{ value: true, label: 'Aktiv' },
-	{ value: false, label: 'Inaktiv' },
-]
 
 store.clearErrors()
 onUnmounted(() => store.clearErrors())
@@ -59,8 +45,6 @@ onMounted(async () => {
 		form.firstname = user.firstname
 		form.name = user.name
 		form.email = user.email
-		form.role = user.role
-		form.active = user.active
 		form.password = ''
 	} finally {
 		loading.value = false
@@ -203,18 +187,6 @@ async function handleDelete() {
 								</Button>
 							</div>
 						</Group>
-
-						<div class="grid grid-cols-2 gap-16">
-							<Group>
-								<Label for="role">Rolle</Label>
-								<Select id="role" v-model="form.role" :options="roleOptions" :placeholder="null" class="min-h-36!" />
-							</Group>
-
-							<Group>
-								<Label for="active">Status</Label>
-								<Select id="active" v-model="form.active" :options="activeOptions" :placeholder="null" class="min-h-36!" />
-							</Group>
-						</div>
 
 						<div class="flex items-center justify-end gap-10 pt-8">
 							<RouterLink :to="{ name: 'users.index' }">

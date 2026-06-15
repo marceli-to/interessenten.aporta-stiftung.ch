@@ -3,7 +3,6 @@
 namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreRequest extends FormRequest
 {
@@ -19,8 +18,6 @@ class StoreRequest extends FormRequest
 			'name' => ['required', 'string', 'max:255'],
 			'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
 			'password' => ['required', 'string', 'min:6'],
-			'role' => ['sometimes', Rule::in(['admin', 'editor', 'viewer'])],
-			'active' => ['sometimes', 'boolean'],
 		];
 	}
 

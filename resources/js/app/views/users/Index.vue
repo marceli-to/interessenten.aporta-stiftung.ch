@@ -11,12 +11,6 @@ import TableCell from '@/components/ui/table/Cell.vue'
 const router = useRouter()
 const store = useUsersStore()
 
-const roleLabels = {
-	admin: 'Administrator',
-	editor: 'Bearbeiter',
-	viewer: 'Betrachter',
-}
-
 onMounted(() => store.fetch())
 
 // A row click opens the edit form — same interaction as the applications list.
@@ -40,16 +34,15 @@ function open(user) {
 			<table class="w-full text-sm whitespace-nowrap">
 				<thead class="text-left text-black border-b border-blue/20">
 					<tr>
-						<TableHeadCell variant="first">Name</TableHeadCell>
-						<TableHeadCell>E-Mail</TableHeadCell>
-						<TableHeadCell>Rolle</TableHeadCell>
-						<TableHeadCell variant="last">Status</TableHeadCell>
+						<TableHeadCell variant="first">Vorname</TableHeadCell>
+						<TableHeadCell>Name</TableHeadCell>
+						<TableHeadCell variant="last">E-Mail</TableHeadCell>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-blue/20">
 					<template v-if="store.loading">
 						<tr>
-							<td colspan="4" class="py-30 text-sm text-light-gray">
+							<td colspan="3" class="py-30 text-sm text-light-gray">
 								Laden …
 							</td>
 						</tr>
@@ -62,25 +55,17 @@ function open(user) {
 							@click="open(user)"
 						>
 							<TableCell variant="first" class="font-bold text-blue">
-								{{ user.firstname }} {{ user.name }}
+								{{ user.firstname }}
 							</TableCell>
-							<TableCell>
-								{{ user.email }}
-							</TableCell>
-							<TableCell>
-								{{ roleLabels[user.role] ?? user.role }}
+							<TableCell class="font-bold text-blue">
+								{{ user.name }}
 							</TableCell>
 							<TableCell variant="last">
-								<span
-									class="inline-flex items-center px-10 py-5 rounded-full text-xs font-medium"
-									:class="user.active ? 'bg-light-green text-green' : 'bg-light-gray text-gray'"
-								>
-									{{ user.active ? 'Aktiv' : 'Inaktiv' }}
-								</span>
+								{{ user.email }}
 							</TableCell>
 						</tr>
 						<tr v-if="!store.users.length">
-							<td colspan="4" class="py-30 text-center text-sm text-light-gray">
+							<td colspan="3" class="py-30 text-center text-sm text-light-gray">
 								Keine Benutzer vorhanden.
 							</td>
 						</tr>
