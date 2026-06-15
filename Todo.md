@@ -126,6 +126,10 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 
 ## 4. Export
 
+**Stand PDF-Export:** Setup, Cron-Worker, AWS/Sidecar-Deploy und Tracking-Tabelle
+erledigt (siehe Sub-Tasks). Offen: Queue-Job, Blade-View, Endpoints, Cleanup-
+Command, Frontend, Tests.
+
 - [ ] **PDF-Export (kompletter Datensatz, 1..n Bewerbungen) — ASYNCHRON**
       Den vollständigen Datensatz **einer oder mehrerer** Bewerbungen als PDF
       exportieren. Ansatz bestätigt (siehe `.install/pdf-generation.md`):
@@ -153,19 +157,27 @@ gibt kein globales „alle 677 auswählen". Ablauf:
       inkl. Arbeitgeber + aktuelle Wohnsituation, Kinder, Wohnungswunsch,
       Haushalt, Notizen, Status-Verlauf).
 
-  - [ ] **Setup: Spatie Laravel PDF + Browsershot/Sidecar**
-        `composer require spatie/laravel-pdf hammerstone/sidecar
-        wnx/sidecar-browsershot`; `npm install --save-dev puppeteer` (lokal).
-        `config/sidecar.php` + `config/sidecar-browsershot.php` anlegen, Env-Vars
-        (§6 der Doku) ergänzen. Lambda-Deploy (`sidecar:configure` +
-        `sidecar:deploy --activate`) ist ein **Prod-/AWS-Schritt** — lokal ohne
-        `->onLambda()` mit Puppeteer testen. Queue-Worker braucht in Prod
-        AWS-Zugang (`onLambda()` läuft auf dem Worker, vgl. Doku §4/§10).
-  - [ ] **Export-Auftrag-Tracking** (leichtgewichtig, kein Verlaufs-Feature)
-        Status eines Laufs (`pending`/`ready`/`failed`, Pfad, `user_id`,
-        `expires_at`) persistieren — Tabelle `application_exports` oder per
-        Cache-Eintrag mit TTL. Genügt für Polling + signierten Download; bewusst
-        **keine** durchsuchbare Export-Historie.
+  - [x] **Setup: Spatie Laravel PDF + Browsershot/Sidecar**
+        Erledigt. `spatie/laravel-pdf`, `hammerstone/sidecar`,
+        `wnx/sidecar-browsershot` installiert; `puppeteer` als Dev-Dependency
+        (lokales Rendering). `config/sidecar.php` + `config/sidecar-browsershot.php`
+        publiziert, `BrowsershotFunction` in `config/sidecar.php` registriert.
+        Lokaler Browsershot-Render verifiziert. **Cron-taugliches Worker-Modell:**
+        Scheduler in `routes/console.php` startet jede Minute einen kurzlebigen
+        `queue:work --stop-when-empty` (kein Daemon — passend zur Crontab-only-
+        Prod). **AWS/Sidecar end-to-end verifiziert:** Lambda deployed
+        (`sidecar:deploy --activate`) und rendert ein echtes PDF (~4.3s Cold-Start).
+        AWS-Einrichtung dokumentiert in `.install/sidecar-aws-runbook.md`
+        (inkl. zwingender Execution-Role — wird *nicht* automatisch angelegt).
+        Prod-Deploy mit `APP_ENV=production` erzeugt eine separate Prod-Funktion.
+  - [x] **Export-Auftrag-Tracking** (leichtgewichtig, kein Verlaufs-Feature)
+        Erledigt. Tabelle `application_exports` (Migration) mit `status`, `disk`,
+        `path`, `application_count`, `failure_reason`, `expires_at`, `user_id`-FK.
+        `ExportStatus`-Enum (`pending`/`ready`/`failed`). Model `ApplicationExport`
+        mit Casts, `user()`-Relation und Helpern `isReady()`/`isExpired()`/
+        `isDownloadable()` (für signierten Download). Factory (States
+        ready/failed/expired) + Model-Unit-Test. Bewusst **keine** durchsuchbare
+        Export-Historie — nur Polling + Download.
   - [ ] **Queue-Job `GenerateApplicationsPdfJob`**
         Auflösung der IDs (geteiltes Trait) → lädt Bewerbungen mit dem
         Eager-Load-Baum aus `Show` → rendert `Pdf::view('pdf.applications', …)`
@@ -256,7 +268,7 @@ gibt kein globales „alle 677 auswählen". Ablauf:
 - [x] **Logogrösse prüfen** (ggf. anpassen)
       Erledigt. Logo `h-36` → `h-48`, Header-Padding `py-30` → `py-20`
       (`components/ui/layout/Header.vue`).
-- [ ] **Rot anpassen** auf den Jam'on-Farbwert (CSS-Variable / Tailwind-Farbe;
+- [x] **Rot anpassen** auf den Jam'on-Farbwert (CSS-Variable / Tailwind-Farbe;
       vgl. `text-red` in `Index.vue`)
 - [ ] **Benutzer-Formular: Button anpassen** (`views/users/`)
 
