@@ -58,6 +58,23 @@ const incomeMax = filterRef('income_max')
 const districts = filterRef('districts', { array: true })
 const rooms = filterRef('rooms', { array: true })
 
+// How many filters are active — shown as a badge on the (closed) Filter button so
+// a collapsed-but-filtered list is never mistaken for the full set. Search is its
+// own always-visible field, so it's not counted here.
+const activeFilterCount = computed(() =>
+	[
+		statusFilter.value.length > 0,
+		moveInFrom.value != null,
+		moveInTo.value != null,
+		rentMin.value != null,
+		rentMax.value != null,
+		incomeMin.value != null,
+		incomeMax.value != null,
+		districts.value.length > 0,
+		rooms.value.length > 0,
+	].filter(Boolean).length
+)
+
 const statusOptions = [
 	{ value: 'opened', label: 'Eröffnet', icon: PhFolderOpen },
 	{ value: 'extended', label: 'Verlängert', icon: PhClockClockwise },
@@ -99,9 +116,18 @@ onMounted(() => {
 
 	<!-- Filter button and search field -->
 	<div class="flex items-center gap-20 mb-30 w-full">
-		<Button variant="primary" icon="faders" size="md" @click="showFilter = !showFilter">
-			Filter
-		</Button>
+		<div class="relative inline-flex">
+			<Button variant="primary" icon="faders" size="md" @click="showFilter = !showFilter">
+				Filter
+			</Button>
+			<!-- Anzahl gesetzter Filter, nur wenn Panel zu ist -->
+			<span
+				v-if="!showFilter && activeFilterCount"
+				class="absolute -top-5 -left-5 min-w-18 h-18 px-5 inline-flex items-center justify-center rounded-full bg-red text-white text-xs font-medium leading-none pointer-events-none"
+			>
+				{{ activeFilterCount }}
+			</span>
+		</div>
 		<SearchInput v-model="search" placeholder="Suche nach Name, Nummer, Ort" />
 	</div>
 	<!-- // Filter button and search field -->
