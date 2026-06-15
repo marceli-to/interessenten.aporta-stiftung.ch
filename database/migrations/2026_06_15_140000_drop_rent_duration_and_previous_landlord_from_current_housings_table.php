@@ -9,13 +9,7 @@ return new class extends Migration
 	public function up(): void
 	{
 		Schema::table('current_housings', function (Blueprint $table) {
-			if (Schema::hasColumn('current_housings', 'rent_duration_slug')) {
-				$table->dropColumn('rent_duration_slug');
-			}
-
-			if (Schema::hasColumn('current_housings', 'previous_landlord')) {
-				$table->dropColumn('previous_landlord');
-			}
+			$table->dropColumn(['rent_duration_slug', 'previous_landlord']);
 		});
 	}
 

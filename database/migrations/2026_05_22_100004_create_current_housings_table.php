@@ -16,6 +16,8 @@ return new class extends Migration
 			$table->string('landlord_name', 200);
 			$table->string('landlord_contact_person', 200)->nullable();
 			$table->string('landlord_phone', 30)->nullable();
+			$table->string('rent_duration_slug', 30);
+			$table->string('previous_landlord', 200)->nullable();
 
 			$table->foreignId('applicant_id')->unique()->constrained()->cascadeOnDelete();
 
