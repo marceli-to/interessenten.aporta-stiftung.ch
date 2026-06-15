@@ -270,7 +270,10 @@ Command, Frontend, Tests.
       (`components/ui/layout/Header.vue`).
 - [x] **Rot anpassen** auf den Jam'on-Farbwert (CSS-Variable / Tailwind-Farbe;
       vgl. `text-red` in `Index.vue`)
-- [ ] **Benutzer-Formular: Button anpassen** (`views/users/`)
+- [x] **Benutzer-Formular: Button anpassen** (`views/users/`)
+      Erledigt. Der „Abbrechen"-Button in `Form.vue` nutzte als einziger
+      `variant="outline"`; auf `variant="ghost"` umgestellt, analog zu allen
+      anderen „Abbrechen"-Buttons (`Editable.vue`, `NotesPanel.vue`).
 
 ---
 

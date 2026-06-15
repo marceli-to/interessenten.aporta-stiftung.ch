@@ -218,7 +218,7 @@ async function handleDelete() {
 
 						<div class="flex items-center justify-end gap-10 pt-8">
 							<RouterLink :to="{ name: 'users.index' }">
-								<Button variant="outline" size="sm" type="button">Abbrechen</Button>
+								<Button variant="ghost" size="sm" type="button">Abbrechen</Button>
 							</RouterLink>
 							<Button type="submit" size="sm" icon="floppy-disk" :disabled="saving">
 								{{ saving ? 'Speichern …' : 'Speichern' }}
