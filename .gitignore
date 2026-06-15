@@ -34,3 +34,5 @@ Thumbs.db
 /INSTALL.txt
 /CLAUDE.md
 /docs
+# Claude-Code-Session-Transkripte (enthalten u.U. Secrets) — nie committen
+*.jsonl
