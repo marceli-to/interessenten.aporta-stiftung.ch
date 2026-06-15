@@ -27,6 +27,7 @@ class Application extends Model
 			'archived_at' => 'datetime',
 			'last_changed_at' => 'datetime',
 
+			'wants_elevator' => 'boolean',
 			'max_gross_rent' => 'decimal:2',
 			'earliest_move_in' => 'date',
 
@@ -73,7 +74,7 @@ class Application extends Model
 		return LogOptions::defaults()
 			->logOnly([
 				'status', 'archived_at', 'extended_at',
-				'max_gross_rent', 'earliest_move_in',
+				'wants_elevator', 'max_gross_rent', 'earliest_move_in',
 				'property_group', 'property_class',
 				'total_persons', 'adults_count', 'children_count',
 				'has_pets', 'remarks',

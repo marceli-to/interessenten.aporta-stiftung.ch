@@ -43,6 +43,7 @@ class Present
 			'housing_wish' => [
 				'max_gross_rent' => $this->money($application->max_gross_rent),
 				'earliest_move_in' => $this->date($application->earliest_move_in),
+				'wants_elevator' => $application->wants_elevator,
 				'districts' => $this->labels(District::class, $application->district_slugs ?? []),
 				'floors' => $this->labels(Floor::class, $application->floor_slugs ?? []),
 				'rooms' => $this->labels(Room::class, $application->room_slugs ?? []),

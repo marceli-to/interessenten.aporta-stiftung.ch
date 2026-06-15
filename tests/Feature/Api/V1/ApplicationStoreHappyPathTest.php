@@ -43,6 +43,7 @@ it('stores the Laâfif fixture and persists the full aggregate', function () {
 	expect($application->opened_at?->toIso8601String())->toBe('2026-05-22T10:22:00+00:00');
 	expect($application->status->value)->toBe('opened');
 	expect((float) $application->max_gross_rent)->toBe(1600.0);
+	expect($application->wants_elevator)->toBeFalse();
 
 	$applicant = Applicant::first();
 	expect($applicant->role)->toBe('main_applicant');

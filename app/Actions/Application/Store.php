@@ -61,6 +61,7 @@ class Store
 			'submitted_user_agent' => $data['submitted_meta']['user_agent'],
 
 			// Housing wish (inlined)
+			'wants_elevator' => $housing['wants_elevator'] ?? null,
 			'max_gross_rent' => $housing['max_gross_rent'],
 			'earliest_move_in' => $housing['earliest_move_in'],
 

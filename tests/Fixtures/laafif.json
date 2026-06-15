@@ -44,6 +44,7 @@
 	"housing_wish": {
 		"earliest_move_in": "2026-09-01",
 		"max_gross_rent": "1600.00",
+		"wants_elevator": false,
 		"districts": ["kreis_4", "kreis_5"],
 		"floors": ["eg_hochparterre", "obergeschoss"],
 		"rooms": ["rooms_2_0"]

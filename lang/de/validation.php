@@ -51,6 +51,7 @@ $applicationAttributes = array_merge(
 		'housing_wish'                 => 'Wohnwunsch',
 		'housing_wish.earliest_move_in' => 'Frühester Mietbeginn',
 		'housing_wish.max_gross_rent'  => 'Max. Bruttomiete',
+		'housing_wish.wants_elevator'  => 'Lift',
 		'housing_wish.districts'       => 'Stadtkreise',
 		'housing_wish.districts.*'     => 'Stadtkreis',
 		'housing_wish.floors'          => 'Stockwerke',

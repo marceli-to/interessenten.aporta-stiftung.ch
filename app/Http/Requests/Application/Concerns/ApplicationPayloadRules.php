@@ -56,6 +56,7 @@ trait ApplicationPayloadRules
 			'housing_wish' => [$req, 'array'],
 			'housing_wish.earliest_move_in' => [$req, 'date'],
 			'housing_wish.max_gross_rent' => [$req, 'numeric', 'min:1200', 'max:20000'],
+			'housing_wish.wants_elevator' => ['nullable', 'boolean'],
 			'housing_wish.districts' => [$req, 'array', 'min:1'],
 			'housing_wish.districts.*' => ['string', Rule::enum(District::class)],
 			'housing_wish.floors' => [$req, 'array', 'min:1'],

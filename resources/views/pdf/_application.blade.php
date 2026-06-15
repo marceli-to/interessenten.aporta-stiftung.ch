@@ -106,6 +106,7 @@
       <div class="row"><dt>Stadtkreise</dt><x-pdf.val :value="$h['districts']" /></div>
       <div class="row"><dt>Stockwerke</dt><x-pdf.val :value="$h['floors']" /></div>
       <div class="row"><dt>Zimmer</dt><x-pdf.val :value="$h['rooms']" /></div>
+      <div class="row"><dt>Lift</dt><x-pdf.bool :value="$h['wants_elevator']" /></div>
     </dl>
   </div>
 
