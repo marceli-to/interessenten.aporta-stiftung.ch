@@ -63,7 +63,7 @@ it('stores the Laâfif fixture and persists the full aggregate', function () {
 	expect($event->actor_user_id)->toBeNull();
 
 	expect($application->districts = \DB::table('application_districts')->where('application_id', $application->id)->count())->toBe(2);
-	expect(\DB::table('application_floors')->where('application_id', $application->id)->count())->toBe(7);
+	expect(\DB::table('application_floors')->where('application_id', $application->id)->count())->toBe(2);
 	expect(\DB::table('application_rooms')->where('application_id', $application->id)->count())->toBe(1);
 
 	Bus::assertDispatchedTimes(NotifyNewApplication::class, 1);

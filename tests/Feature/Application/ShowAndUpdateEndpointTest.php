@@ -67,7 +67,7 @@ it('updates only the housing_wish section and leaves the rest untouched', functi
 				'wants_balcony' => false,
 				'wants_elevator' => true,
 				'districts' => ['kreis_6'],
-				'floors' => ['floor_1', 'floor_2'],
+				'floors' => ['eg_hochparterre', 'obergeschoss'],
 			],
 		]);
 
