@@ -30,8 +30,13 @@ class LegacyImporter
 			throw new \RuntimeException('xml_form is not valid XML');
 		}
 
+		// The top-level JSON holds the production (current) values; the xml_form holds the
+		// original submission. Where both carry a field, production wins, with the XML as
+		// fallback. (For the overlapping rental_request fields they agree across the data,
+		// but this keeps the importer faithful to that source-of-truth distinction.)
 		$childrenCount = (int) $this->x($xml, 'ACCOMMODATION/CHILDREN_QTY');
-		$persons = LegacyMaps::persons($this->x($xml, 'ACCOMMODATION/TOTAL_PERSONS'))
+		$persons = LegacyMaps::persons((string) data_get($data, 'rental_request.persons', ''))
+			?? LegacyMaps::persons($this->x($xml, 'ACCOMMODATION/TOTAL_PERSONS'))
 			?? (((int) $this->x($xml, 'ACCOMMODATION/ADULTS_QTY') + $childrenCount) ?: 1);
 		$adults = (int) $this->x($xml, 'ACCOMMODATION/ADULTS_QTY') ?: max(1, $persons - $childrenCount);
 
@@ -46,10 +51,11 @@ class LegacyImporter
 			'status' => $status,
 			'shares_apartment' => LegacyMaps::yesNo($this->x($xml, 'SUB_TENANT_YN')) ?? false,
 			'wants_elevator' => LegacyMaps::elevator($this->x($xml, 'RENT_PREFERENCES/NO_ELEVATOR_YN')),
-			'max_gross_rent' => $this->decimal($this->x($xml, 'RENT_PREFERENCES/MAX_RENT'))
-				?? (float) data_get($data, 'rental_request.max_rent', 0),
-			'earliest_move_in' => $this->date($this->x($xml, 'RENT_PREFERENCES/MIN_START_DATE'))
-				?? $this->date(data_get($data, 'rental_request.from'))
+			'max_gross_rent' => $this->decimal((string) data_get($data, 'rental_request.max_rent', ''))
+				?? $this->decimal($this->x($xml, 'RENT_PREFERENCES/MAX_RENT'))
+				?? 0,
+			'earliest_move_in' => $this->date(data_get($data, 'rental_request.from'))
+				?? $this->date($this->x($xml, 'RENT_PREFERENCES/MIN_START_DATE'))
 				?? $openedAt,
 			'property_group' => $this->nullable($this->x($xml, 'RENT_PREFERENCES/TK_OBJGRUP'), 50),
 			'property_class' => $this->nullable($this->x($xml, 'RENT_PREFERENCES/TK_OBJKLAS'), 50),
@@ -72,7 +78,7 @@ class LegacyImporter
 			'actor_user_id' => null,
 		]);
 
-		$this->importPreferences($application, $xml, $persons);
+		$this->importPreferences($application, $xml, $data, $persons);
 		$this->importChildren($application, $xml, $childrenCount, $openedAt);
 		$this->importApplicant($application, $data['applicant1'] ?? [], $this->child($xml, 'MAIN_TENANT'), 'main_applicant', 1, null);
 
@@ -88,10 +94,14 @@ class LegacyImporter
 		return $application;
 	}
 
-	private function importPreferences(Application $application, SimpleXMLElement $xml, int $persons): void
+	private function importPreferences(Application $application, SimpleXMLElement $xml, array $data, int $persons): void
 	{
-		[$districts] = LegacyMaps::districts($this->x($xml, 'RENT_PREFERENCES/DISTRICT_ID'));
-		[$floors] = LegacyMaps::floors($this->x($xml, 'RENT_PREFERENCES/FLOOR_ID'));
+		// Production (top-level) districts/floors win; fall back to the submitted XML.
+		$districtSource = trim((string) data_get($data, 'rental_request.district', '')) ?: $this->x($xml, 'RENT_PREFERENCES/DISTRICT_ID');
+		$floorSource = trim((string) data_get($data, 'rental_request.floor', '')) ?: $this->x($xml, 'RENT_PREFERENCES/FLOOR_ID');
+
+		[$districts] = LegacyMaps::districts($districtSource);
+		[$floors] = LegacyMaps::floors($floorSource);
 
 		$this->insertPivot('application_districts', 'district_slug', $application->id, $districts);
 		$this->insertPivot('application_floors', 'floor_slug', $application->id, $floors);

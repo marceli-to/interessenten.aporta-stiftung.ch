@@ -141,6 +141,21 @@ it('keeps unparseable child ages as an import note instead of fabricating years'
 	expect($note->body)->toBe('8j. + 4j.');
 });
 
+it('prefers the production rental_request over the submitted XML where both exist', function () {
+	// XML carries the original submission (max_rent 3000, Pers2, Kreis 4/5/6);
+	// the top-level JSON carries the current production values and must win.
+	$record = legacyRecord([], [
+		'rental_request' => ['from' => '2023-01-01', 'max_rent' => 1800, 'persons' => 'Pers3', 'district' => 'Kreis7'],
+	]);
+
+	$app = $this->importer->import($record)->fresh();
+
+	expect((float) $app->max_gross_rent)->toBe(1800.0);
+	expect($app->total_persons)->toBe(3);
+	expect($app->earliest_move_in->format('Y-m-d'))->toBe('2023-01-01');
+	expect(DB::table('application_districts')->where('application_id', $app->id)->pluck('district_slug')->all())->toBe(['kreis_7']);
+});
+
 it('skips applications that already exist (idempotent on reference_number)', function () {
 	$this->importer->import(legacyRecord());
 
