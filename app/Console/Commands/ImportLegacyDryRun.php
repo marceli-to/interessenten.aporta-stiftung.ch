@@ -99,9 +99,12 @@ class ImportLegacyDryRun extends Command
 			}]++;
 
 			// --- household / preferences (application-level) ---
-			$persons = LegacyMaps::persons($this->x($xml, 'ACCOMMODATION/TOTAL_PERSONS'));
+			$personsRaw = $this->x($xml, 'ACCOMMODATION/TOTAL_PERSONS');
+			$persons = LegacyMaps::persons($personsRaw);
 			if ($persons === null) {
-				$this->flag('persons_dirty', $this->x($xml, 'ACCOMMODATION/TOTAL_PERSONS') ?: '(empty)', $nr);
+				// writer fallback: adults + children, else 1
+				$persons = ((int) $this->x($xml, 'ACCOMMODATION/ADULTS_QTY') + (int) $this->x($xml, 'ACCOMMODATION/CHILDREN_QTY')) ?: 1;
+				$this->flag('persons_fallback', $personsRaw ?: '(empty)', $nr);
 			}
 
 			$maxRent = $this->x($xml, 'RENT_PREFERENCES/MAX_RENT') ?: (string) data_get($data, 'rental_request.max_rent', '');
@@ -114,11 +117,9 @@ class ImportLegacyDryRun extends Command
 				$this->flag('missing_earliest_move_in', $nr, $nr);
 			}
 
-			$wantsElevator = LegacyMaps::yesNo($this->x($xml, 'RENT_PREFERENCES/NO_ELEVATOR_YN'));
-			// NOTE: the legacy node is NO_ELEVATOR_YN but the form label is "Lift" (wants elevator);
-			// confirm the polarity at build time — flagged here only if unrecognised.
-			if ($wantsElevator === null && $this->x($xml, 'RENT_PREFERENCES/NO_ELEVATOR_YN') !== '') {
-				$this->flag('elevator_unrecognised', $this->x($xml, 'RENT_PREFERENCES/NO_ELEVATOR_YN'), $nr);
+			// wants_elevator (nullable): 1=yes, 2=no, 0/empty=null
+			if (LegacyMaps::elevator($this->x($xml, 'RENT_PREFERENCES/NO_ELEVATOR_YN')) === null) {
+				$this->flag('elevator_null', $this->x($xml, 'RENT_PREFERENCES/NO_ELEVATOR_YN') ?: '(empty)', $nr);
 			}
 
 			// --- districts / floors / rooms ---
@@ -218,42 +219,41 @@ class ImportLegacyDryRun extends Command
 			$this->flag("null_birthdate_{$role}", $nr, $nr);
 		}
 
-		// marital
+		// marital (nullable: code 0/empty → null)
 		$mar = $this->x($node, 'MARITAL_STATUS');
 		if (LegacyMaps::marital($mar) === null) {
-			$this->flag('marital_unmapped', $mar === '' ? '(empty)' : $mar, $nr);
+			$this->flag('null_marital', $mar === '' ? '(empty)' : $mar, $nr);
 		}
 
-		// employment + employer
+		// employment + employer (employment_status nullable: empty → null)
 		$empCode = $this->x($node, 'EMPLOYMENT_SITUATION');
 		$emp = LegacyMaps::employment($empCode);
 		if ($emp === null) {
-			$this->flag('employment_unmapped', $empCode === '' ? '(empty)' : $empCode, $nr);
+			$this->flag('null_employment', $empCode === '' ? '(empty)' : $empCode, $nr);
 		}
+		// employer row only when employed AND the row is complete (name + workload + income);
+		// otherwise skip it, keeping "employer iff complete".
 		if ($emp === 'employed') {
-			$this->rows['employers']++;
-			$incCode = $this->x($node, 'ANNUAL_INCOME');
-			if (LegacyMaps::income($incCode) === null) {
-				$this->flag('employed_income_unmapped', $incCode === '' ? '(empty)' : $incCode, $nr);
-			}
-			if ($this->x($node, 'CURRENT_EMPLOYER/NAME') === '') {
-				$this->flag('employed_missing_employer_name', $nr, $nr);
-			}
-			if (! ctype_digit($this->x($node, 'WORKLOAD'))) {
-				$this->flag('employed_missing_workload', $nr, $nr);
+			$complete = $this->x($node, 'CURRENT_EMPLOYER/NAME') !== ''
+				&& ctype_digit($this->x($node, 'WORKLOAD'))
+				&& LegacyMaps::income($this->x($node, 'ANNUAL_INCOME')) !== null;
+			if ($complete) {
+				$this->rows['employers']++;
+			} else {
+				$this->flag('employer_skipped_incomplete', $nr, $nr);
 			}
 		}
 
-		// current housing (only when there is a current tenancy)
+		// current housing (only when there is a current tenancy); fields now nullable
 		$roleCode = $this->x($node, 'CURRENT_RENT/TENANT_ROLE');
 		$landlord = $this->x($node, 'CURRENT_RENT/CURRENT_RENTER/NAME');
 		if (LegacyMaps::tenantRole($roleCode) !== null || $landlord !== '') {
 			$this->rows['current_housings']++;
 			if (LegacyMaps::tenantRole($roleCode) === null) {
-				$this->flag('housing_tenant_role_unmapped', $roleCode === '' ? '(empty)' : $roleCode, $nr);
+				$this->flag('null_tenant_role', $roleCode === '' ? '(empty)' : $roleCode, $nr);
 			}
 			if ($landlord === '') {
-				$this->flag('housing_missing_landlord_name', $nr, $nr);
+				$this->flag('null_landlord_name', $nr, $nr);
 			}
 		}
 

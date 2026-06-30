@@ -214,6 +214,19 @@ class LegacyMaps
 		};
 	}
 
+	/**
+	 * RENT_PREFERENCES/NO_ELEVATOR_YN → wants_elevator. Despite the "NO_" tag the form
+	 * label is "Lift" (wants a lift): 1 = yes, 2 = no, 0/empty/unknown = no answer (null).
+	 */
+	public static function elevator(string $code): ?bool
+	{
+		return match (trim($code)) {
+			'1' => true,
+			'2' => false,
+			default => null,
+		};
+	}
+
 	/** "Pers2" → 2; a bare "2" → 2; "Pers"/junk → null. */
 	public static function persons(string $value): ?int
 	{
