@@ -119,7 +119,7 @@ class LegacyImporter
 
 		// Unparseable ages: keep the raw text as a note rather than fabricate years.
 		if ($childrenCount > 0 && $years === [] && $ageText !== '') {
-			$this->addNote($application, 'Jahrgang der Kinder (Import)', $ageText, $openedAt);
+			$this->addNote($application, $this->mergeBody('Jahrgang der Kinder (Import)', $ageText), $openedAt);
 		}
 	}
 
@@ -204,17 +204,15 @@ class LegacyImporter
 		foreach ($notes as $note) {
 			$this->addNote(
 				$application,
-				$this->nullable($note['title'] ?? '', 200),
-				$this->nullable($note['text'] ?? ''),
+				$this->mergeBody($note['title'] ?? '', $note['text'] ?? ''),
 				$this->date($note['date'] ?? null) ?? $openedAt,
 			);
 		}
 	}
 
-	private function addNote(Application $application, ?string $title, ?string $body, Carbon $date): void
+	private function addNote(Application $application, ?string $body, Carbon $date): void
 	{
 		$note = $application->notes()->make([
-			'title' => $title,
 			'body' => $body,
 			'important' => false,
 			'user_id' => $this->authorUserId,
@@ -225,6 +223,19 @@ class LegacyImporter
 		$note->created_at = $date;
 		$note->updated_at = $date;
 		$note->save();
+	}
+
+	/** Legacy notes carry a title + text; fold them into one body, joined by a newline when both exist. */
+	private function mergeBody(?string $title, ?string $text): ?string
+	{
+		$title = trim((string) $title);
+		$text = trim((string) $text);
+
+		if ($title !== '' && $text !== '') {
+			return $title . "\n" . $text;
+		}
+
+		return ($title !== '' ? $title : null) ?? ($text !== '' ? $text : null);
 	}
 
 	private function insertPivot(string $table, string $column, int $applicationId, array $slugs): void

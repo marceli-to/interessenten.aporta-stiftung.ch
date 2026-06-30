@@ -34,7 +34,7 @@ class Note extends Model
 	public function getActivitylogOptions(): LogOptions
 	{
 		return LogOptions::defaults()
-			->logOnly(['title', 'body', 'important'])
+			->logOnly(['body', 'important'])
 			->logOnlyDirty()
 			->dontLogEmptyChanges();
 	}

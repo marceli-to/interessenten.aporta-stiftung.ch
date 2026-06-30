@@ -118,10 +118,21 @@ it('attributes imported notes to the given author and preserves their date', fun
 
 	expect($app->notes)->toHaveCount(1);
 	$note = $app->notes->first();
-	expect($note->title)->toBe('Verlängerung');
-	expect($note->body)->toBeNull();
+	expect($note->body)->toBe('Verlängerung'); // title-only legacy note → title becomes the body
 	expect($note->user_id)->toBe($this->author->id);
 	expect($note->created_at->format('Y-m-d'))->toBe('2025-09-25');
+});
+
+it('folds legacy note title and text into one body joined by a newline', function () {
+	$record = legacyRecord([], ['notes' => [
+		['id' => 1, 'date' => '2025-09-25T00:00:00', 'title' => 'Wohnungsangebot', 'text' => 'Abgelehnt, zu teuer.'],
+		['id' => 2, 'date' => '2024-01-10T00:00:00', 'title' => 'Verlängerung', 'text' => null],
+	]]);
+
+	$app = $this->importer->import($record)->fresh('notes');
+
+	expect($app->notes->pluck('body')->all())->toContain("Wohnungsangebot\nAbgelehnt, zu teuer."); // both → newline-joined
+	expect($app->notes->pluck('body')->all())->toContain('Verlängerung');                          // title only → title
 });
 
 it('parses 4-digit child birth years into rows', function () {
@@ -136,9 +147,9 @@ it('keeps unparseable child ages as an import note instead of fabricating years'
 
 	expect($app->children)->toHaveCount(0);
 	expect($app->children_count)->toBe(1); // household size still recorded
-	$note = $app->notes->firstWhere('title', 'Jahrgang der Kinder (Import)');
+	$note = $app->notes->first(fn ($n) => str_contains((string) $n->body, 'Jahrgang der Kinder'));
 	expect($note)->not->toBeNull();
-	expect($note->body)->toBe('8j. + 4j.');
+	expect($note->body)->toBe("Jahrgang der Kinder (Import)\n8j. + 4j.");
 });
 
 it('prefers the production rental_request over the submitted XML where both exist', function () {

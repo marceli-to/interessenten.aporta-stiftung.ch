@@ -11,7 +11,6 @@ class NoteResource extends JsonResource
 	{
 		return [
 			'id' => $this->id,
-			'title' => $this->title,
 			'body' => $this->body,
 			'author' => $this->user?->full_name ?? '–',
 			'created_at' => $this->created_at?->toIso8601String(),
