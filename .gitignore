@@ -37,3 +37,7 @@ Thumbs.db
 # Claude-Code-Session-Transkripte (enthalten u.U. Secrets) — nie committen
 *.jsonl
 storage/import
+
+# Database dumps (contain applicant PII — never commit)
+/aporta-prod-import.sql
+*.sql
