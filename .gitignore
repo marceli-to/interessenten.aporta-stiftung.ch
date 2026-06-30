@@ -36,3 +36,4 @@ Thumbs.db
 /docs
 # Claude-Code-Session-Transkripte (enthalten u.U. Secrets) — nie committen
 *.jsonl
+storage/import

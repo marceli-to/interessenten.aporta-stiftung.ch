@@ -17,6 +17,7 @@ class NoteFactory extends Factory
 	{
 		return [
 			'user_id' => User::factory(),
+			'title' => null,
 			'body' => fake()->paragraph(),
 			'important' => false,
 		];
