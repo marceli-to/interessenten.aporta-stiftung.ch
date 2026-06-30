@@ -167,6 +167,9 @@ class LegacyMaps
 		return self::SALUTATION[trim($label)] ?? null;
 	}
 
+	/** Fallback when the source nationality carries no country ("Andere"/empty/unknown). Decided: CH. */
+	public const NATIONALITY_FALLBACK = 'CH';
+
 	/**
 	 * Nationality → ISO alpha-2. Already-2-letter uppercase codes pass through;
 	 * known German names translate; everything else (incl. "Andere") is null.
@@ -180,6 +183,12 @@ class LegacyMaps
 		}
 
 		return self::NATIONALITY_NAMES[$v] ?? null;
+	}
+
+	/** Nationality with the decided CH fallback applied — what the writer persists. */
+	public static function nationalityOrFallback(string $value): string
+	{
+		return self::nationality($value) ?? self::NATIONALITY_FALLBACK;
 	}
 
 	/** DEBT_ENFORCEMENT_YN: 1 = yes, 0/2 = no, empty = unknown (null). */

@@ -190,21 +190,21 @@ class ImportLegacyDryRun extends Command
 			$this->flag('salutation_unmapped', $sal, $nr);
 		}
 
-		// nationality (top-level JSON)
+		// nationality (top-level JSON) — "Andere"/empty/unknown defaults to CH (decided)
 		$nat = (string) ($json['nationality'] ?? '');
-		if ($nat !== '' && LegacyMaps::nationality($nat) === null) {
-			$this->flag('nationality_unmapped', $nat, $nr);
+		if (LegacyMaps::nationality($nat) === null) {
+			$this->flag('nationality_default_ch', $nat === '' ? '(empty)' : $nat, $nr);
 		}
 
-		// required applicant fields
+		// applicant fields now nullable (relaxed for import) — counted as info, not a blocker
 		if (trim((string) ($json['email'] ?? '')) === '') {
-			$this->flag("missing_email_{$role}", $nr, $nr);
+			$this->flag("null_email_{$role}", $nr, $nr);
 		}
 		if (trim((string) ($json['phone_private'] ?? '')) === '') {
-			$this->flag("missing_mobile_{$role}", $nr, $nr);
+			$this->flag("null_mobile_{$role}", $nr, $nr);
 		}
 		if (trim((string) ($json['profession'] ?? '')) === '') {
-			$this->flag("missing_occupation_{$role}", $nr, $nr);
+			$this->flag("null_occupation_{$role}", $nr, $nr);
 		}
 
 		if (! $node) {
@@ -213,9 +213,9 @@ class ImportLegacyDryRun extends Command
 			return;
 		}
 
-		// birth date (required, NOT NULL date)
+		// birth date now nullable (relaxed for import)
 		if ($this->x($node, 'BIRTHDATE') === '') {
-			$this->flag("missing_birthdate_{$role}", $nr, $nr);
+			$this->flag("null_birthdate_{$role}", $nr, $nr);
 		}
 
 		// marital
