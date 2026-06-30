@@ -202,6 +202,61 @@ class LegacyMaps
 	}
 
 	/**
+	 * CURRENT_RENT/RENT_TERMINATION/TERMINATOR → terminated_by_landlord.
+	 * 1 = Vermieter (landlord) → true, 2 = Mieter (tenant) → false, 0/empty → null.
+	 * Confirmed against form 1593 ("Gekündigt durch: Mieter", code 2) and the REASON
+	 * texts (code 1 = "Totalsanierung" landlord reason; code 2 = "zu teuer" tenant reason).
+	 */
+	public static function terminatedByLandlord(string $code): ?bool
+	{
+		return match (trim($code)) {
+			'1' => true,
+			'2' => false,
+			default => null,
+		};
+	}
+
+	/** RESIDENCE_PERMIT → a valid ResidencePermit value, or null. */
+	public static function residencePermit(string $value): ?string
+	{
+		$v = trim($value);
+
+		return in_array($v, ['B', 'C', 'Ci', 'G', 'L', 'F', 'N', 'S'], true) ? $v : null;
+	}
+
+	/** "Herdernstrasse 74" → ["Herdernstrasse", "74"]; "Bahnhofstrasse 12a" → [..., "12a"]; no number → [street, null]. */
+	public static function splitStreet(string $value): array
+	{
+		$v = trim($value);
+
+		if ($v === '') {
+			return [null, null];
+		}
+
+		if (preg_match('/^(.*\D)\s+(\d+\s*[a-zA-Z]?)$/u', $v, $m)) {
+			return [trim($m[1]), trim($m[2])];
+		}
+
+		return [$v, null];
+	}
+
+	/** "8001 Zürich" → ["8001", "Zürich"]; "Zürich" → [null, "Zürich"]; "" → [null, null]. */
+	public static function splitPostalCity(string $value): array
+	{
+		$v = trim($value);
+
+		if ($v === '') {
+			return [null, null];
+		}
+
+		if (preg_match('/^(\d{4,6})\s+(.*)$/u', $v, $m)) {
+			return [$m[1], trim($m[2])];
+		}
+
+		return [null, $v];
+	}
+
+	/**
 	 * Yes/No fields that appear as Ja/Nein (text gen) or 1/0 (numeric gen).
 	 * Returns null for anything unrecognised so the caller can flag it.
 	 */
