@@ -18,7 +18,10 @@ return [
 
 	'allowed_methods' => ['GET', 'HEAD', 'OPTIONS'],
 
-	'allowed_origins' => [env('APORTA_STATAMIC_ORIGIN', 'https://aporta-stiftung.ch')],
+	'allowed_origins' => array_filter(array_map(
+		'trim',
+		explode(',', (string) env('APORTA_STATAMIC_ORIGIN', 'https://aporta-stiftung.ch'))
+	)),
 
 	'allowed_origins_patterns' => [],
 
