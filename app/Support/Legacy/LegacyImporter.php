@@ -68,6 +68,9 @@ class LegacyImporter
 			'remarks' => $this->nullable($this->x($xml, 'ACCOMMODATION/REMARKS')),
 			'opened_at' => $openedAt,
 			'last_changed_at' => $lastChangedAt,
+			// FORM_VERLAENGERT sits next to FORM_EROEFFNET in the XML header; most are zero-dates
+			// (→ null via date()), and the older code-2 exports omit the header block entirely.
+			'extended_at' => $this->date($this->x($xml, 'FORM_VERLAENGERT')),
 		]);
 
 		$application->statusEvents()->create([

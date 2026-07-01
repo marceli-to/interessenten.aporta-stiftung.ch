@@ -15,11 +15,13 @@ function legacyXml(array $overrides = []): string
 		'swiss_since' => '0000-00-00',
 		'children_qty' => '0',
 		'children_age' => '',
+		'verlaengert' => '2023-02-17T08:17:00',
 	], $overrides);
 
 	return <<<XML
 <?xml version="1.0"?><InterestRequest>
   <FORM_EROEFFNET>2022-03-31T22:14:47</FORM_EROEFFNET>
+  <FORM_VERLAENGERT>{$o['verlaengert']}</FORM_VERLAENGERT>
   <MAIN_TENANT>
     <SALUTATION>Herr</SALUTATION><LAST_NAME>Kurmann</LAST_NAME><FIRST_NAME>Stephan</FIRST_NAME>
     <ADDRESS><STREET>Herdernstrasse 74</STREET><POSTAL_CODE_CITY>8004 Zürich</POSTAL_CODE_CITY></ADDRESS>
@@ -85,6 +87,7 @@ it('imports the full application graph with resolved mappings', function () {
 	expect($app->shares_apartment)->toBeTrue();
 	expect($app->property_group)->toBe('HNF1.1');
 	expect($app->opened_at->format('Y-m-d'))->toBe('2022-03-31'); // FORM_EROEFFNET
+	expect($app->extended_at->format('Y-m-d'))->toBe('2023-02-17'); // FORM_VERLAENGERT
 	expect($app->applicants)->toHaveCount(2);
 	expect($app->statusEvents)->toHaveCount(1);
 	expect($app->statusEvents->first()->to_status->value)->toBe('extended');
@@ -111,6 +114,12 @@ it('imports the full application graph with resolved mappings', function () {
 	expect(DB::table('application_districts')->where('application_id', $app->id)->count())->toBe(3);
 	expect(DB::table('application_floors')->where('application_id', $app->id)->count())->toBe(2);  // Stw0→eg, Stw1/2→obergeschoss
 	expect(DB::table('application_rooms')->where('application_id', $app->id)->count())->toBe(2);   // persons 2 → rooms 2,3
+});
+
+it('leaves extended_at null when FORM_VERLAENGERT is a zero-date', function () {
+	$app = $this->importer->import(legacyRecord(['verlaengert' => '0000-00-00']));
+
+	expect($app->extended_at)->toBeNull();
 });
 
 it('attributes imported notes to the given author and preserves their date', function () {
