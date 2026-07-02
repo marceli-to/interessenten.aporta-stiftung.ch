@@ -84,16 +84,30 @@ trait BuildsApplicationListQuery
 	 */
 	protected function applySearch($query, string $search): void
 	{
-		$query->where(function ($query) use ($search) {
+		// Split the name search into words so a full name like "Daniel Zurbriggen"
+		// matches a record whose first_name and last_name are stored separately.
+		$terms = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
+
+		$query->where(function ($query) use ($search, $terms) {
 			if (is_numeric($search)) {
 				$query->orWhere('reference_number', (int) $search);
 				$query->orWhere('total_persons', (int) $search);
 			}
 
+			// Every word must hit the first or last name, so both "Daniel Zurbriggen"
+			// and the reversed "Zurbriggen Daniel" match a split first/last name.
+			$query->orWhereHas('mainApplicant', function ($applicant) use ($terms) {
+				foreach ($terms as $term) {
+					$applicant->where(function ($applicant) use ($term) {
+						$applicant->where('first_name', 'like', "%{$term}%")
+							->orWhere('last_name', 'like', "%{$term}%");
+					});
+				}
+			});
+
+			// City is matched against the whole term so multi-word place names stay intact.
 			$query->orWhereHas('mainApplicant', function ($applicant) use ($search) {
-				$applicant->where('first_name', 'like', "%{$search}%")
-					->orWhere('last_name', 'like', "%{$search}%")
-					->orWhere('city', 'like', "%{$search}%");
+				$applicant->where('city', 'like', "%{$search}%");
 			});
 
 			$query->orWhereHas('notes', function ($note) use ($search) {
