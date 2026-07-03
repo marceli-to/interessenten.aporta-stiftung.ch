@@ -62,17 +62,15 @@ const rooms = filterRef('rooms', { array: true })
 // a collapsed-but-filtered list is never mistaken for the full set. Search is its
 // own always-visible field, so it's not counted here.
 const activeFilterCount = computed(() =>
-	[
-		statusFilter.value.length > 0,
-		moveInFrom.value != null,
-		moveInTo.value != null,
-		rentMin.value != null,
-		rentMax.value != null,
-		incomeMin.value != null,
-		incomeMax.value != null,
-		districts.value.length > 0,
-		rooms.value.length > 0,
-	].filter(Boolean).length
+	statusFilter.value.length +
+	(moveInFrom.value != null ? 1 : 0) +
+	(moveInTo.value != null ? 1 : 0) +
+	(rentMin.value != null ? 1 : 0) +
+	(rentMax.value != null ? 1 : 0) +
+	(incomeMin.value != null ? 1 : 0) +
+	(incomeMax.value != null ? 1 : 0) +
+	districts.value.length +
+	rooms.value.length
 )
 
 const statusOptions = [
