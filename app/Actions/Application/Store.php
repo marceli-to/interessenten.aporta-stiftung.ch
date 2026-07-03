@@ -9,6 +9,7 @@ use App\Actions\Housing\SyncRooms;
 use App\Actions\Status\Record as RecordStatus;
 use App\Enums\Status;
 use App\Jobs\NotifyNewApplication;
+use App\Jobs\SendApplicationConfirmation;
 use App\Models\Application;
 use App\Support\ReferenceNumberSequence;
 use Illuminate\Database\QueryException;
@@ -40,6 +41,7 @@ class Store
 		}
 
 		NotifyNewApplication::dispatch($application->id);
+		SendApplicationConfirmation::dispatch($application->id);
 
 		return $application;
 	}

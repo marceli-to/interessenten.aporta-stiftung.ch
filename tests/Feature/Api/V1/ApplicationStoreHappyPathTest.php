@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\NotifyNewApplication;
+use App\Jobs\SendApplicationConfirmation;
 use App\Models\Applicant;
 use App\Models\Application;
 use App\Models\Child;
@@ -21,7 +22,7 @@ afterEach(function () {
 });
 
 it('stores the Laâfif fixture and persists the full aggregate', function () {
-	Bus::fake([NotifyNewApplication::class]);
+	Bus::fake([NotifyNewApplication::class, SendApplicationConfirmation::class]);
 
 	$response = $this->postJson('/api/v1/applications', laafifFixture(), [
 		'Authorization' => 'Bearer '.$this->rawKey,
@@ -65,6 +66,7 @@ it('stores the Laâfif fixture and persists the full aggregate', function () {
 	expect(\DB::table('application_rooms')->where('application_id', $application->id)->count())->toBe(1);
 
 	Bus::assertDispatchedTimes(NotifyNewApplication::class, 1);
+	Bus::assertDispatchedTimes(SendApplicationConfirmation::class, 1);
 });
 
 it('normalizes phones to E.164', function () {

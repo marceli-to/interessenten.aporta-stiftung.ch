@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\NotifyNewApplication;
+use App\Jobs\SendApplicationConfirmation;
 use App\Models\Application;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
@@ -16,7 +17,7 @@ afterEach(function () {
 });
 
 it('returns 200 with the original reference on a retry with the same submission_id', function () {
-	Bus::fake([NotifyNewApplication::class]);
+	Bus::fake([NotifyNewApplication::class, SendApplicationConfirmation::class]);
 
 	$headers = ['Authorization' => 'Bearer '.$this->rawKey];
 
@@ -29,6 +30,7 @@ it('returns 200 with the original reference on a retry with the same submission_
 	expect(Application::count())->toBe(1);
 
 	Bus::assertDispatchedTimes(NotifyNewApplication::class, 1);
+	Bus::assertDispatchedTimes(SendApplicationConfirmation::class, 1);
 });
 
 it('treats different submission_ids with identical payload as distinct applications', function () {
