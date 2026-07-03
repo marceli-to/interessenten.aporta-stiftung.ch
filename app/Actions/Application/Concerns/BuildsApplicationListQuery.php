@@ -80,7 +80,8 @@ trait BuildsApplicationListQuery
 
 	/**
 	 * Match the term against the reference number and person count (when numeric),
-	 * the main applicant's name and city, and the text of any attached note.
+	 * the main applicant's name and city, the application's remarks, and the text
+	 * of any attached note.
 	 */
 	protected function applySearch($query, string $search): void
 	{
@@ -109,6 +110,9 @@ trait BuildsApplicationListQuery
 			$query->orWhereHas('mainApplicant', function ($applicant) use ($search) {
 				$applicant->where('city', 'like', "%{$search}%");
 			});
+
+			// The application's own remarks (Bemerkungen), matched as free text.
+			$query->orWhere('remarks', 'like', "%{$search}%");
 
 			$query->orWhereHas('notes', function ($note) use ($search) {
 				$note->where('body', 'like', "%{$search}%");
