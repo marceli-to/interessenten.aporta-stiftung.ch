@@ -157,9 +157,10 @@
   .row dd.long { font-weight: 400; }
 
   /* --- Interne Notizen ---
-     Können lang/mehrzeilig sein: Zeilenumbrüche erhalten und Seitenumbruch im
-     Block erlauben (statt page-break-inside:avoid wie bei den kurzen Blöcken). */
-  .notes-block { page-break-inside: auto; }
+     Beginnen immer auf einer neuen Seite (so steht der Titel "Interne Notizen"
+     nie verwaist am Seitenende); können lang/mehrzeilig sein, daher
+     Zeilenumbrüche erhalten und Seitenumbruch innerhalb des Blocks erlauben. */
+  .notes-block { page-break-before: always; break-before: page; page-break-inside: auto; }
   .row dd.note-body { white-space: pre-line; }
   .note-flag { color: var(--blue); font-weight: 700; }
 
