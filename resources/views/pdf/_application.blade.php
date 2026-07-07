@@ -130,6 +130,24 @@
     </dl>
   </div>
 
+  {{-- ===================== INTERNE NOTIZEN (vgl. NotesPanel) — nur wenn erfasst ===================== --}}
+  @if(!empty($a['notes']))
+    <div class="block notes-block">
+      <div class="bar">Interne Notizen</div>
+      <dl>
+        @foreach($a['notes'] as $note)
+          <div class="row">
+            <dt>
+              {{ $note['created_at'] }}<br>{{ $note['author'] }}
+              @if($note['important'])<br><span class="note-flag">Wichtig</span>@endif
+            </dt>
+            <dd class="long note-body">{{ $note['body'] ?: '–' }}</dd>
+          </div>
+        @endforeach
+      </dl>
+    </div>
+  @endif
+
     </td></tr>
   </tbody>
 </table>

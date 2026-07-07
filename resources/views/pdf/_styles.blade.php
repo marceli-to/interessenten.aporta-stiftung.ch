@@ -156,4 +156,11 @@
   .row dd.empty { color: var(--faint); font-weight: 400; }
   .row dd.long { font-weight: 400; }
 
+  /* --- Interne Notizen ---
+     Können lang/mehrzeilig sein: Zeilenumbrüche erhalten und Seitenumbruch im
+     Block erlauben (statt page-break-inside:avoid wie bei den kurzen Blöcken). */
+  .notes-block { page-break-inside: auto; }
+  .row dd.note-body { white-space: pre-line; }
+  .note-flag { color: var(--blue); font-weight: 700; }
+
 </style>

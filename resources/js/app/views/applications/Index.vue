@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { PhChatCircleText } from '@phosphor-icons/vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useApplicationsStore } from '@/stores/applications'
 import { useBrowseStore } from '@/stores/browse'
@@ -16,6 +17,7 @@ import TableCell from '@/components/ui/table/Cell.vue'
 import RowCheckbox from '@/components/ui/table/RowCheckbox.vue'
 import BulkActionBar from '@/components/ui/table/BulkActionBar.vue'
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue'
+import AppDialog from '@/components/ui/dialog/AppDialog.vue'
 import Filter from './Filter.vue'
 
 const route = useRoute()
@@ -47,8 +49,13 @@ const {
 	selectionPayload,
 } = useListSelection({ total, pageIds })
 
-// Data columns, plus the selection checkbox column when the filter is active.
-const columnCount = computed(() => (filterActive.value ? 12 : 11))
+// Data columns (incl. the remarks-bubble column), plus the selection checkbox
+// column when the filter is active.
+const columnCount = computed(() => (filterActive.value ? 13 : 12))
+
+// Applicant remarks ("Bemerkungen") shown in a lightbox from the row's bubble,
+// so important hints are readable before the pre-selection. Null when closed.
+const activeRemarks = ref(null)
 
 const confirmingDelete = ref(false)
 const deleting = ref(false)
@@ -189,6 +196,7 @@ function open(application) {
             <TableHeadCell>
               Hauptmieter
             </TableHeadCell>
+            <TableHeadCell />
             <TableHeadCell sort-key="status" :sort="sort" :direction="direction" @sort="toggleSort">
               Status
             </TableHeadCell>
@@ -255,6 +263,17 @@ function open(application) {
                 <div>
                   {{ application.main_applicant?.postal_code }} {{ application.main_applicant?.city }}
                 </div>
+              </TableCell>
+
+              <TableCell @click.stop>
+                <button
+                  v-if="application.remarks"
+                  type="button"
+                  class="text-blue transition-colors cursor-pointer hover:text-black"
+                  title="Bemerkungen anzeigen"
+                  @click="activeRemarks = application">
+                  <PhChatCircleText :size="20" weight="regular" />
+                </button>
               </TableCell>
 
               <TableCell>
@@ -340,4 +359,15 @@ function open(application) {
     Sie {{ selectedCount === 1 ? 'bleibt' : 'bleiben' }} gespeichert und
     {{ selectedCount === 1 ? 'kann' : 'können' }} später wiederhergestellt werden.
   </ConfirmDialog>
+
+  <AppDialog
+    :open="!!activeRemarks"
+    :title="`${activeRemarks?.reference_number} · ${[activeRemarks?.main_applicant?.first_name, activeRemarks?.main_applicant?.last_name].filter(Boolean).join(' ')}`"
+    size="md"
+    @close="activeRemarks = null"
+  >
+    <p class="whitespace-pre-line text-md leading-relaxed text-black">
+      «{{ activeRemarks?.remarks }}»
+    </p>
+  </AppDialog>
 </template>

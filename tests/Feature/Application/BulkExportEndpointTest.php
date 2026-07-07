@@ -2,6 +2,7 @@
 
 use App\Enums\Status;
 use App\Models\Application;
+use App\Models\Note;
 use App\Models\User;
 use Spatie\LaravelPdf\Facades\Pdf;
 
@@ -21,6 +22,30 @@ it('streams a PDF for an explicit selection', function () {
 
 	Pdf::assertRespondedWithPdf(fn ($pdf) => $pdf->viewName === 'pdf.applications'
 		&& count($pdf->viewData['applications']) === 3);
+});
+
+it('includes internal notes in the exported data', function () {
+	Pdf::fake();
+	$app = Application::factory()->withFullAggregate()->create();
+	$author = User::factory()->create(['firstname' => 'Vera', 'name' => 'Meier']);
+	Note::factory()->for($app)->create([
+		'user_id' => $author->id,
+		'body' => "Hinweis Zeile 1\nZeile 2",
+		'important' => true,
+	]);
+
+	$this->actingAs($this->user)
+		->postJson('/api/dashboard/applications/bulk-export', ['ids' => [$app->id]])
+		->assertOk();
+
+	Pdf::assertRespondedWithPdf(function ($pdf) {
+		$notes = $pdf->viewData['applications'][0]['notes'];
+
+		return count($notes) === 1
+			&& $notes[0]['author'] === 'Vera Meier'
+			&& $notes[0]['important'] === true
+			&& $notes[0]['body'] === "Hinweis Zeile 1\nZeile 2";
+	});
 });
 
 it('exports an all-matching selection from the filter', function () {

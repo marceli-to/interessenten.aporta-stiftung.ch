@@ -22,6 +22,7 @@ class ApplicationResource extends JsonResource
 				'value' => $this->status->value,
 				'label' => $this->status->label(),
 			],
+			'remarks' => $this->remarks,
 			'opened_at' => $this->opened_at?->toIso8601String(),
 			'extended_at' => $this->extended_at?->toIso8601String(),
 			'earliest_move_in' => $this->earliest_move_in?->toIso8601String(),

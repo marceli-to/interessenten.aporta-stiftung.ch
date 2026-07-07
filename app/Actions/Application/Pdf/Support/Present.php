@@ -65,6 +65,17 @@ class Present
 				->map(fn ($child) => ['birth_year' => $child->birth_year])
 				->values()
 				->all(),
+
+			// Internal staff notes (already loaded newest-first by Show::relations()),
+			// mirrors the SPA's NotesPanel — author + date header, body verbatim.
+			'notes' => $application->notes
+				->map(fn ($note) => [
+					'author' => $note->user?->full_name ?? '–',
+					'created_at' => $this->date($note->created_at),
+					'important' => (bool) $note->important,
+					'body' => $note->body,
+				])
+				->all(),
 		];
 	}
 
