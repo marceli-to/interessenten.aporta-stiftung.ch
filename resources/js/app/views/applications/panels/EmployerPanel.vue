@@ -3,9 +3,7 @@ import { useLookupsStore } from '@/stores/lookups'
 import EditablePanel from '@/components/ui/panels/Editable.vue'
 import InfoList from '@/components/ui/info/List.vue'
 import InfoRow from '@/components/ui/info/Row.vue'
-import EditRow from '@/components/ui/info/EditRow.vue'
-import Input from '@/components/ui/form/Input.vue'
-import Select from '@/components/ui/form/Select.vue'
+import EmployerFields from '@/views/applications/panels/fields/EmployerFields.vue'
 
 // Employer slice of an applicant. Same `source` (the whole applicant) and same
 // onSave as ApplicantPanel — it just edits draft.employer. Rendered only when an
@@ -42,17 +40,7 @@ const lookups = useLookupsStore()
 		</template>
 
 		<template #edit="{ draft, errors }">
-			<InfoList v-if="draft.employer">
-				<EditRow label="Arbeitgeber" :error="errors.name">
-					<Input v-model="draft.employer.name" :hasError="!!errors.name" />
-				</EditRow>
-				<EditRow label="Pensum (%)" :error="errors.workload_percent">
-					<Input v-model.number="draft.employer.workload_percent" type="number" :hasError="!!errors.workload_percent" />
-				</EditRow>
-				<EditRow label="Jahreseinkommen" :error="errors.annual_income_bracket">
-					<Select v-model="draft.employer.annual_income_bracket" :options="lookups.options('income_brackets')" :hasError="!!errors.annual_income_bracket" />
-				</EditRow>
-			</InfoList>
+			<EmployerFields :draft="draft" :errors="errors" />
 		</template>
 	</EditablePanel>
 </template>

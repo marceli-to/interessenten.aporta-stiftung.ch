@@ -18,6 +18,10 @@ const props = defineProps({
 	// path relative to the section (e.g. 'main_applicant.' → 'first_name').
 	errorPrefix: { type: String, default: null },
 	editable: { type: Boolean, default: true },
+	// Wording of the button that opens the form. A panel that creates a record
+	// rather than editing one says so ("Partner*in hinzufügen").
+	editLabel: { type: String, default: 'Bearbeiten' },
+	editIcon: { type: String, default: 'pencil-simple' },
 })
 
 const isEditing = ref(false)
@@ -89,9 +93,13 @@ function mapErrors(raw) {
 					{{ saving ? 'Speichern …' : 'Speichern' }}
 				</Button>
 			</div>
-			<Button v-else variant="outline" size="sm" icon="pencil-simple" @click="startEdit">
-				Bearbeiten
-			</Button>
+			<div v-else class="flex items-center gap-10">
+				<!-- Panel-specific extras (e.g. "Entfernen"), only while not editing. -->
+				<slot name="action" />
+				<Button variant="outline" size="sm" :icon="editIcon" @click="startEdit">
+					{{ editLabel }}
+				</Button>
+			</div>
 		</template>
 
 		<div v-if="isEditing" @focusin="clearErrors">

@@ -3,6 +3,7 @@
 use App\Jobs\NotifyNewApplication;
 use App\Models\Applicant;
 use App\Models\Application;
+use App\Models\CurrentHousing;
 use App\Models\Employer;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -208,3 +209,118 @@ it('rejects a half-filled section with 422', function () {
 		->assertStatus(422)
 		->assertJsonValidationErrors('main_applicant.email');
 });
+
+it('adds a co-applicant to an application that had none', function () {
+	expect(Applicant::where('application_id', $this->application->id)->count())->toBe(1);
+
+	$response = $this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", [
+			'co_applicant' => coApplicantPayload(),
+		]);
+
+	$response->assertOk()
+		->assertJsonPath('data.co_applicant.last_name', 'Muster')
+		->assertJsonPath('data.co_applicant.relationship_to_main', 'life_partner')
+		->assertJsonPath('data.co_applicant.same_address_as_main', true)
+		->assertJsonPath('data.co_applicant.employer.annual_income_bracket', '60k_70k')
+		->assertJsonPath('data.co_applicant.current_housing.landlord_name', 'Wohnbaugenossenschaft');
+
+	// Second applicant, second position — the main applicant is left alone.
+	$co = Applicant::where('application_id', $this->application->id)->where('role', 'co_applicant')->sole();
+	expect($co->position)->toBe(2);
+	expect($this->application->mainApplicant->fresh()->last_name)->toBe('Laâfif');
+});
+
+it('accepts a co-applicant without an employer', function () {
+	$payload = array_merge(coApplicantPayload(), [
+		'employment_status' => 'retired',
+		'employer' => null,
+	]);
+
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", ['co_applicant' => $payload])
+		->assertOk()
+		->assertJsonPath('data.co_applicant.employer', null);
+
+	// Only the main applicant's employer exists.
+	expect(Employer::count())->toBe(1);
+});
+
+it('rejects a half-filled co-applicant with 422 and creates nothing', function () {
+	$payload = coApplicantPayload();
+	unset($payload['relationship_to_main']);
+
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", ['co_applicant' => $payload])
+		->assertStatus(422)
+		->assertJsonValidationErrors('co_applicant.relationship_to_main');
+
+	expect(Applicant::where('application_id', $this->application->id)->count())->toBe(1);
+});
+
+it('removes the co-applicant with its employer and current housing on co_applicant: null', function () {
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", [
+			'co_applicant' => coApplicantPayload(),
+		])->assertOk();
+
+	expect(Applicant::where('application_id', $this->application->id)->count())->toBe(2);
+	expect(Employer::count())->toBe(2);
+
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", ['co_applicant' => null])
+		->assertOk()
+		->assertJsonPath('data.co_applicant', null)
+		// The main applicant survives untouched.
+		->assertJsonPath('data.main_applicant.last_name', 'Laâfif');
+
+	expect(Applicant::where('application_id', $this->application->id)->count())->toBe(1);
+	expect(Employer::count())->toBe(1);
+	expect(CurrentHousing::count())->toBe(1);
+});
+
+/**
+ * The payload the detail view's "Partner*in hinzufügen" panel sends: a full
+ * co_applicant section, address omitted because it matches the main applicant's.
+ *
+ * @return array<string, mixed>
+ */
+function coApplicantPayload(): array
+{
+	return [
+		'salutation' => 'frau',
+		'first_name' => 'Maria',
+		'last_name' => 'Muster',
+		'relationship_to_main' => 'life_partner',
+		'same_address_as_main' => true,
+		'street' => null,
+		'street_number' => null,
+		'postal_code' => null,
+		'city' => null,
+		'birth_date' => '1994-03-12',
+		'marital_status' => 'single',
+		'nationality' => 'CH',
+		'place_of_origin' => 'Chur',
+		'residence_permit' => null,
+		'swiss_residence_since' => null,
+		'mobile_phone' => '079 123 45 67',
+		'landline_phone' => null,
+		'email' => 'maria.muster@example.com',
+		'occupation' => 'Pflegefachfrau',
+		'employment_status' => 'employed',
+		'debt_enforcement_last_2y' => false,
+		'employer' => [
+			'name' => 'Stadtspital Zürich',
+			'workload_percent' => 60,
+			'annual_income_bracket' => '60k_70k',
+		],
+		'current_housing' => [
+			'tenant_role' => 'main_tenant',
+			'terminated_by_landlord' => false,
+			'termination_reason' => null,
+			'landlord_name' => 'Wohnbaugenossenschaft',
+			'landlord_contact_person' => null,
+			'landlord_phone' => null,
+		],
+	];
+}

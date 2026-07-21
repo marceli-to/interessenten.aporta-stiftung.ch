@@ -9,6 +9,7 @@ import Heading1 from '@/components/ui/headings/H1.vue'
 import Button from '@/components/ui/form/Button.vue'
 import StatusPanel from '@/views/applications/panels/StatusPanel.vue'
 import ApplicantPanel from '@/views/applications/panels/ApplicantPanel.vue'
+import AddCoApplicantPanel from '@/views/applications/panels/AddCoApplicantPanel.vue'
 import EmployerPanel from '@/views/applications/panels/EmployerPanel.vue'
 import HousingPanel from '@/views/applications/panels/HousingPanel.vue'
 import HousingWishPanel from '@/views/applications/panels/HousingWishPanel.vue'
@@ -73,6 +74,24 @@ const saveStatus = (draft) => {
 const saveMainApplicant = (draft) => update({ main_applicant: draft })
 const saveCoApplicant = (draft) => update({ co_applicant: draft })
 const saveHousingWish = (draft) => update({ housing_wish: draft })
+
+// A second person can be added and removed here; the counts in "Haushalt &
+// weitere Angaben" are deliberately left alone (they may already include the
+// partner, or not — only the staff member knows). `co_applicant: null` makes the
+// backend drop the applicant with its employer and current-housing records.
+const confirmingRemoveCo = ref(false)
+
+const askRemoveCoApplicant = () => { confirmingRemoveCo.value = true }
+
+async function removeCoApplicant() {
+	try {
+		await update({ co_applicant: null })
+	} catch {
+		// failure already surfaced as a toast by the axios interceptor
+	} finally {
+		confirmingRemoveCo.value = false
+	}
+}
 
 // Notes are self-contained: the NotesPanel owns its list and talks to the notes
 // endpoints itself (see NotesPanel.vue). Show.vue only hands it the initial list.
@@ -181,6 +200,11 @@ function goToBrowse(id) {
 	})
 }
 
+const coApplicantName = computed(() => {
+	const a = app.value?.co_applicant
+	return [a?.first_name, a?.last_name].filter(Boolean).join(' ') || 'dieser Person'
+})
+
 const title = computed(() => {
 	if (!app.value) return ''
 	const a = app.value.main_applicant
@@ -232,8 +256,10 @@ const title = computed(() => {
 					:isMain="true"
 					:onSave="saveMainApplicant"	/>
 
+				<!-- Also shown without an employer record once the status says
+				     "angestellt", so the then-required block can be filled in. -->
 				<EmployerPanel
-					v-if="app.main_applicant?.employer"
+					v-if="app.main_applicant?.employer || app.main_applicant?.employment_status === 'employed'"
 					:applicant="app.main_applicant"
 					section="main_applicant"
 					:onSave="saveMainApplicant" />
@@ -243,7 +269,8 @@ const title = computed(() => {
 					section="main_applicant"
 					:onSave="saveMainApplicant"	/>
 
-				<!-- Partner: rendered only when a co-applicant exists. -->
+				<!-- Partner: the three panels when a co-applicant exists, otherwise
+				     the placeholder that creates one. -->
 				<template v-if="app.co_applicant">
 
 					<ApplicantPanel
@@ -251,10 +278,11 @@ const title = computed(() => {
 						:applicant="app.co_applicant"
 						section="co_applicant"
 						:isMain="false"
-						:onSave="saveCoApplicant"	/>
+						:onSave="saveCoApplicant"
+						:onRemove="askRemoveCoApplicant" />
 
 					<EmployerPanel
-						v-if="app.co_applicant.employer"
+						v-if="app.co_applicant.employer || app.co_applicant.employment_status === 'employed'"
 						title="Arbeitgeber Partner*in"
 						:applicant="app.co_applicant"
 						section="co_applicant"
@@ -267,6 +295,8 @@ const title = computed(() => {
 						:onSave="saveCoApplicant"	/>
 
 				</template>
+
+				<AddCoApplicantPanel v-else :onSave="saveCoApplicant" />
 
 				<HousingWishPanel 
           :source="app.housing_wish" 
@@ -303,6 +333,17 @@ const title = computed(() => {
 			:destructive="true"
 			@confirm="handleDelete"
 			@cancel="confirmingDelete = false"
+		/>
+
+		<ConfirmDialog
+			:open="confirmingRemoveCo"
+			title="Partner*in entfernen"
+			:message="`Die Angaben zu ${coApplicantName} werden mitsamt Arbeitgeber und Wohnsituation gelöscht. Das lässt sich nicht rückgängig machen.`"
+			confirmLabel="Entfernen bestätigen"
+			cancelLabel="Abbrechen"
+			:destructive="true"
+			@confirm="removeCoApplicant"
+			@cancel="confirmingRemoveCo = false"
 		/>
 	</template>
 </template>
