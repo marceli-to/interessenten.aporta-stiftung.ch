@@ -41,12 +41,21 @@ class Update
 				$application->fill($this->householdAttributes($data['household_info']));
 			}
 
+			// Adding or removing the partner moves the household by one adult.
+			// Must be read before the co_applicant section below is applied.
+			$adultDelta = $this->coApplicantAdultDelta($application, $data);
+
+			if ($adultDelta !== 0) {
+				$application->adults_count = max(1, $application->adults_count + $adultDelta);
+				$application->total_persons = $application->adults_count + $application->children_count;
+			}
+
 			$application->last_changed_at = now();
 			$application->save();
 
 			// The room range is derived from the household size. Recompute it
 			// whenever household_info is touched so it never drifts from persons.
-			if (array_key_exists('household_info', $data) && is_array($data['household_info'])) {
+			if ((array_key_exists('household_info', $data) && is_array($data['household_info'])) || $adultDelta !== 0) {
 				$this->syncRooms->execute($application);
 			}
 
@@ -70,6 +79,31 @@ class Update
 
 			return $application->fresh();
 		});
+	}
+
+	/**
+	 * How many adults the co_applicant section adds to (1) or removes from (-1)
+	 * the household — a partner is an adult, so "Personen im Haushalt" must move
+	 * with them instead of waiting for someone to correct it by hand. Only the
+	 * transitions count: editing an existing partner changes nothing. An explicit
+	 * household_info in the same payload wins — the numbers were just set there.
+	 */
+	private function coApplicantAdultDelta(Application $application, array $data): int
+	{
+		if (! array_key_exists('co_applicant', $data) || array_key_exists('household_info', $data)) {
+			return 0;
+		}
+
+		$had = Applicant::where('application_id', $application->id)
+			->where('role', 'co_applicant')
+			->exists();
+		$has = $data['co_applicant'] !== null;
+
+		return match (true) {
+			! $had && $has => 1,
+			$had && ! $has => -1,
+			default => 0,
+		};
 	}
 
 	/**

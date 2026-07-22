@@ -279,6 +279,58 @@ it('removes the co-applicant with its employer and current housing on co_applica
 	expect(CurrentHousing::count())->toBe(1);
 });
 
+it('counts the co-applicant as an adult when added and removed again', function () {
+	// Fixture household: one adult, no children, so the derived room range is [2].
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", [
+			'co_applicant' => coApplicantPayload(),
+		])
+		->assertOk()
+		->assertJsonPath('data.household_info.adults_count', 2)
+		->assertJsonPath('data.household_info.total_persons', 2)
+		// Person count moved, so the derived room range moved with it.
+		->assertJsonPath('data.housing_wish.rooms', ['rooms_2_0', 'rooms_3_0']);
+
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", ['co_applicant' => null])
+		->assertOk()
+		->assertJsonPath('data.household_info.adults_count', 1)
+		->assertJsonPath('data.household_info.total_persons', 1)
+		->assertJsonPath('data.housing_wish.rooms', ['rooms_2_0']);
+});
+
+it('leaves the household counts alone when an existing co-applicant is edited', function () {
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", [
+			'co_applicant' => coApplicantPayload(),
+		])->assertOk();
+
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", [
+			'co_applicant' => array_merge(coApplicantPayload(), ['first_name' => 'Marianne']),
+		])
+		->assertOk()
+		->assertJsonPath('data.co_applicant.first_name', 'Marianne')
+		->assertJsonPath('data.household_info.adults_count', 2)
+		->assertJsonPath('data.household_info.total_persons', 2);
+});
+
+it('lets an explicit household_info win over the co-applicant adjustment', function () {
+	$this->actingAs($this->user)
+		->putJson("/api/dashboard/applications/{$this->application->id}", [
+			'co_applicant' => coApplicantPayload(),
+			'household_info' => [
+				'total_persons' => 3,
+				'adults_count' => 3,
+				'children_count' => 0,
+				'has_pets' => false,
+			],
+		])
+		->assertOk()
+		->assertJsonPath('data.household_info.adults_count', 3)
+		->assertJsonPath('data.household_info.total_persons', 3);
+});
+
 /**
  * The payload the detail view's "Partner*in hinzufügen" panel sends: a full
  * co_applicant section, address omitted because it matches the main applicant's.

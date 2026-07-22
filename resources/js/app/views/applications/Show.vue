@@ -75,9 +75,9 @@ const saveMainApplicant = (draft) => update({ main_applicant: draft })
 const saveCoApplicant = (draft) => update({ co_applicant: draft })
 const saveHousingWish = (draft) => update({ housing_wish: draft })
 
-// A second person can be added and removed here; the counts in "Haushalt &
-// weitere Angaben" are deliberately left alone (they may already include the
-// partner, or not — only the staff member knows). `co_applicant: null` makes the
+// A second person can be added and removed here. The backend moves "Erwachsene"
+// (and with it "Personen im Haushalt") by one on each add/remove, so the counts
+// in "Haushalt & weitere Angaben" stay in sync. `co_applicant: null` makes the
 // backend drop the applicant with its employer and current-housing records.
 const confirmingRemoveCo = ref(false)
 
@@ -338,7 +338,7 @@ const title = computed(() => {
 		<ConfirmDialog
 			:open="confirmingRemoveCo"
 			title="Partner*in entfernen"
-			:message="`Die Angaben zu ${coApplicantName} werden mitsamt Arbeitgeber und Wohnsituation gelöscht. Das lässt sich nicht rückgängig machen.`"
+			:message="`Die Angaben zu ${coApplicantName} werden mitsamt Arbeitgeber und Wohnsituation gelöscht und die Anzahl Erwachsener im Haushalt um eine Person reduziert. Das lässt sich nicht rückgängig machen.`"
 			confirmLabel="Entfernen bestätigen"
 			cancelLabel="Abbrechen"
 			:destructive="true"
