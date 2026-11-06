@@ -17,7 +17,9 @@ use Illuminate\Console\Command;
  */
 class LifecyclePreview extends Command
 {
-	protected $signature = 'app:lifecycle-preview {--list : Also list the applications that would be archived}';
+	protected $signature = 'app:lifecycle-preview
+		{--list : Also list the applications that would be archived}
+		{--csv= : Directory to write archivieren.csv and loeschen.csv into (Excel: UTF-8, semicolon)}';
 
 	protected $description = 'Read-only: count what the next archive/delete run would affect.';
 
@@ -56,27 +58,63 @@ class LifecyclePreview extends Command
 		}
 
 		if ($this->option('list')) {
-			$rows = (clone $toArchive)
-				->with('mainApplicant:id,application_id,first_name,last_name')
-				->get()
-				->sortBy(fn (Application $a) => $a->renewalReferenceDate())
-				->map(fn (Application $a) => [
-					$a->reference_number,
-					trim($a->mainApplicant?->last_name.' '.$a->mainApplicant?->first_name),
-					$a->status->label(),
-					$a->opened_at->format('d.m.Y'),
-					$a->extended_at?->format('d.m.Y') ?? '–',
-					$a->validUntil()->format('d.m.Y'),
-				]);
-
 			$this->newLine();
 			$this->info('Würden archiviert:');
-			$this->table(['Nr.', 'Name', 'Status', 'Angemeldet', 'Verlängert am', 'Gültig bis'], $rows->all());
+			$this->table(self::HEADER, $this->rows($toArchive)->all());
+		}
+
+		if ($dir = $this->option('csv')) {
+			if (! is_dir($dir) && ! mkdir($dir, 0700, true)) {
+				$this->error("Verzeichnis {$dir} kann nicht angelegt werden.");
+
+				return self::FAILURE;
+			}
+
+			$this->writeCsv("{$dir}/archivieren.csv", $this->rows($toArchive));
+			$this->writeCsv("{$dir}/loeschen.csv", $this->rows($toDelete));
+			$this->newLine();
+			$this->info("CSV geschrieben: {$dir}/archivieren.csv, {$dir}/loeschen.csv (enthalten Personendaten, nach Gebrauch löschen).");
 		}
 
 		$this->newLine();
 		$this->line('Hinweis: Wer heute Nacht archiviert wird, wird erst 3 Monate später gelöscht. Löschen = Soft-Delete (wiederherstellbar unter „Gelöscht").');
 
 		return self::SUCCESS;
+	}
+
+	private const HEADER = ['Nr.', 'Name', 'Vorname', 'Status', 'Angemeldet', 'Verlängert am', 'Gültig bis', 'Archiviert am'];
+
+	private function rows($query)
+	{
+		return (clone $query)
+			->with('mainApplicant:id,application_id,first_name,last_name')
+			->get()
+			->sortBy(fn (Application $a) => $a->archived_at ?? $a->renewalReferenceDate())
+			->map(fn (Application $a) => [
+				$a->reference_number,
+				$a->mainApplicant?->last_name,
+				$a->mainApplicant?->first_name,
+				$a->status->label(),
+				$a->opened_at->format('d.m.Y'),
+				$a->extended_at?->format('d.m.Y') ?? '',
+				$a->validUntil()->format('d.m.Y'),
+				$a->archived_at?->format('d.m.Y') ?? '',
+			])
+			->values();
+	}
+
+	/**
+	 * Semicolon-separated with a UTF-8 BOM, so Excel (de-CH) opens it with
+	 * columns and umlauts intact on double-click.
+	 */
+	private function writeCsv(string $path, $rows): void
+	{
+		$handle = fopen($path, 'w');
+		fwrite($handle, "\xEF\xBB\xBF");
+		fputcsv($handle, self::HEADER, ';', '"', '');
+		foreach ($rows as $row) {
+			fputcsv($handle, $row, ';', '"', '');
+		}
+		fclose($handle);
 	}
 }
