@@ -5,6 +5,7 @@ namespace App\Actions\Application;
 use App\Enums\Status;
 use App\Models\Application;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class DeleteArchived
 {
@@ -26,17 +27,9 @@ class DeleteArchived
 	 */
 	public function execute(?CarbonInterface $now = null): int
 	{
-		$now = $now ?? now();
-		$cutoff = $now->copy()->subMonths(
-			(int) config('aporta.lifecycle.delete_after_months', 3)
-		);
-
 		$deleted = 0;
 
-		Application::query()
-			->where('status', Status::Archived)
-			->whereNotNull('archived_at')
-			->where('archived_at', '<=', $cutoff)
+		$this->candidates($now)
 			->chunkById(200, function ($applications) use (&$deleted) {
 				foreach ($applications as $application) {
 					$this->delete->execute($application);
@@ -45,5 +38,21 @@ class DeleteArchived
 			});
 
 		return $deleted;
+	}
+
+	/**
+	 * The applications a run at $now would soft-delete (also used by the
+	 * read-only app:lifecycle-preview).
+	 */
+	public function candidates(?CarbonInterface $now = null): Builder
+	{
+		$cutoff = ($now ?? now())->copy()->subMonths(
+			(int) config('aporta.lifecycle.delete_after_months', 3)
+		);
+
+		return Application::query()
+			->where('status', Status::Archived)
+			->whereNotNull('archived_at')
+			->where('archived_at', '<=', $cutoff);
 	}
 }

@@ -6,6 +6,7 @@ use App\Actions\Status\Transition;
 use App\Enums\Status;
 use App\Models\Application;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 
 class ArchiveStale
 {
@@ -28,15 +29,9 @@ class ArchiveStale
 	public function execute(?CarbonInterface $now = null): int
 	{
 		$now = $now ?? now();
-		$cutoff = $now->copy()->subMonths(
-			(int) config('aporta.lifecycle.archive_after_months', 9)
-		);
-
 		$archived = 0;
 
-		Application::query()
-			->whereIn('status', [Status::Opened, Status::Extended])
-			->whereRaw('COALESCE(extended_at, opened_at) <= ?', [$cutoff])
+		$this->candidates($now)
 			->chunkById(200, function ($applications) use (&$archived, $now) {
 				foreach ($applications as $application) {
 					$this->transition->execute(
@@ -50,5 +45,20 @@ class ArchiveStale
 			});
 
 		return $archived;
+	}
+
+	/**
+	 * The applications a run at $now would archive (also used by the
+	 * read-only app:lifecycle-preview).
+	 */
+	public function candidates(?CarbonInterface $now = null): Builder
+	{
+		$cutoff = ($now ?? now())->copy()->subMonths(
+			(int) config('aporta.lifecycle.archive_after_months', 9)
+		);
+
+		return Application::query()
+			->whereIn('status', [Status::Opened, Status::Extended])
+			->whereRaw('COALESCE(extended_at, opened_at) <= ?', [$cutoff]);
 	}
 }
