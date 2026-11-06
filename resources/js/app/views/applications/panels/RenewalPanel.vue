@@ -22,11 +22,15 @@ const email = computed(() => props.application.main_applicant?.email || null)
 const canSend = computed(() => props.application.is_renewable && !!email.value)
 const isActive = computed(() => ['opened', 'extended'].includes(props.application.status.value))
 const isArchived = computed(() => props.application.status.value === 'archived')
+// Without rows the list would render only its top and bottom border (a double
+// line); the text then takes the single divider under the title instead.
+const hasRows = computed(() => isActive.value || !!props.application.renewal_link_sent_at)
+const textClass = computed(() => hasRows.value ? 'mt-15' : 'border-t border-black/20 pt-15')
 </script>
 
 <template>
 	<Panel title="Verlängerung">
-		<InfoList>
+		<InfoList v-if="hasRows">
 			<InfoRow v-if="isActive" label="Gültig bis">
 				{{ fmtDate(application.valid_until) }}
 			</InfoRow>
@@ -35,15 +39,15 @@ const isArchived = computed(() => props.application.status.value === 'archived')
 			</InfoRow>
 		</InfoList>
 
-		<p v-if="canSend" class="mt-15 text-sm text-black">
+		<p v-if="canSend" class="text-sm text-black" :class="textClass">
 			Meldet sich die Person, erhält sie per E-Mail einen Link, um ihre Angaben
 			zu prüfen und die Bewerbung zu verlängern<template v-if="isArchived">. Die
 			archivierte Bewerbung wird damit wieder aktiv</template>.
 		</p>
-		<p v-else-if="!application.is_renewable" class="mt-15 text-sm text-gray">
+		<p v-else-if="!application.is_renewable" class="text-sm text-gray" :class="textClass">
 			Bewerbungen mit Status KNIF können nicht per Link verlängert werden.
 		</p>
-		<p v-else class="mt-15 text-sm text-gray">
+		<p v-else class="text-sm text-gray" :class="textClass">
 			Die Hauptperson hat keine E-Mail-Adresse.
 		</p>
 

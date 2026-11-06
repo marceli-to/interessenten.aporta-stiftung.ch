@@ -335,13 +335,13 @@ const title = computed(() => {
 					:application-id="app.id"
 					:notes="app.notes" />
 
+				<HistoryPanel :events="app.status_events" />
+
 				<RenewalPanel
 					v-if="!isTrashed"
 					:application="app"
 					:sending="sendingRenewalLink"
 					:onSend="askRenewalLink" />
-
-				<HistoryPanel :events="app.status_events" />
 
 				<template v-if="isTrashed">
 					<RestorePanel :onRestore="handleRestore" />
