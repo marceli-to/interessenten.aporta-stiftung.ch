@@ -1,7 +1,7 @@
 <x-mail::message>
 Vielen Dank für Ihre Rückmeldung.
 
-Ihre Wohnungsbewerbung (Nr. {{ $application->reference_number }}) wurde verlängert und ist bis am {{ $validUntil }} gültig. Vor Ablauf erhalten Sie wieder eine E-Mail, mit der Sie Ihre Bewerbung verlängern können.
+Ihre Wohnungsbewerbung (Nr. {{ $application->reference_number }}) wurde verlängert und ist bis am {{ $validUntil }} gültig. Sollten Sie danach weiterhin eine Wohnung suchen, melden Sie sich bitte wieder per E-Mail an wohnung@aporta-stiftung.ch oder telefonisch bei uns.
 
 Freundliche Grüsse
 
