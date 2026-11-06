@@ -17,6 +17,8 @@ class Record
 	 * A no-op save (status unchanged) records nothing and returns null: the audit
 	 * log is a trail of real transitions, not of every "Speichern" click. The
 	 * initial intake event is exempt — it is the genesis entry (null → Opened).
+	 * So is a renewal by the applicant ($recordUnchanged): Extended → Extended
+	 * starts a new validity cycle and belongs in the trail.
 	 */
 	public function execute(
 		Application $application,
@@ -26,12 +28,13 @@ class Record
 		?string $reason = null,
 		?CarbonInterface $occurredAt = null,
 		bool $isInitial = false,
+		bool $recordUnchanged = false,
 	): ?StatusEvent {
 		if (! $isInitial && $from === null) {
 			$from = $application->status;
 		}
 
-		if (! $isInitial && $from === $to) {
+		if (! $isInitial && ! $recordUnchanged && $from === $to) {
 			return null;
 		}
 

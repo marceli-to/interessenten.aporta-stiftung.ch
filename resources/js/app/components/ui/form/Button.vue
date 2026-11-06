@@ -11,6 +11,7 @@ import {
 	PhDotsThree,
 	PhArrowsClockwise,
 	PhArrowSquareOut,
+	PhPaperPlaneTilt,
 	PhCircleNotch,
 } from '@phosphor-icons/vue'
 
@@ -25,6 +26,7 @@ const icons = {
 	'dots-three': PhDotsThree,
 	'arrows-clockwise': PhArrowsClockwise,
 	'arrow-square-out': PhArrowSquareOut,
+	'paper-plane-tilt': PhPaperPlaneTilt,
 }
 
 const props = defineProps({

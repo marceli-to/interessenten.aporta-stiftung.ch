@@ -18,6 +18,9 @@ class StatusEventResource extends JsonResource
 			// Null for the intake event (no actor); the panel renders that as
 			// "Über Webformular". Back-office transitions carry the acting user.
 			'actor' => $this->actor?->full_name,
+			// Set for system and applicant transitions, e.g. "Vom Interessenten
+			// per E-Mail bestätigt" or "Automatisch archiviert (Frist abgelaufen)".
+			'reason' => $this->reason,
 			'occurred_at' => $this->occurred_at?->toIso8601String(),
 		];
 	}

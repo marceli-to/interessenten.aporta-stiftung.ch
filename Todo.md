@@ -220,6 +220,39 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
       Tests: `LifecycleAutomationTest` (Archiv-Frist, extended_at-Stichtag, terminale
       Status, System-StatusEvent, Lösch-Frist, ohne archived_at, offene unangetastet).
 
+- [x] **Verlängerung per E-Mail (Link auf Anfrage + Self-Service)**
+      Erledigt (Interessenten-Teil; Formular-Teil auf der Website, Branch
+      `feature/renewal-reminders` in beiden Repos). Entscheide Kunde: **keine
+      automatischen Erinnerungen** (Team-Entscheid 11/2026: sonst bleiben Leute in der
+      Wartedatei, die gar nicht aktiv suchen). Meldet sich jemand per Mail oder Telefon,
+      sendet das Büro den Link aus dem Dashboard. Nur an die **Hauptperson**, Löschen =
+      **endgültig** (forceDelete), beim Aktualisieren ist **alles ausser der E-Mail** der
+      Hauptperson änderbar. 3 Monate Kulanz nach Ablauf bleiben.
+      - Dashboard: Panel „Verlängerung" (Gültig bis, Link gesendet am, Button
+        „Verlängerungslink senden" mit Bestätigung) → `POST
+        /api/dashboard/applications/{id}/renewal-link` → Action
+        `Application\SendRenewalLink`, Job `SendRenewalLink`, Mail `RenewalLink`.
+        Stempel `renewal_link_sent_at` (Activity-Log hält fest, wer); wird bei jeder
+        Änderung von `extended_at` geleert (`Application::booted`). Mehrfach sendbar.
+      - Links: Token `{id}.{zyklus}.{hmac}` (`Support\RenewalToken`), Zyklus = Stichtag.
+        Gültig solange Eröffnet/Verlängert/Archiviert und nicht gelöscht; nach Bestätigen/
+        Aktualisieren automatisch verbraucht (neuer Stichtag).
+      - Landingpages `/verlaengerung/{token}/bestaetigen|loeschen`: GET zeigt nur an,
+        die Aktion läuft erst per POST-Button (Mail-Scanner öffnen Links).
+      - Bestätigen/Aktualisieren → `Application\Renew`: Status Verlängert,
+        `extended_at = now`, StatusEvent ohne Actor mit Grund („Vom Interessenten per
+        E-Mail bestätigt" / „… aktualisiert"), Bestätigungsmail.
+      - Löschen → `Application\Erase`: forceDelete + Activity-Log-Einträge des ganzen
+        Aggregats (enthalten Personendaten), Bestätigungsmail nur mit Referenznummer.
+      - API für die Website (Intake-Key + Token): `GET/PUT /api/v1/renewals/{token}`
+        (Payload im Intake-Format, `Application\RenewalPayload`).
+      - Texte (Eingangsbestätigung, Formular-Hinweis): „melden Sie sich per E-Mail oder
+        telefonisch, Sie erhalten dann einen Link".
+      - Tests: `RenewalTest`.
+      - **Auch archivierte Bewerbungen** können den Link erhalten (Entscheid Kunde
+        11/2026): Bestätigen/Aktualisieren setzt sie wieder auf Verlängert. Kein Link bei
+        KNIF oder gelöschten Bewerbungen (`Application::isRenewable`).
+
 ## 7. Zimmer-/Wohnungsgrösse
 
 - [x] **Zimmerzuteilung: Anzahl Personen ± 1**

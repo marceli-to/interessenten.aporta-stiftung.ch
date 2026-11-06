@@ -12,6 +12,7 @@ export default {
 	bulkExport: (payload) => api.post('/applications/bulk-export', payload, { responseType: 'blob' }),
 	restore: (id) => api.post(`/applications/${id}/restore`),
 	updateStatus: (id, data) => api.put(`/applications/${id}/status`, data),
+	sendRenewalLink: (id) => api.post(`/applications/${id}/renewal-link`),
 
 	storeNote: (id, data) => api.post(`/applications/${id}/notes`, data),
 	updateNote: (id, noteId, data) => api.put(`/applications/${id}/notes/${noteId}`, data),

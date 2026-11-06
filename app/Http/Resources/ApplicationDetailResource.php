@@ -31,6 +31,12 @@ class ApplicationDetailResource extends JsonResource
 			'opened_at' => $this->opened_at?->toIso8601String(),
 			'extended_at' => $this->extended_at?->toIso8601String(),
 			'archived_at' => $this->archived_at?->toIso8601String(),
+			// Renewal link (sent by the office on request): whether one can be
+			// sent, when the current cycle's link went out, and the end of the
+			// 6-month validity.
+			'is_renewable' => $this->isRenewable(),
+			'renewal_link_sent_at' => $this->renewal_link_sent_at?->toIso8601String(),
+			'valid_until' => $this->validUntil()->toIso8601String(),
 			// Non-null when the application is soft-deleted: the detail view shows
 			// the restore panel instead of the delete panel (the "Gelöscht" list
 			// opens trashed rows via the withTrashed show route).

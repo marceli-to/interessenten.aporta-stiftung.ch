@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\Api\Dashboard\ApplicationBulkController;
 use App\Http\Controllers\Api\Dashboard\ApplicationController;
+use App\Http\Controllers\Api\Dashboard\ApplicationRenewalLinkController;
 use App\Http\Controllers\Api\Dashboard\ApplicationStatusController;
 use App\Http\Controllers\Api\Dashboard\CurrentUserController;
 use App\Http\Controllers\Api\Dashboard\NoteController;
 use App\Http\Controllers\Api\Dashboard\UserController;
 use App\Http\Controllers\Api\V1\ApplicationStoreController;
 use App\Http\Controllers\Api\V1\LookupController;
+use App\Http\Controllers\Api\V1\RenewalController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('dashboard')
@@ -30,6 +32,10 @@ Route::prefix('dashboard')
 			});
 
 		Route::put('applications/{application}/status', [ApplicationStatusController::class, 'update']);
+
+		// Email the renewal link to the main applicant (after they got in touch).
+		Route::post('applications/{application}/renewal-link', [ApplicationRenewalLinkController::class, 'store'])
+			->middleware('throttle:10,1');
 
 		// Bulk operations over a selected set (explicit ids or filter + exclusions).
 		Route::post('applications/bulk-delete', [ApplicationBulkController::class, 'destroy']);
@@ -71,4 +77,8 @@ Route::prefix('v1')
 	->middleware(['auth.intake', 'throttle:intake', 'max.body'])
 	->group(function () {
 		Route::post('applications', [ApplicationStoreController::class, 'store'])->name('api.applications.store');
+
+		// Prefilled form on the website (renewal mode), authorized per application by the token.
+		Route::get('renewals/{token}', [RenewalController::class, 'show'])->name('api.renewals.show');
+		Route::put('renewals/{token}', [RenewalController::class, 'update'])->name('api.renewals.update');
 	});

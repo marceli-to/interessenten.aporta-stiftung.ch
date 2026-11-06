@@ -16,6 +16,7 @@ import HousingWishPanel from '@/views/applications/panels/HousingWishPanel.vue'
 import HouseholdPanel from '@/views/applications/panels/HouseholdPanel.vue'
 import NotesPanel from '@/views/applications/panels/NotesPanel.vue'
 import HistoryPanel from '@/views/applications/panels/HistoryPanel.vue'
+import RenewalPanel from '@/views/applications/panels/RenewalPanel.vue'
 import DeletePanel from '@/views/applications/panels/DeletePanel.vue'
 import RestorePanel from '@/views/applications/panels/RestorePanel.vue'
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue'
@@ -140,6 +141,27 @@ async function handleRestore() {
 		router.push({ name: 'applications.index' })
 	} catch {
 		// failure already surfaced as a toast by the axios interceptor
+	}
+}
+
+// Renewal link: sent on request after the applicant got in touch (no automatic
+// reminders). Confirmed through a dialog because it emails the applicant.
+const confirmingRenewalLink = ref(false)
+const sendingRenewalLink = ref(false)
+
+const askRenewalLink = () => { confirmingRenewalLink.value = true }
+
+async function sendRenewalLink() {
+	sendingRenewalLink.value = true
+	try {
+		const { data } = await api.sendRenewalLink(props.id)
+		app.value = data.data
+		toast.success('Verlängerungslink gesendet.')
+	} catch {
+		// failure already surfaced as a toast by the axios interceptor
+	} finally {
+		sendingRenewalLink.value = false
+		confirmingRenewalLink.value = false
 	}
 }
 
@@ -313,6 +335,12 @@ const title = computed(() => {
 					:application-id="app.id"
 					:notes="app.notes" />
 
+				<RenewalPanel
+					v-if="!isTrashed"
+					:application="app"
+					:sending="sendingRenewalLink"
+					:onSend="askRenewalLink" />
+
 				<HistoryPanel :events="app.status_events" />
 
 				<template v-if="isTrashed">
@@ -333,6 +361,16 @@ const title = computed(() => {
 			:destructive="true"
 			@confirm="handleDelete"
 			@cancel="confirmingDelete = false"
+		/>
+
+		<ConfirmDialog
+			:open="confirmingRenewalLink"
+			title="Verlängerungslink senden"
+			:message="`${app.main_applicant?.email} erhält eine E-Mail mit dem Link, um die Angaben zu bestätigen oder anzupassen und die Bewerbung um 6 Monate zu verlängern.`"
+			confirmLabel="Link senden"
+			cancelLabel="Abbrechen"
+			@confirm="sendRenewalLink"
+			@cancel="confirmingRenewalLink = false"
 		/>
 
 		<ConfirmDialog

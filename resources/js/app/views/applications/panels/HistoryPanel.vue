@@ -5,7 +5,8 @@ import Panel from '@/components/ui/panels/Display.vue'
 // The "Verlauf" sidebar panel: the application's status audit trail, newest
 // first (ordered in Application\Show). Read-only — status changes happen in the
 // Info panel. Each event shows the target status label, the date, and who did
-// it; the intake event has no actor and is shown as "Über Webformular".
+// it; events without an actor show their reason (applicant renewal, automatic
+// archiving), the intake event has neither and is shown as "Über Webformular".
 defineProps({
 	events: { type: Array, default: () => [] },
 })
@@ -19,7 +20,7 @@ defineProps({
 					<span class="font-bold text-blue">{{ event.status.label }}</span>
 					<span class="shrink-0 text-sm text-black/50">{{ fmtDate(event.occurred_at) }}</span>
 				</div>
-				<p class="mt-5 text-blue">{{ event.actor ?? 'Über Webformular' }}</p>
+				<p class="mt-5 text-blue">{{ event.actor ?? event.reason ?? 'Über Webformular' }}</p>
 			</div>
 		</div>
 		<p v-else class="border-t border-black/20 pt-15 text-sm text-gray">
