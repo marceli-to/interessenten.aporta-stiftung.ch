@@ -17,7 +17,7 @@ use Illuminate\Console\Command;
  */
 class LifecyclePreview extends Command
 {
-	protected $signature = 'app:lifecycle-preview';
+	protected $signature = 'app:lifecycle-preview {--list : Also list the applications that would be archived}';
 
 	protected $description = 'Read-only: count what the next archive/delete run would affect.';
 
@@ -53,6 +53,25 @@ class LifecyclePreview extends Command
 			$this->newLine();
 			$this->info('Bereits Archivierte, die später gelöscht würden (nach Monat):');
 			$this->table(['Monat', 'Anzahl'], $later->all());
+		}
+
+		if ($this->option('list')) {
+			$rows = (clone $toArchive)
+				->with('mainApplicant:id,application_id,first_name,last_name')
+				->get()
+				->sortBy(fn (Application $a) => $a->renewalReferenceDate())
+				->map(fn (Application $a) => [
+					$a->reference_number,
+					trim($a->mainApplicant?->last_name.' '.$a->mainApplicant?->first_name),
+					$a->status->label(),
+					$a->opened_at->format('d.m.Y'),
+					$a->extended_at?->format('d.m.Y') ?? '–',
+					$a->validUntil()->format('d.m.Y'),
+				]);
+
+			$this->newLine();
+			$this->info('Würden archiviert:');
+			$this->table(['Nr.', 'Name', 'Status', 'Angemeldet', 'Verlängert am', 'Gültig bis'], $rows->all());
 		}
 
 		$this->newLine();
