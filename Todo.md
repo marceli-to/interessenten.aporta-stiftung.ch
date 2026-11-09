@@ -220,6 +220,25 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
       Tests: `LifecycleAutomationTest` (Archiv-Frist, extended_at-Stichtag, terminale
       Status, System-StatusEvent, Lösch-Frist, ohne archived_at, offene unangetastet).
 
+- [ ] **OFFEN: Lifecycle in Prod einschalten (Stand 06.11.2026)**
+      Archivieren + Löschen sind gebaut, liefen in Prod aber **nie**: der Prod-Crontab
+      ruft `queue:work` direkt auf statt `schedule:run` (Queue/E-Mails laufen also,
+      die Nacht-Jobs nicht). Der erste Lauf holt den ganzen Rückstand auf einmal nach.
+      - Vorschau (read-only): `php artisan app:lifecycle-preview [--list]
+        [--csv=$HOME/lifecycle-export]` → Zahlen bzw. `archivieren.csv` /
+        `loeschen.csv` (Excel: UTF-8-BOM, Semikolon). CSV ausserhalb `~/www`
+        schreiben, nach Gebrauch löschen (Personendaten).
+      - Prod 06.11.2026: 2965 aktiv, **42** würden archiviert (alle Verlängert);
+        Anzahl „→ Gelöscht" noch notieren (lokal: alle 1285 Archivierten, wegen
+        `archived_at` = Juli aus der Datenübernahme).
+      - Mail an Corinna (Kundin) mit Zahlen + `archivieren.csv` / `loeschen.csv`
+        (06.11.2026): Neuerungen (Verlängerungslink, auch für Archivierte) + Bitte um
+        OK für die Automatismen. **Wartet auf Einverständnis + Startdatum.**
+      - Danach Crontab-Zeile für Interessenten ersetzen durch
+        `* * * * * cd /home/wibicuke/www/interessenten.aporta-stiftung.ch &&
+        /usr/local/php83/bin/php artisan schedule:run >> storage/logs/scheduler.log 2>&1`
+        (startet auch den Queue-Worker).
+
 - [x] **Verlängerung per E-Mail (Link auf Anfrage + Self-Service)**
       Erledigt (Interessenten-Teil; Formular-Teil auf der Website, Branch
       `feature/renewal-reminders` in beiden Repos). Entscheide Kunde: **keine
@@ -294,8 +313,16 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 
 - Excel-Export: Welche Felder?
 - Copy to Clipboard: Welche Felder?
+- Lifecycle in Prod einschalten: Einverständnis + Startdatum (§6, Mail mit Zahlen/CSVs).
 
 ### Setup Prod: Crontab (zwingend für Queue + Lifecycle)
+
+> **Ist-Zustand Prod (06.11.2026):** Hostpoint, `wibicuke@s128`, App unter
+> `/home/wibicuke/www/interessenten.aporta-stiftung.ch`. CLI-Default ist PHP 8.2 →
+> immer `/usr/local/php83/bin/php` verwenden. Der Crontab ruft aktuell nur
+> `queue:work --stop-when-empty` auf, **nicht** `schedule:run` → Lifecycle läuft
+> nicht (siehe §6 „Lifecycle in Prod einschalten"). Deploy: SSH, `git pull`,
+> `php artisan migrate --force`, `optimize:clear`.
 
 Prod hat **keinen dauerhaften Worker-Prozess**. Der gesamte Scheduler
 (`routes/console.php`) hängt an **einem** Crontab-Eintrag, der jede Minute
