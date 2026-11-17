@@ -91,7 +91,6 @@ class RenewalController extends Controller
 		return view('pages.renewal', [
 			'state' => $state,
 			'token' => $token,
-			'referenceNumber' => $application->reference_number,
 			'validUntil' => $application->validUntil()->format('d.m.Y'),
 			'updateUrl' => config('aporta.renewal.form_url').'?t='.urlencode($token),
 		]);

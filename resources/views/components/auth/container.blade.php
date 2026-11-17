@@ -5,9 +5,9 @@
 				<x-icons.logo class="w-125" />
 			</div>
 			<hr class="border-blue/30 my-20">
-      <div class="px-30">
-			  {{ $slot }}
-      </div>
+			<div class="px-8 pb-12">
+				{{ $slot }}
+			</div>
 		</div>
 	</div>
 </x-layout.guest>

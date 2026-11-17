@@ -37,9 +37,8 @@ class RenewalLink extends Mailable
 			markdown: 'mail.renewal_link',
 			with: [
 				'name' => trim($this->application->mainApplicant?->first_name.' '.$this->application->mainApplicant?->last_name),
-				'confirmUrl' => route('renewal.confirm', $token),
-				'updateUrl' => config('aporta.renewal.form_url').'?t='.urlencode($token),
-				'deleteUrl' => route('renewal.delete', $token),
+				// One link: the landing page offers confirm, update and delete.
+				'url' => route('renewal.confirm', $token),
 			],
 		);
 	}

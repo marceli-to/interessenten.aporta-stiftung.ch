@@ -118,8 +118,8 @@ it('does not send anything automatically', function () {
 		->filter(fn ($event) => str_contains($event->command ?? '', 'renewal')))->toBeEmpty();
 });
 
-it('mails the renewal link with working links to the main applicant', function () {
-	$application = renewableApplication(now()->subMonths(6));
+it('mails a single renewal link to the main applicant, without the reference number', function () {
+	$application = renewableApplication(now()->subMonths(6), ['reference_number' => 987654]);
 	Mail::fake();
 
 	(new SendRenewalLink($application->id))->handle();
@@ -130,8 +130,8 @@ it('mails the renewal link with working links to the main applicant', function (
 
 		return $mail->hasTo('redalaafif@gmail.com')
 			&& str_contains($html, route('renewal.confirm', $token))
-			&& str_contains($html, route('renewal.delete', $token))
-			&& str_contains($html, '?t='.$token);
+			&& ! str_contains($html, route('renewal.delete', $token))
+			&& ! str_contains($html, (string) $application->reference_number);
 	});
 });
 
@@ -153,10 +153,14 @@ it('rejects tampered tokens and tokens of a previous cycle', function () {
 /* -------------------------------------------------------------- landing page */
 
 it('does not change anything when a link is only opened', function () {
-	$application = renewableApplication(now()->subMonths(6));
+	$application = renewableApplication(now()->subMonths(6), ['reference_number' => 987654]);
 	$token = RenewalToken::for($application);
 
-	$this->get(route('renewal.confirm', $token))->assertOk()->assertSee('Angaben bestätigen');
+	$this->get(route('renewal.confirm', $token))->assertOk()
+		->assertSee('Angaben bestätigen')
+		->assertSee('?t='.$token, false)
+		->assertSee(route('renewal.delete', $token), false)
+		->assertDontSee((string) $application->reference_number);
 	$this->get(route('renewal.delete', $token))->assertOk()->assertSee('endgültig löschen');
 
 	$application->refresh();

@@ -1,11 +1,7 @@
 <x-mail::message>
-Vielen Dank für Ihre Rückmeldung.
+Vielen Dank. Ihre Wohnungsbewerbung wurde um weitere 6 Monate verlängert und ist bis am {{ $validUntil }} gültig.
 
-Ihre Wohnungsbewerbung (Nr. {{ $application->reference_number }}) wurde verlängert und ist bis am {{ $validUntil }} gültig. Sollten Sie danach weiterhin eine Wohnung suchen, melden Sie sich bitte wieder per E-Mail an wohnung@aporta-stiftung.ch oder telefonisch bei uns.
+Sollten Sie danach weiterhin eine Wohnung suchen, melden Sie sich bitte wieder per E-Mail an wohnung@aporta-stiftung.ch oder telefonisch bei uns.
 
-Freundliche Grüsse
-
-Dr. Stephan à Porta-Stiftung<br>
-Kreuzstrasse 31<br>
-8008 Zürich
+@include('mail.partials.signature')
 </x-mail::message>
