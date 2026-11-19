@@ -228,12 +228,12 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
         [--csv=$HOME/lifecycle-export]` → Zahlen bzw. `archivieren.csv` /
         `loeschen.csv` (Excel: UTF-8-BOM, Semikolon). CSV ausserhalb `~/www`
         schreiben, nach Gebrauch löschen (Personendaten).
-      - Prod 06.11.2026: 2965 aktiv, **42** würden archiviert (alle Verlängert);
-        Anzahl „→ Gelöscht" noch notieren (lokal: alle 1285 Archivierten, wegen
-        `archived_at` = Juli aus der Datenübernahme).
+      - Prod 06.11.2026: 2965 aktiv, **42** würden archiviert (alle Verlängert),
+        **1282** Archivierte → Gelöscht (wegen `archived_at` = Juli aus der
+        Datenübernahme).
       - Mail an Corinna (Kundin) mit Zahlen + `archivieren.csv` / `loeschen.csv`
-        (06.11.2026): Neuerungen (Verlängerungslink, auch für Archivierte) + Bitte um
-        OK für die Automatismen. **Wartet auf Einverständnis + Startdatum.**
+        (06.11.2026), am 17.11.2026 nochmals nachgefragt. **Wartet auf Einverständnis
+        + Startdatum.** Vor dem Einschalten Vorschau nochmals laufen lassen.
       - Danach Crontab-Zeile für Interessenten ersetzen durch
         `* * * * * cd /home/wibicuke/www/interessenten.aporta-stiftung.ch &&
         /usr/local/php83/bin/php artisan schedule:run >> storage/logs/scheduler.log 2>&1`
@@ -271,6 +271,15 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
       - **Auch archivierte Bewerbungen** können den Link erhalten (Entscheid Kunde
         11/2026): Bestätigen/Aktualisieren setzt sie wieder auf Verlängert. Kein Link bei
         KNIF oder gelöschten Bewerbungen (`Application::isRenewable`).
+      - **Rückmeldung Kunde 17.11.2026, umgesetzt** (beide Repos auf master):
+        Link-Mail mit Text der Kundin und **einem** Link auf die Landingpage
+        (dort Bestätigen = primär, Aktualisieren = outline, Löschen als Textlink).
+        **Referenznummer für Bewerbende überall ausgeblendet** (Mails, Landingpages,
+        Formular), damit sie nicht als Wartelisten-Position verstanden wird; nur
+        noch im Dashboard und im internen Eingangs-Mail. Gemeinsame Signatur
+        (`mail/partials/signature`) mit Telefon + Website in allen Bewerbenden-Mails.
+      - Alle Texte des Ablaufs an Corinna geschickt (19.11.2026) für das **finale OK
+        des Teams**. Noch nicht in Prod deployt.
 
 ## 7. Zimmer-/Wohnungsgrösse
 
@@ -314,6 +323,10 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 - Excel-Export: Welche Felder?
 - Copy to Clipboard: Welche Felder?
 - Lifecycle in Prod einschalten: Einverständnis + Startdatum (§6, Mail mit Zahlen/CSVs).
+- Verlängerung: finales OK des Teams zu den Texten (19.11.2026 geschickt), dann Deploy
+  beider Repos (Interessenten + Website).
+- Anmeldeformular: Frage nach dem **Auto**, Textvorschlag der Kundin folgt. Bestehende
+  Bewerbungen bleiben ohne Angabe, bis sie beim Verlängern aktualisiert werden.
 
 ### Setup Prod: Crontab (zwingend für Queue + Lifecycle)
 
