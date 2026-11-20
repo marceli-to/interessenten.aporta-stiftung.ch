@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Application\Erase;
 use App\Actions\Application\Renew;
-use App\Mail\ApplicationErased;
 use App\Support\RenewalToken;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 /**
@@ -38,32 +34,6 @@ class RenewalController extends Controller
 			'state' => 'confirmed',
 			'valid_until' => $application->validUntil()->format('d.m.Y'),
 		]);
-	}
-
-	public function delete(string $token): View
-	{
-		return $this->page('delete', $token);
-	}
-
-	public function storeDelete(string $token, Erase $erase): RedirectResponse|View
-	{
-		$application = RenewalToken::resolve($token);
-		if (! $application) {
-			return $this->invalid();
-		}
-
-		$referenceNumber = $application->reference_number;
-		$email = $application->mainApplicant?->email;
-
-		$erase->execute($application);
-
-		Log::info('Application erased by applicant', ['reference_number' => $referenceNumber]);
-
-		if ($email) {
-			Mail::to($email)->queue(new ApplicationErased($referenceNumber));
-		}
-
-		return redirect()->route('renewal.done')->with('renewal', ['state' => 'deleted']);
 	}
 
 	/**

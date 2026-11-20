@@ -16,8 +16,6 @@ Route::prefix('verlaengerung')
 
 		Route::get('{token}/bestaetigen', 'confirm')->name('renewal.confirm');
 		Route::post('{token}/bestaetigen', 'storeConfirm')->name('renewal.confirm.store');
-		Route::get('{token}/loeschen', 'delete')->name('renewal.delete');
-		Route::post('{token}/loeschen', 'storeDelete')->name('renewal.delete.store');
 	});
 
 Route::middleware('auth')->group(function () {

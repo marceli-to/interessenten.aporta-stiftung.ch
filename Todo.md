@@ -239,14 +239,15 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
         /usr/local/php83/bin/php artisan schedule:run >> storage/logs/scheduler.log 2>&1`
         (startet auch den Queue-Worker).
 
-- [x] **Verlängerung per E-Mail (Link auf Anfrage + Self-Service)**
+- [x] **Verlängerung per E-Mail (Link auf Anfrage)**
       Erledigt (Interessenten-Teil; Formular-Teil auf der Website, Branch
       `feature/renewal-reminders` in beiden Repos). Entscheide Kunde: **keine
       automatischen Erinnerungen** (Team-Entscheid 11/2026: sonst bleiben Leute in der
       Wartedatei, die gar nicht aktiv suchen). Meldet sich jemand per Mail oder Telefon,
-      sendet das Büro den Link aus dem Dashboard. Nur an die **Hauptperson**, Löschen =
-      **endgültig** (forceDelete), beim Aktualisieren ist **alles ausser der E-Mail** der
-      Hauptperson änderbar. 3 Monate Kulanz nach Ablauf bleiben.
+      sendet das Büro den Link aus dem Dashboard. Nur an die **Hauptperson**. Beim
+      Aktualisieren ist alles änderbar, auch die E-Mail der Hauptperson (neue Adresse
+      muss im Formular doppelt eingegeben werden). Kein Self-Service-Löschen (Rückmeldung
+      Kunde 20.11.2026). 3 Monate Kulanz nach Ablauf bleiben.
       - Dashboard: Panel „Verlängerung" (Gültig bis, Link gesendet am, Button
         „Verlängerungslink senden" mit Bestätigung) → `POST
         /api/dashboard/applications/{id}/renewal-link` → Action
@@ -256,13 +257,13 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
       - Links: Token `{id}.{zyklus}.{hmac}` (`Support\RenewalToken`), Zyklus = Stichtag.
         Gültig solange Eröffnet/Verlängert/Archiviert und nicht gelöscht; nach Bestätigen/
         Aktualisieren automatisch verbraucht (neuer Stichtag).
-      - Landingpages `/verlaengerung/{token}/bestaetigen|loeschen`: GET zeigt nur an,
-        die Aktion läuft erst per POST-Button (Mail-Scanner öffnen Links).
+      - Landingpage `/verlaengerung/{token}/bestaetigen`: GET zeigt nur an, die Aktion
+        läuft erst per POST-Button (Mail-Scanner öffnen Links). Danach Danke-Seite mit
+        Gültig-bis und Hinweis „danach wieder melden" (ersetzt die Bestätigungsmail).
       - Bestätigen/Aktualisieren → `Application\Renew`: Status Verlängert,
         `extended_at = now`, StatusEvent ohne Actor mit Grund („Vom Interessenten per
-        E-Mail bestätigt" / „… aktualisiert"), Bestätigungsmail.
-      - Löschen → `Application\Erase`: forceDelete + Activity-Log-Einträge des ganzen
-        Aggregats (enthalten Personendaten), Bestätigungsmail nur mit Referenznummer.
+        E-Mail bestätigt" / „… aktualisiert"). **Keine Bestätigungsmail** mehr; der
+        Text steht auf der Danke-Seite bzw. in der Erfolgsmeldung des Formulars.
       - API für die Website (Intake-Key + Token): `GET/PUT /api/v1/renewals/{token}`
         (Payload im Intake-Format, `Application\RenewalPayload`).
       - Texte (Eingangsbestätigung, Formular-Hinweis): „melden Sie sich per E-Mail oder
@@ -273,13 +274,18 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
         KNIF oder gelöschten Bewerbungen (`Application::isRenewable`).
       - **Rückmeldung Kunde 17.11.2026, umgesetzt** (beide Repos auf master):
         Link-Mail mit Text der Kundin und **einem** Link auf die Landingpage
-        (dort Bestätigen = primär, Aktualisieren = outline, Löschen als Textlink).
+        (dort Bestätigen = primär, Aktualisieren = outline).
         **Referenznummer für Bewerbende überall ausgeblendet** (Mails, Landingpages,
         Formular), damit sie nicht als Wartelisten-Position verstanden wird; nur
         noch im Dashboard und im internen Eingangs-Mail. Gemeinsame Signatur
         (`mail/partials/signature`) mit Telefon + Website in allen Bewerbenden-Mails.
       - Alle Texte des Ablaufs an Corinna geschickt (19.11.2026) für das **finale OK
         des Teams**. Noch nicht in Prod deployt.
+      - **Rückmeldung Kunde 20.11.2026, umgesetzt:** Wiederholung auf der Landingpage
+        gestrichen; Self-Service-Löschen komplett entfernt (`Erase`, Mails, Routen);
+        Bestätigungsmail entfernt (Text auf Seite/Formular); E-Mail im Formular
+        änderbar mit Bestätigungsfeld (Website prüft `same:`, Backend übernimmt
+        die neue Adresse in `Renew`).
 
 ## 7. Zimmer-/Wohnungsgrösse
 
@@ -323,7 +329,7 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 - Excel-Export: Welche Felder?
 - Copy to Clipboard: Welche Felder?
 - Lifecycle in Prod einschalten: Einverständnis + Startdatum (§6, Mail mit Zahlen/CSVs).
-- Verlängerung: finales OK des Teams zu den Texten (19.11.2026 geschickt), dann Deploy
+- Verlängerung: Antwort auf Rückmeldung vom 20.11.2026 (umgesetzt, an Kundin geschickt), dann Deploy
   beider Repos (Interessenten + Website).
 - Anmeldeformular: Frage nach dem **Auto**, Textvorschlag der Kundin folgt. Bestehende
   Bewerbungen bleiben ohne Angabe, bis sie beim Verlängern aktualisiert werden.
