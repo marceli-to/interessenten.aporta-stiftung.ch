@@ -4,6 +4,7 @@ namespace App\Actions\Application;
 
 use App\Actions\Status\Record;
 use App\Enums\Status;
+use App\Jobs\SendRenewalConfirmation;
 use App\Models\Application;
 use Illuminate\Support\Facades\DB;
 
@@ -24,8 +25,8 @@ class Renew
 	 * extended_at — which starts the next validity cycle, clears "link sent"
 	 * and invalidates all renewal links of the previous cycle.
 	 *
-	 * The main applicant may change their email address here; the website form
-	 * makes them type a new address twice.
+	 * The main applicant's email is not editable here: it is the address the
+	 * renewal link goes to, so a change has to go through the office.
 	 *
 	 * Always writes a StatusEvent (even Extended → Extended) without an actor,
 	 * so the Verlauf shows the renewal and its reason.
@@ -34,6 +35,9 @@ class Renew
 	{
 		DB::transaction(function () use ($application, $data) {
 			if ($data !== null) {
+				$application->loadMissing('mainApplicant');
+				$data['main_applicant']['email'] = $application->mainApplicant?->email;
+
 				$this->update->execute($application, $data);
 				$application->refresh();
 			}
@@ -50,6 +54,8 @@ class Renew
 			$application->extended_at = now();
 			$application->save();
 		});
+
+		SendRenewalConfirmation::dispatch($application->id);
 
 		return $application;
 	}

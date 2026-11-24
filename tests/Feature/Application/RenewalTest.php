@@ -3,6 +3,8 @@
 use App\Actions\Application\Store;
 use App\Enums\Status;
 use App\Jobs\SendRenewalLink;
+use App\Mail\ApplicationErased;
+use App\Mail\RenewalConfirmation;
 use App\Mail\RenewalLink;
 use App\Models\Application;
 use App\Models\StatusEvent;
@@ -12,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use Spatie\Activitylog\Models\Activity;
 
 beforeEach(function () {
 	Carbon::setTestNow('2026-10-06T08:00:00Z');
@@ -127,6 +130,7 @@ it('mails a single renewal link to the main applicant, without the reference num
 
 		return $mail->hasTo('redalaafif@gmail.com')
 			&& str_contains($html, route('renewal.confirm', $token))
+			&& ! str_contains($html, route('renewal.delete', $token))
 			&& ! str_contains($html, (string) $application->reference_number);
 	});
 });
@@ -155,7 +159,9 @@ it('does not change anything when a link is only opened', function () {
 	$this->get(route('renewal.confirm', $token))->assertOk()
 		->assertSee('Angaben bestätigen')
 		->assertSee('?t='.$token, false)
+		->assertSee(route('renewal.delete', $token), false)
 		->assertDontSee((string) $application->reference_number);
+	$this->get(route('renewal.delete', $token))->assertOk()->assertSee('endgültig löschen');
 
 	$application->refresh();
 	expect($application->status)->toBe(Status::Opened);
@@ -175,7 +181,7 @@ it('extends the application when the applicant confirms', function () {
 	expect($application->extended_at->toDateString())->toBe(now()->toDateString());
 	expect(StatusEvent::where('application_id', $application->id)->latest('id')->first()->reason)
 		->toBe('Vom Interessenten per E-Mail bestätigt');
-	Mail::assertNothingOutgoing();
+	Mail::assertSent(RenewalConfirmation::class);
 
 	// The link is used up.
 	$this->post(route('renewal.confirm.store', $token))->assertSee('Link nicht mehr gültig');
@@ -191,6 +197,20 @@ it('records a renewal of an already extended application', function () {
 
 	expect(StatusEvent::where('application_id', $application->id)->where('to_status', 'extended')->count())->toBe(1);
 	expect($application->fresh()->extended_at->toDateString())->toBe(now()->toDateString());
+});
+
+it('permanently deletes the application and its activity log on request', function () {
+	$application = renewableApplication(now()->subMonths(6));
+	$applicantId = $application->mainApplicant->id;
+	Mail::fake();
+
+	$this->post(route('renewal.delete.store', RenewalToken::for($application)))
+		->assertRedirect(route('renewal.done'));
+
+	expect(Application::withTrashed()->find($application->id))->toBeNull();
+	expect(Activity::where('subject_type', (new Application())->getMorphClass())->where('subject_id', $application->id)->exists())->toBeFalse();
+	expect(Activity::where('subject_type', (new App\Models\Applicant())->getMorphClass())->where('subject_id', $applicantId)->exists())->toBeFalse();
+	Mail::assertQueued(ApplicationErased::class, fn ($mail) => $mail->hasTo('redalaafif@gmail.com'));
 });
 
 it('reactivates an archived application when the applicant confirms', function () {
@@ -213,7 +233,7 @@ it('shows the invalid page for KNIF and deleted applications', function () {
 	$knif->update(['status' => Status::Knif]);
 
 	$this->get(route('renewal.confirm', $knifToken))->assertSee('Link nicht mehr gültig');
-	$this->post(route('renewal.confirm.store', $knifToken))->assertSee('Link nicht mehr gültig');
+	$this->post(route('renewal.delete.store', $knifToken))->assertSee('Link nicht mehr gültig');
 	expect(Application::find($knif->id))->not->toBeNull();
 
 	$trashed = renewableApplication(now()->subMonths(6));
@@ -246,7 +266,7 @@ it('returns the application in the intake payload shape', function () {
 	expect($response->json('data.housing_wish'))->not->toHaveKey('rooms');
 });
 
-it('updates and extends the application, including the main email', function () {
+it('updates and extends the application, keeping the main email', function () {
 	$application = renewableApplication(now()->subMonths(6));
 	$token = RenewalToken::for($application);
 	Mail::fake();
@@ -265,7 +285,7 @@ it('updates and extends the application, including the main email', function () 
 	expect($application->status)->toBe(Status::Extended);
 	expect($application->max_gross_rent)->toBe('1900.00');
 	expect($application->mainApplicant->city)->toBe('Winterthur');
-	expect($application->mainApplicant->email)->toBe('someone-else@example.com');
+	expect($application->mainApplicant->email)->toBe('redalaafif@gmail.com');
 	expect(StatusEvent::where('application_id', $application->id)->latest('id')->first()->reason)
 		->toBe('Vom Interessenten aktualisiert');
 
