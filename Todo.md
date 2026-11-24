@@ -329,8 +329,10 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 - Excel-Export: Welche Felder?
 - Copy to Clipboard: Welche Felder?
 - Lifecycle in Prod einschalten: Einverständnis + Startdatum (§6, Mail mit Zahlen/CSVs).
-- Verlängerung: Kundin möchte die Texte nochmals (24.11.2026), dann Deploy beider
-  Repos (Interessenten + Website).
+- Verlängerung: Rücknahme umgesetzt und gepusht (24.11.2026), alle Texte des Ablaufs
+  zusammengestellt (Verlaengerung-Texte.txt) für Corinna. Nach ihrem OK Deploy beider
+  Repos (Interessenten + Website). In derselben Mail offen: ab wann die erweiterten
+  Gesuchsformulare laufen (Gesuche bis Ende Monat).
 - Anmeldeformular: Frage nach dem **Auto**, Textvorschlag der Kundin folgt. Bestehende
   Bewerbungen bleiben ohne Angabe, bis sie beim Verlängern aktualisiert werden.
 
