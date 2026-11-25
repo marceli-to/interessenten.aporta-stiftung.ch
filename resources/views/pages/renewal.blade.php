@@ -17,7 +17,7 @@
 			<x-auth.header title="Bewerbung löschen" />
 			<div class="space-y-15 text-lg text-blue text-pretty">
 				<p>Möchten Sie Ihre Wohnungsbewerbung wirklich löschen?</p>
-				<p>Alle Ihre Angaben werden endgültig gelöscht. Das kann nicht rückgängig gemacht werden.</p>
+				<p>Alle Ihre Angaben werden somit endgültig gelöscht.</p>
 			</div>
 			<form method="POST" action="{{ route('renewal.delete.store', $token) }}" class="flex flex-col items-center gap-20 mt-30">
 				@csrf
