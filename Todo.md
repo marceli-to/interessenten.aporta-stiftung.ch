@@ -286,6 +286,12 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
         (Kundin 24.11.2026: Bestätigungsmail bleibt, „in Ruhe nachlesen"; Löschen darf
         bleiben; E-Mail bleibt gesperrt). Übrig bleibt nur: Wiederholung auf der
         Landingpage gestrichen.
+      - Textkorrekturen Kundin 24.11.2026 (umgesetzt 25.11., `ea746ee`): Löschseite
+        „Alle Ihre Angaben werden somit endgültig gelöscht." (Satz „Das kann nicht
+        rückgängig gemacht werden." gestrichen, Lesart ihres Vermerks „löschen");
+        Löschbestätigungsmail ohne „erneut bei uns bewerben". Texte erneut als
+        `aporta-verlaengerung-texte.txt` zusammengestellt; Kundin prüft mit dem
+        Bewirtschaftungsteam.
 
 ## 7. Zimmer-/Wohnungsgrösse
 
@@ -329,10 +335,10 @@ synchrone Export nutzt sie via `->onLambda()` in Prod).
 - Excel-Export: Welche Felder?
 - Copy to Clipboard: Welche Felder?
 - Lifecycle in Prod einschalten: Einverständnis + Startdatum (§6, Mail mit Zahlen/CSVs).
-- Verlängerung: Rücknahme umgesetzt und gepusht (24.11.2026), alle Texte des Ablaufs
-  zusammengestellt (Verlaengerung-Texte.txt) für Corinna. Nach ihrem OK Deploy beider
-  Repos (Interessenten + Website). In derselben Mail offen: ab wann die erweiterten
-  Gesuchsformulare laufen (Gesuche bis Ende Monat).
+- Verlängerung: Textkorrekturen der Kundin umgesetzt und gepusht (25.11.2026), Texte
+  erneut zusammengestellt (aporta-verlaengerung-texte.txt) zum Versand an Corinna; sie
+  prüft mit dem Bewirtschaftungsteam. Nach ihrem OK Deploy beider Repos
+  (Interessenten + Website). (Gesuchsformulare: online seit 24.11., 48h-Fenster.)
 - Anmeldeformular: Frage nach dem **Auto**, Textvorschlag der Kundin folgt. Bestehende
   Bewerbungen bleiben ohne Angabe, bis sie beim Verlängern aktualisiert werden.
 
